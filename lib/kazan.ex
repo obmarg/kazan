@@ -1,0 +1,2 @@
+defmodule Kazan do
+end
