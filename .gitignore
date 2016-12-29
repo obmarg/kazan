@@ -15,3 +15,7 @@ erl_crash.dump
 
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
+
+# Ignore mix.lock since we are a library, and want CI to run tests against
+# latest dependencies.
+mix.lock
