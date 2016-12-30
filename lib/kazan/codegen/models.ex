@@ -15,15 +15,7 @@ defmodule Kazan.Codegen.Models do
   serializers/deserializers for each of the structs.
   """
   defmacro from_spec(spec_file) do
-    models =
-      spec_file
-      |> File.read!
-      |> Poison.decode!
-      |> Map.get("definitions")
-      |> Enum.filter(fn {_, model} -> Map.has_key?(model, "properties") end)
-      |> Enum.map(&ModelDesc.from_oai_desc/1)
-      |> Enum.map(fn (desc) -> {desc.module_name, desc} end)
-      |> Enum.into(%{})
+    models = parse_models(spec_file)
 
     spec_forms = for {module_name, desc} <- models do
       property_names = Map.keys(desc.properties)
@@ -71,6 +63,34 @@ defmodule Kazan.Codegen.Models do
   @spec property_name(String.t) :: atom
   def property_name(str) do
     str |> Macro.underscore |> String.to_atom
+  end
+
+  @spec parse_models(String.t) :: [ModelDesc.t]
+  defp parse_models(spec_file) do
+    definitions =
+      spec_file
+      |> File.read!
+      |> Poison.decode!
+      |> Map.get("definitions")
+
+    # Most of the top-level definitions in the kube spec are models.
+    # However, there are a few that are used in $ref statements to define common
+    # property types instead.
+    # We can tell these apart by whether or not they have "properties" or not.
+    is_model = fn {_, model} -> Map.has_key?(model, "properties") end
+
+    refs =
+      definitions
+      |> Enum.reject(is_model)
+      |> Enum.map(fn {name, data} -> {module_name(name), data} end)
+      |> Enum.into(%{})
+
+    models =
+      definitions
+      |> Enum.filter(is_model)
+      |> Enum.map(&ModelDesc.from_oai_desc(&1, refs))
+      |> Enum.map(fn (desc) -> {desc.module_name, desc} end)
+      |> Enum.into(%{})
   end
 
   @spec model_docs(String.t, ModelDesc.property_map) :: String.t

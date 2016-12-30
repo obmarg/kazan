@@ -97,6 +97,14 @@ defmodule KazanModelsTest do
         metadata: nil
       }
     end
+
+    test "that we can encode models with non-model $refs" do
+      {:ok, result} = Models.decode(
+        %{"startedAt" => "2016-02-29T12:30:30.120+00:00"},
+        Models.V1.ContainerStateRunning
+      )
+      assert result
+    end
   end
 
   describe "Model.encode" do
