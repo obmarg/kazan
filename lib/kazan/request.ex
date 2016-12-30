@@ -32,6 +32,7 @@ defmodule Kazan.Request do
     end
   end
 
+  # Checks that we have all the expected parameters for our request.
   @spec validate_request(String.t, Map.t) :: {:ok, Map.t} | {:err, term}
   defp validate_request(operation, params) do
     operation = @op_map[operation]
