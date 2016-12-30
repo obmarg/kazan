@@ -3,14 +3,16 @@ defmodule Kazan.Request do
   Kazan.Request is a struct that describes an HTTP request.
   """
 
-  defstruct [:method, :url, :query_params, :body]
+  defstruct [:method, :path, :query_params, :body]
 
   @type t :: %__MODULE__{
     method: String.t,
-    url: String.t,
+    path: String.t,
     query_params: Map.t,
     body: String.t
   }
+
+  @op_map File.read!("kube_specs/swagger.json") |> Poison.decode! |> Kazan.Swagger.swagger_to_op_map
 
   @doc """
   Creates a kazan request for a given operation.
@@ -18,13 +20,11 @@ defmodule Kazan.Request do
   ### Parameters
 
   - `operation` should be the nickname of an operation found in the swagger dict
-  - `swagger_dict` should be a swagger dictionary for a kube API.
   - `params` should be a Map of parameters to send in the request.
   """
-  @spec create(atom, Map.t, Map.t) :: {:ok, Map.t} | {:error, atom}
-  def create(operation, swagger_dict, params) do
-    op_map = swagger_to_op_map(swagger_dict)
-    case validate_request(operation, op_map, params) do
+  @spec create(atom, Map.t) :: {:ok, Map.t} | {:error, atom}
+  def create(operation, params) do
+    case validate_request(operation, params) do
       {:ok, op} ->
         {:ok, build_request(op, params)}
       {:err, _} = err ->
@@ -32,9 +32,9 @@ defmodule Kazan.Request do
     end
   end
 
-  @spec validate_request(String.t, Map.t, Map.t) :: {:ok, Map.t} | {:err, term}
-  defp validate_request(operation, op_map, params) do
-    operation = op_map[operation]
+  @spec validate_request(String.t, Map.t) :: {:ok, Map.t} | {:err, term}
+  defp validate_request(operation, params) do
+    operation = @op_map[operation]
     if operation != nil do
       operation
       |> Map.get("parameters", [])
@@ -51,27 +51,27 @@ defmodule Kazan.Request do
   end
 
   @spec build_request(Map.t, Map.t) :: __MODULE__.t
-  defp build_request(operation_map, params) do
+  defp build_request(operation, params) do
     param_groups = Enum.group_by(
-      operation_map["parameters"],
-      fn (param) -> param["paramType"] end
+      operation["parameters"],
+      fn (param) -> param["in"] end
     )
 
     %__MODULE__{
-      method: operation_map["method"],
-      url: build_url(operation_map["path"], param_groups, params),
+      method: operation["method"],
+      path: build_path(operation["path"], param_groups, params),
       query_params: build_query_params(param_groups, params),
       body: build_body(param_groups, params)
     }
   end
 
-  @spec build_url(String.t, Map.t, Map.t) :: String.t
-  defp build_url(url, param_groups, params) do
+  @spec build_path(String.t, Map.t, Map.t) :: String.t
+  defp build_path(path, param_groups, params) do
     path_params = Map.get(param_groups, "path", [])
 
-    Enum.reduce(path_params, url, fn (param, url) ->
+    Enum.reduce(path_params, path, fn (param, path) ->
       name = param["name"]
-      String.replace(url, "{#{name}}", params[name])
+      String.replace(path, "{#{name}}", params[name])
     end)
   end
 
@@ -95,21 +95,5 @@ defmodule Kazan.Request do
       _others ->
         raise "More than one body param in swagger operation spec..."
     end
-  end
-
-  # Takes a swagger dictionary and builds a map of
-  # operation_name => operation
-  # TODO: Typespec this function.
-  def swagger_to_op_map(swagger_map) do
-    swagger_map["apis"]
-    |> Enum.flat_map(fn (api) ->
-      Enum.map(api["operations"], fn (op) ->
-        Map.put(op, "path", api["path"])
-      end)
-    end)
-    |> Enum.map(fn (operation) ->
-      {operation["nickname"], operation}
-    end)
-    |> Enum.into(%{})
   end
 end
