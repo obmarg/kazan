@@ -7,7 +7,15 @@ defmodule Kazan.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+
+     # Docs
+     name: "Kazan",
+     source_url: "https://github.com/obmarg/kazan",
+     homepage_url: "https://github.com/obmarg/kazan",
+     docs: [main: "README",
+            extras: ["README.md"]]
+    ]
   end
 
   # Configuration for the OTP application
@@ -28,6 +36,7 @@ defmodule Kazan.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [{:poison, "~> 3.0"},
-     {:httpoison, "~> 0.10.0"}]
+     {:httpoison, "~> 0.10.0"},
+     {:ex_doc, "~> 0.14", only: :dev}]
   end
 end

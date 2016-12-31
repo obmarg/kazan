@@ -2,9 +2,10 @@ defmodule Kazan.Models do
   @moduledoc """
   Contains generated structs for all Kube models as defined in the OAI specs.
 
-  Also contains tools for serializing & deserializing these generated structs.
+  Each namespace underneath Kazan.Models represents a single struct as used by
+  the Kubernetes API.
 
-  See Kazan.Codegen for the actual code generation details.
+  Also contains functions for serializing & deserializing these generated structs.
   """
   require Kazan.Codegen.Models
   alias Kazan.Codegen

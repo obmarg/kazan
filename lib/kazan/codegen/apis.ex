@@ -236,7 +236,7 @@ defmodule Kazan.Codegen.Apis do
   ### Parameters
 
   <%= for param <- parameters do %>
-  * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= param.schema %>`. <% end %> <% end %>
+  * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= doc_ref(param.schema) %>`. <% end %> <% end %>
   <% end %>
 
   <%= unless Enum.empty?(options) do %>
@@ -251,17 +251,25 @@ defmodule Kazan.Codegen.Apis do
   <%= if response_schema do %>
   ### Response
 
-  See `<%= response_schema %>`
+  See `<%= doc_ref(response_schema) %>`
   <% end %>
 
   """, [:description, :parameters, :options, :response_schema])
 
   defp module_doc(module_name) do
+    module_name =
+      module_name |> Atom.to_string |> String.split(".") |> List.last
     """
     Contains functions for the #{module_name} API.
 
     Each of these functions will output a Kazan.Request suitable for passing to
     Kazan.Client.
     """
+  end
+
+  # Strips the `Elixir.` prefix from an atom for use in documentation.
+  # Atoms will not be linked if they include the Elixir. prefix.
+  defp doc_ref(str) do
+    str |> Atom.to_string |> String.replace(~r/^Elixir./, "")
   end
 end

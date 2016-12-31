@@ -1,13 +1,25 @@
 defmodule Kazan.Client do
   @moduledoc """
-  Kazan.Client is responsible for actually sending requests to a kubernetes
-  server.
+  Kazan.Client sends requests to a kubernetes server.
+
+  These requests should be built using the functions in the `Kazan.Apis` module.
   """
   alias Kazan.{Request, Server}
 
   # TODO: Tests of this (somehow) would be good.
   # Mock API server?
-  @spec run(Request.t, Keyword.t) :: {:ok, Map.t} | {:err, term}
+  @doc """
+  Makes a request against a kube server.
+
+  The server should be set in the kazan config or provided in the options.
+
+  ### Options
+
+  * `server` - A `Kazan.Server` struct that defines which server we should send
+    this request to. This will override any server provided in the Application
+    config.
+  """
+  @spec run(Request.t, Keyword.t) :: {:ok, struct} | {:err, term}
   def run(request, options \\ []) do
     server = find_server(options)
 
@@ -26,7 +38,10 @@ defmodule Kazan.Client do
          do: {:ok, model}
   end
 
-  @spec run!(Request.t, Keyword.t) :: Map.t | no_return
+  @doc """
+  Like `run/2`, but raises on Error.  See `run/2` for more details.
+  """
+  @spec run!(Request.t, Keyword.t) :: struct | no_return
   def run!(request, options \\ []) do
     case run(request, options) do
       {:ok, result} -> result

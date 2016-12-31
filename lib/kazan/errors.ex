@@ -1,6 +1,6 @@
 defmodule Kazan.RemoteError do
   @moduledoc """
-  An exception that will be raised when we get an error from a Kube server.
+  Raised when we get an error from a Kube server.
   """
   defexception [:reason]
 
@@ -11,7 +11,7 @@ end
 
 defmodule Kazan.BuildRequestError do
   @moduledoc """
-  An exception that will be raised when we get an error from a Kube server.
+  Raised when we get an error from a Kube server.
   """
   defexception [:reason, :operation]
 

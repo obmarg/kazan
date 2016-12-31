@@ -110,6 +110,12 @@ defmodule Kazan.Codegen.Models do
   ### Properties
 
   <%= for {name, property} <- properties do %>
-  * `<%= name %>` - <%= property.description %> <%= if property.ref do %> See `<%= property.ref %>`. <% end %> <% end %>
+  * `<%= name %>` - <%= property.description %> <%= if property.ref do %> See `<%= doc_ref(property.ref) %>`. <% end %> <% end %>
   """, [:model_description, :properties])
+
+  # Strips the `Elixir.` prefix from an atom for use in documentation.
+  # Atoms will not be linked if they include the Elixir. prefix.
+  defp doc_ref(str) do
+    str |> Atom.to_string |> String.replace(~r/^Elixir./, "")
+  end
 end
