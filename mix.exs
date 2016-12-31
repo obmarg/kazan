@@ -48,7 +48,10 @@ defmodule Kazan.Mixfile do
     [name: :kazan,
      licenses: ["MIT"],
      maintainers: ["Graeme Coupar"],
-     links: %{"GitHub" => "https://github.com/obmarg/kazan"}]
+     links: %{"GitHub" => "https://github.com/obmarg/kazan"},
+     files: ["lib", "priv", "mix.exs", "README*", "readme*",
+             "LICENSE*", "license*", "kube_specs"],
+   ]
   end
 
   def description do
