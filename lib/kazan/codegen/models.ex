@@ -110,8 +110,31 @@ defmodule Kazan.Codegen.Models do
   ### Properties
 
   <%= for {name, property} <- properties do %>
-  * `<%= name %>` - <%= property.description %> <%= if property.ref do %> See `<%= doc_ref(property.ref) %>`. <% end %> <% end %>
+  * `<%= name %>` <%= property_type_doc(property) %>
+      * <%= process_description(property.description) %> <% end %>
   """, [:model_description, :properties])
+
+  # Generates links to the struct of a property or it's items if it's a list.
+  @spec property_type_doc(Property.t) :: String.t | nil
+  defp property_type_doc(property) do
+    cond do
+      property.ref ->
+        ":: `#{doc_ref(property.ref)}`"
+      property.items && property.items.ref ->
+        ":: [ `#{doc_ref(property.items.ref)}` ]"
+      :otherwise -> ""
+    end
+  end
+
+  # Pre-processes a fields description.
+  # Useful for making actual links out of HTTP links etc.
+  @spec process_description(String.t) :: String.t
+  defp process_description(nil), do: ""
+  defp process_description(desc) do
+    String.replace(
+      desc, ~r{ (more info): (https?://.*)(\s|$)}i, " [\\1](\\2)."
+    )
+  end
 
   # Strips the `Elixir.` prefix from an atom for use in documentation.
   # Atoms will not be linked if they include the Elixir. prefix.
