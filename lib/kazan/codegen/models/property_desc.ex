@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Models.PropertyDesc do
   @moduledoc false
-  import Kazan.Codegen.Models, only: [module_name: 1]
+  import Kazan.Codegen.Models, only: [module_name: 1, parse_definition_ref: 1]
 
   defstruct [:type, :format, :description, :ref, :field, :items]
 
@@ -27,7 +27,7 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
   """
   @spec from_oai_desc(Map.t, String.t, Map.t) :: t
   def from_oai_desc(map, field, refs) do
-    ref = parse_ref(map["$ref"])
+    ref = parse_definition_ref(map["$ref"])
 
     map = if Map.has_key?(refs, ref) do
       map |> Map.merge(refs[ref]) |> Map.delete("$ref")
@@ -45,8 +45,6 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
     }
   end
 
-  defp parse_ref(nil), do: nil
-  defp parse_ref("#/definitions/" <> model_def), do: module_name(model_def)
 
   defp parse_items(nil, _), do: nil
   defp parse_items(map, refs), do: from_oai_desc(map, nil, refs)

@@ -44,7 +44,9 @@ defmodule Kazan.Codegen.Models do
     end
   end
 
-  # Builds a module name atom from a OAI model name.
+  @doc """
+  Builds a module name atom from a OAI model name.
+  """
   @spec module_name(String.t) :: atom
   def module_name(model_name) do
     fixed_name =
@@ -59,7 +61,18 @@ defmodule Kazan.Codegen.Models do
       Module.concat(Kazan.Models, fixed_name)
   end
 
-  # Builds an atom property name from an OAI property name.
+  @doc """
+  Parses a $ref for a definition into a models module name.
+  """
+  @spec parse_definition_ref(String.t) :: nil | :atom
+  def parse_definition_ref(nil), do: nil
+  def parse_definition_ref("#/definitions/" <> model_def) do
+    module_name(model_def)
+  end
+
+  @doc """
+  Builds an atom property name from an OAI property name.
+  """
   @spec property_name(String.t) :: atom
   def property_name(str) do
     str |> Macro.underscore |> String.to_atom

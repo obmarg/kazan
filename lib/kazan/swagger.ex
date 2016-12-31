@@ -9,8 +9,7 @@ defmodule Kazan.Swagger do
     |> Enum.flat_map(fn {path, path_data} ->
       parameters = Map.get(path_data, "parameters", %{})
       method_maps = Map.delete(path_data, "parameters")
-      # TODO: Ok, so it's possible for there to be parameters entries at the top
-      # level as well!  EEK.
+
       Enum.map(method_maps, fn {method, operation} ->
         operation
         |> Map.put("path", path)
