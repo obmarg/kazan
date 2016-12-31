@@ -112,8 +112,6 @@ defmodule Kazan.Codegen.Apis do
       operation.response_schema
     )
 
-    params_var = Macro.var(:params, nil)
-
     param_unpacking = if Enum.empty?(argument_params) do
       quote do
         %{}
@@ -145,6 +143,13 @@ defmodule Kazan.Codegen.Apis do
       {parameter.var_name, parameter.field_name}
     end
 
+    bang_function_name = String.to_atom(
+      Atom.to_string(operation.function_name) <> "!"
+    )
+    argument_forms_in_call = argument_call_forms(
+      argument_params, optional_params
+    )
+
     quote location: :keep do
       @doc unquote(docs)
       def unquote(operation.function_name)(unquote_splicing(arguments)) do
@@ -158,6 +163,19 @@ defmodule Kazan.Codegen.Apis do
           )
         )
       end
+
+      @doc unquote(docs)
+      def unquote(bang_function_name)(unquote_splicing(arguments)) do
+        rv = unquote(operation.function_name)(
+          unquote_splicing(argument_forms_in_call)
+        )
+        case rv do
+          {:ok, result} -> result
+          {:err, reason} ->
+            raise Kazan.BuildRequestError,
+              reason: reason, operation: unquote(operation.function_name)
+        end
+      end
     end
   end
 
@@ -168,6 +186,7 @@ defmodule Kazan.Codegen.Apis do
     end
   end
 
+  # List of argument forms to go in function argument lists.
   @spec argument_forms([Map.t], [Map.t]) :: [term]
   defp argument_forms(argument_params, []) do
     for param <- argument_params do
@@ -177,6 +196,18 @@ defmodule Kazan.Codegen.Apis do
   defp argument_forms(argument_params, _optional_params) do
     argument_forms(argument_params, [])
     ++ [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
+  end
+
+  # List of arugment forms to go in call to function from bang function.
+  @spec argument_call_forms([Map.t], [Map.t]) :: [term]
+  defp argument_call_forms(argument_params, []) do
+    for param <- argument_params do
+      Macro.var(param.var_name, __MODULE__)
+    end
+  end
+  defp argument_call_forms(argument_params, _optional_params) do
+    argument_forms(argument_params, [])
+    ++ [Macro.var(:options, __MODULE__)]
   end
 
   # The Kube API specs provide path parameters in an unintuitive order,

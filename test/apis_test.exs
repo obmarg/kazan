@@ -2,7 +2,7 @@ defmodule KazanApiTests do
   use ExUnit.Case
 
   alias Kazan.Apis.{CoreV1, ExtensionsV1beta1}
-  alias Kazan.Models.V1.{Namespace, NamespaceSpec, ObjectMeta}
+  alias Kazan.Models.V1.{Namespace, ObjectMeta}
 
   test "request without params" do
     {:ok, res} = CoreV1.list_pod_for_all_namespaces()
@@ -43,5 +43,13 @@ defmodule KazanApiTests do
     assert res.query_params == %{}
     # TODO: More thorough checks of res.body would be good...
     assert res.body
+  end
+
+  test "a bang function" do
+    res = CoreV1.list_pod_for_all_namespaces!()
+    assert res.body == nil
+    assert res.method == "get"
+    assert res.path == "/api/v1/pods"
+    assert res.query_params == %{}
   end
 end
