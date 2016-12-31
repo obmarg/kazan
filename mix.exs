@@ -3,7 +3,7 @@ defmodule Kazan.Mixfile do
 
   def project do
     [app: :kazan,
-     version: "0.1.0",
+     version: "0.1.1",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -49,8 +49,7 @@ defmodule Kazan.Mixfile do
      licenses: ["MIT"],
      maintainers: ["Graeme Coupar"],
      links: %{"GitHub" => "https://github.com/obmarg/kazan"},
-     files: ["lib", "priv", "mix.exs", "README*", "readme*",
-             "LICENSE*", "license*", "kube_specs"],
+     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "kube_specs"],
    ]
   end
 
