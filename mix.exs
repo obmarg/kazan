@@ -9,6 +9,10 @@ defmodule Kazan.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps(),
 
+     # Hex.pm stuff
+     package: package(),
+     description: description(),
+
      # Docs
      name: "Kazan",
      source_url: "https://github.com/obmarg/kazan",
@@ -38,5 +42,16 @@ defmodule Kazan.Mixfile do
     [{:poison, "~> 3.0"},
      {:httpoison, "~> 0.10.0"},
      {:ex_doc, "~> 0.14", only: :dev}]
+  end
+
+  defp package do
+    [name: :kazan,
+     licenses: ["MIT"],
+     maintainers: ["Graeme Coupar"],
+     links: %{"GitHub" => "https://github.com/obmarg/kazan"}]
+  end
+
+  def description do
+    "Kubernetes API client for Elixir"
   end
 end
