@@ -2,14 +2,16 @@ defmodule Kazan.Request do
   @moduledoc """
   Kazan.Request is a struct that describes an HTTP request.
   """
+  defstruct [:method, :path, :query_params, :body, :response_schema]
 
-  defstruct [:method, :path, :query_params, :body]
+  import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
 
   @type t :: %__MODULE__{
     method: String.t,
     path: String.t,
     query_params: Map.t,
-    body: String.t
+    body: String.t,
+    response_schema: atom | nil
   }
 
   @op_map File.read!("kube_specs/swagger.json") |> Poison.decode! |> Kazan.Swagger.swagger_to_op_map
@@ -62,7 +64,10 @@ defmodule Kazan.Request do
       method: operation["method"],
       path: build_path(operation["path"], param_groups, params),
       query_params: build_query_params(param_groups, params),
-      body: build_body(param_groups, params)
+      body: build_body(param_groups, params),
+      response_schema: parse_definition_ref(
+        operation["responses"]["200"]["schema"]["$ref"]
+      )
     }
   end
 

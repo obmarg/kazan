@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Models.PropertyDesc do
   @moduledoc false
-  import Kazan.Codegen.Models, only: [module_name: 1, parse_definition_ref: 1]
+  import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
 
   defstruct [:type, :format, :description, :ref, :field, :items]
 

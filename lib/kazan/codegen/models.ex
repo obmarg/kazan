@@ -3,7 +3,7 @@ defmodule Kazan.Codegen.Models do
   #Macros for generating client code from OAI specs.
   require EEx
 
-  alias Kazan.Codegen.Models.{PropertyDesc, ModelDesc}
+  alias Kazan.Codegen.Models.ModelDesc
 
   @doc """
   Generates structs for all the data definitions in an OAPI spec.
@@ -24,8 +24,6 @@ defmodule Kazan.Codegen.Models do
       documentation = model_docs(desc.description, desc.properties)
 
       quote do
-        IO.puts "Creating model #{unquote(module_name)}"
-
         defmodule unquote(module_name) do
           @moduledoc unquote(documentation)
 
@@ -59,7 +57,7 @@ defmodule Kazan.Codegen.Models do
     end)
     |> Enum.join(".")
 
-      Module.concat(Kazan.Models, fixed_name)
+    Module.concat(Kazan.Models, fixed_name)
   end
 
   @doc """
@@ -99,12 +97,11 @@ defmodule Kazan.Codegen.Models do
       |> Enum.map(fn {name, data} -> {module_name(name), data} end)
       |> Enum.into(%{})
 
-    models =
-      definitions
-      |> Enum.filter(is_model)
-      |> Enum.map(&ModelDesc.from_oai_desc(&1, refs))
-      |> Enum.map(fn (desc) -> {desc.module_name, desc} end)
-      |> Enum.into(%{})
+    definitions
+    |> Enum.filter(is_model)
+    |> Enum.map(&ModelDesc.from_oai_desc(&1, refs))
+    |> Enum.map(fn (desc) -> {desc.module_name, desc} end)
+    |> Enum.into(%{})
   end
 
   EEx.function_from_string(:defp, :model_docs, """
