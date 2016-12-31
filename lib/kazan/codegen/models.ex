@@ -110,19 +110,28 @@ defmodule Kazan.Codegen.Models do
   ### Properties
 
   <%= for {name, property} <- properties do %>
-  * `<%= name %>` <%= property_type_doc(property) %>
+  * `<%= name %>` <%= if doc = property_type_doc(property) do %>:: <%= doc %> <% end %>
       * <%= process_description(property.description) %> <% end %>
   """, [:model_description, :properties])
 
-  # Generates links to the struct of a property or it's items if it's a list.
+  # Creates a property type doc string.
   @spec property_type_doc(Property.t) :: String.t | nil
   defp property_type_doc(property) do
-    cond do
-      property.ref ->
-        ":: `#{doc_ref(property.ref)}`"
-      property.items && property.items.ref ->
-        ":: [ `#{doc_ref(property.items.ref)}` ]"
-      :otherwise -> ""
+    if property.ref do
+      "`#{doc_ref(property.ref)}`"
+    else
+      case property.type do
+        "array" -> "[ #{property_type_doc(property.items)} ]"
+        "integer" -> "`Integer`"
+        "number" -> "`Float`"
+        "object" -> "`Map`"
+        "string" -> case property.format do
+                      "date" -> "`Date`"
+                      "date-time" -> "`DateTime`"
+                      _ -> "`String`"
+                    end
+        "boolean" -> "`Boolean`"
+      end
     end
   end
 
