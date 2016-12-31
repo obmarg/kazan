@@ -1,6 +1,7 @@
 defmodule Kazan.Codegen.Models do
   @moduledoc false
   #Macros for generating client code from OAI specs.
+  require EEx
 
   alias Kazan.Codegen.Models.{PropertyDesc, ModelDesc}
 
@@ -106,21 +107,12 @@ defmodule Kazan.Codegen.Models do
       |> Enum.into(%{})
   end
 
-  @spec model_docs(String.t, ModelDesc.property_map) :: String.t
-  defp model_docs(model_description, properties) do
-    property_docs =
-      properties
-      |> Enum.map(fn {name, property} ->
-        "* `#{name}` - #{property.description}"
-      end)
-      |> Enum.join("\n")
+  EEx.function_from_string(:defp, :model_docs, """
+  <%= model_description %>
 
-    """
-    #{model_description}
+  ### Properties
 
-    ### Properties
-
-    #{property_docs}
-    """
-  end
+  <%= for {name, property} <- properties do %>
+  * `<%= name %>` - <%= property.description %> <%= if property.ref do %> See `<%= property.ref %>`. <% end %> <% end %>
+  """, [:model_description, :properties])
 end

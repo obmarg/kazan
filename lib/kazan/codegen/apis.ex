@@ -205,8 +205,7 @@ defmodule Kazan.Codegen.Apis do
   ### Parameters
 
   <%= for param <- parameters do %>
-  * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= param.schema %>` <% end %>
-  <% end %>
+  * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= param.schema %>`. <% end %> <% end %>
   <% end %>
 
   <%= unless Enum.empty?(options) do %>
