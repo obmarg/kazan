@@ -6,6 +6,8 @@ defmodule Kazan.Client do
   """
   alias Kazan.{Request, Server}
 
+  @type run_result :: {:ok, struct} | {:err, term}
+
   # TODO: Tests of this (somehow) would be good.
   # Mock API server?
   @doc """
@@ -19,7 +21,7 @@ defmodule Kazan.Client do
     this request to. This will override any server provided in the Application
     config.
   """
-  @spec run(Request.t, Keyword.t) :: {:ok, struct} | {:err, term}
+  @spec run(Request.t, Keyword.t) :: run_result
   def run(request, options \\ []) do
     server = find_server(options)
 
