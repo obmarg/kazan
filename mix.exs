@@ -43,7 +43,12 @@ defmodule Kazan.Mixfile do
      {:httpoison, "~> 0.10.0"},
      {:yaml_elixir, "~> 1.3.0"},
 
-     {:ex_doc, "~> 0.14", only: :dev}]
+     # Dev dependencies
+     {:ex_doc, "~> 0.14", only: :dev},
+
+     # Test dependencies
+     {:bypass, "~> 0.5.1", only: :test}
+   ]
   end
 
   defp package do

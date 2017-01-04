@@ -6,10 +6,8 @@ defmodule Kazan.Client do
   """
   alias Kazan.{Request, Server}
 
-  @type run_result :: {:ok, struct} | {:err, term}
+  @type run_result :: {:ok, struct} | {:error, term}
 
-  # TODO: Tests of this (somehow) would be good.
-  # Mock API server?
   @doc """
   Makes a request against a kube server.
 
@@ -47,7 +45,7 @@ defmodule Kazan.Client do
   def run!(request, options \\ []) do
     case run(request, options) do
       {:ok, result} -> result
-      {:err, reason} -> raise Kazan.RemoteError, reason: reason
+      {:error, reason} -> raise Kazan.RemoteError, reason: reason
     end
   end
 
@@ -77,6 +75,6 @@ defmodule Kazan.Client do
     {:ok, body}
   end
   defp check_status(%{status_code: other, body: body}) do
-    {:err, {:http_error, other, body}}
+    {:error, {:http_error, other, body}}
   end
 end
