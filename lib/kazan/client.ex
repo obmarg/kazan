@@ -28,7 +28,8 @@ defmodule Kazan.Client do
       server.url <> request.path,
       request.body || "",
       [],
-      params: request.query_params
+      params: request.query_params,
+      ssl: ssl_options(server)
     )
 
     with {:ok, result} <- res,
@@ -77,4 +78,18 @@ defmodule Kazan.Client do
   defp check_status(%{status_code: other, body: body}) do
     {:error, {:http_error, other, body}}
   end
+
+  @spec ssl_options(Server.t) :: Keyword.t
+  defp ssl_options(server) do
+    auth_options = ssl_auth_options(server.auth)
+    case server.ca_cert do
+      nil -> auth_options
+      cert -> auth_options ++ [cacerts: [cert]]
+    end
+  end
+
+  defp ssl_auth_options(%Server.CertificateAuth{certificate: cert, key: key}) do
+    [cert: cert, key: key]
+  end
+  defp ssl_auth_options(_), do: []
 end
