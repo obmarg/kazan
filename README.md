@@ -12,6 +12,7 @@ at any time.
 
 - Support for most Kubernetes API calls.
 - Structs for most Kubernetes API structures.
+- Documentation of all models & calls.
 - Client certificate autentation.
 - Loading config from kubeconfig files.
 
