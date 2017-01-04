@@ -7,7 +7,7 @@ defmodule Kazan.ServerTest do
     test "loads default context" do
       config = from_kubeconfig("test/test_data/kubeconfig")
       assert config.url == "https://172.17.4.99:443"
-      assert config.ca
+      assert config.ca_cert
       assert config.auth
       assert config.auth.certificate
       assert config.auth.key
@@ -17,7 +17,7 @@ defmodule Kazan.ServerTest do
       config = from_kubeconfig("test/test_data/kubeconfig", context: "other-context")
 
       assert config.url == "https://172.17.4.99:443"
-      assert config.ca
+      assert config.ca_cert
       refute config.auth
     end
 
@@ -25,7 +25,7 @@ defmodule Kazan.ServerTest do
       config = from_kubeconfig("test/test_data/kubeconfig", user: "other-user")
 
       assert config.url == "https://172.17.4.99:443"
-      assert config.ca
+      assert config.ca_cert
       refute config.auth
     end
   end

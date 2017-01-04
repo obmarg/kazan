@@ -5,11 +5,11 @@ defmodule Kazan.Server do
 
   @type auth_t :: nil | Kazan.Server.CertificateAuth.t
 
-  defstruct [url: nil, ca: nil, auth: nil]
+  defstruct [url: nil, ca_cert: nil, auth: nil]
 
   @type t :: %{
     url: String.t,
-    ca: String.t | nil,
+    ca_cert: String.t | nil,
     auth: auth_t
   }
 
@@ -43,7 +43,7 @@ defmodule Kazan.Server do
 
     %__MODULE__{
       url: cluster["server"],
-      ca: cert_from_pem(cluster["certificate-authority"], basepath),
+      ca_cert: cert_from_pem(cluster["certificate-authority"], basepath),
       auth: auth_from_user(user, basepath)
     }
   end
