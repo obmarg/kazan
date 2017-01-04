@@ -12,12 +12,15 @@ at any time.
 
 - Support for most Kubernetes API calls.
 - Structs for most Kubernetes API structures.
+- Client certificate autentation.
+- Loading config from kubeconfig files.
 
 ### Not Implemented
 
 - Support for watch requests.
+- Non-certificate based authentication.
 - Comprehensive tests.
-- Validation of requests
+- Validation of requests.
 - Typespecs for functions or structs.
 - Probably some other things.
 
