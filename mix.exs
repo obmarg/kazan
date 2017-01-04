@@ -26,7 +26,7 @@ defmodule Kazan.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison]]
+    [applications: [:logger, :httpoison, :poison, :yaml_elixir]]
   end
 
   # Dependencies can be Hex packages:
@@ -41,6 +41,8 @@ defmodule Kazan.Mixfile do
   defp deps do
     [{:poison, "~> 3.0"},
      {:httpoison, "~> 0.10.0"},
+     {:yaml_elixir, "~> 1.3.0"},
+
      {:ex_doc, "~> 0.14", only: :dev}]
   end
 
