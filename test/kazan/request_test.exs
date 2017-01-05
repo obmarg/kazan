@@ -1,4 +1,4 @@
-defmodule RequeseterTest do
+defmodule RequestTest do
   use ExUnit.Case, async: true
 
   alias Kazan.Request
@@ -12,6 +12,7 @@ defmodule RequeseterTest do
       assert request.path == "/api/v1/pods"
       assert request.query_params == %{}
       assert request.body == nil
+      assert request.content_type == nil
     end
 
     test "building a GET request with path parameters" do
@@ -22,6 +23,7 @@ defmodule RequeseterTest do
       assert request.path == "/api/v1/namespaces/test/pods"
       assert request.query_params == %{}
       assert request.body == nil
+      assert request.content_type == nil
     end
 
     test "building a GET request with query parameters" do
@@ -32,10 +34,11 @@ defmodule RequeseterTest do
       assert request.path == "/api/v1/pods"
       assert request.query_params == %{"pretty" => "true"}
       assert request.body == nil
+      assert request.content_type == nil
     end
 
-    test "building a POST request with body parameters" do
-      body_data = %{"target" => %{}}
+    test "building a POST request" do
+      body_data = %Kazan.Models.V1.Binding{target: %Kazan.Models.V1.ObjectReference{}}
       {:ok, request} = Request.create(
         "createCoreV1NamespacedBinding", 
         %{"namespace" => "test",
@@ -44,7 +47,26 @@ defmodule RequeseterTest do
       assert request.method == "post"
       assert request.path == "/api/v1/namespaces/test/bindings"
       assert request.query_params == %{}
-      assert request.body == Poison.encode!(body_data)
+      assert request.body == Poison.encode!(%{"target" => %{}})
+      assert request.content_type == "application/json"
+    end
+
+    test "building a PATCH request" do
+      body_data = %Kazan.Models.V1.Namespace{
+        metadata: %Kazan.Models.V1.ObjectMeta{name: "test2"}
+      }
+      {:ok, request} = Request.create(
+        "patchCoreV1Namespace", 
+        %{"name" => "test",
+          "body" => body_data}
+      )
+      assert request.method == "patch"
+      assert request.path == "/api/v1/namespaces/test"
+      assert request.query_params == %{}
+      assert request.body == Poison.encode!(
+        %{"metadata" => %{"name" => "test2"}}
+      )
+      assert request.content_type == "application/merge-patch+json"
     end
 
     test "request for unknown operation" do

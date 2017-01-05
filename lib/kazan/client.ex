@@ -23,12 +23,17 @@ defmodule Kazan.Client do
   def run(request, options \\ []) do
     server = find_server(options)
 
+    headers = [{"Accept", "application/json"}]
+    headers = headers ++ case request.content_type do
+                           nil -> []
+                           type -> [{"Content-Type", type}]
+                         end
+
     res = HTTPoison.request(
       method(request.method),
       server.url <> request.path,
       request.body || "",
-      [{"Accept", "application/json"},
-       {"Content-Type", "application/json"}],
+      headers,
       params: request.query_params,
       ssl: ssl_options(server)
     )

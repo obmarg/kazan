@@ -2,7 +2,7 @@ defmodule Kazan.Request do
   @moduledoc """
   Kazan.Request is a struct that describes an HTTP request.
   """
-  defstruct [:method, :path, :query_params, :body, :response_schema]
+  defstruct [:method, :path, :query_params, :content_type, :body, :response_schema]
 
   import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
 
@@ -10,6 +10,7 @@ defmodule Kazan.Request do
     method: String.t,
     path: String.t,
     query_params: Map.t,
+    content_type: String.t,
     body: String.t,
     response_schema: atom | nil
   }
@@ -64,6 +65,7 @@ defmodule Kazan.Request do
       method: operation["method"],
       path: build_path(operation["path"], param_groups, params),
       query_params: build_query_params(param_groups, params),
+      content_type: content_type(operation),
       body: build_body(param_groups, params),
       response_schema: parse_definition_ref(
         operation["responses"]["200"]["schema"]["$ref"]
@@ -95,11 +97,28 @@ defmodule Kazan.Request do
   defp build_body(param_groups, params) do
     case Map.get(param_groups, "body", []) do
       [body_param] ->
-        Poison.encode!(params[body_param["name"]])
+        {:ok, data} = Kazan.Models.encode(params[body_param["name"]])
+        Poison.encode!(data)
       [] ->
         :nil
       _others ->
         raise "More than one body param in swagger operation spec..."
+    end
+  end
+
+  @spec content_type(Map.t) :: String.t | no_return
+  defp content_type(operation) do
+    cond do
+      operation["method"] == "get" ->
+        nil
+      "application/json" in operation["consumes"] ->
+        "application/json"
+      "application/merge-patch+json" in operation["consumes"] ->
+        "application/merge-patch+json"
+      "*/*" in operation["consumes"] ->
+        "application/json"
+      :otherwise ->
+        raise "Can't find supported content-type: #{inspect operation}"
     end
   end
 end

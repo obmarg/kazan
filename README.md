@@ -20,6 +20,9 @@ at any time.
 
 - Support for watch requests.
 - Non-certificate based authentication.
+- Patching with `application/json-patch+json` or
+  `application/strategic-merge-patch+json` content types.
+- Removing fields when patching with `application/merge-patch+json`.
 - Comprehensive tests.
 - Validation of requests.
 - Typespecs for functions or structs.

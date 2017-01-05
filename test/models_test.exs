@@ -160,5 +160,18 @@ defmodule KazanModelsTest do
         ],
       }
     end
+
+    test "that nils are removed from nested models" do
+      {:ok, result} = Models.encode(
+        %Models.V1.Pod{
+          spec: %Models.V1.PodSpec{
+            restart_policy: "Never"
+          }
+        }
+      )
+      assert result == %{
+        "spec" => %{"restartPolicy" => "Never"}
+      }
+    end
   end
 end

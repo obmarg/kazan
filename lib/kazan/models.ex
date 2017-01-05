@@ -27,7 +27,7 @@ defmodule Kazan.Models do
   @doc """
   Encodes data from a Kazan model to plain Maps suitable for JSON encoding.
   """
-  @spec encode(struct) :: {:ok, struct} | {:err, term}
+  @spec encode(struct) :: {:ok, Map.t} | {:err, term}
   def encode(model) do
     with {:ok, desc} <- model_desc(model.__struct__),
          {:ok, data} <- do_encode(desc, model),
