@@ -134,8 +134,6 @@ defmodule KazanModelsTest do
         }
       )
       assert result == %{
-        "metadata" => nil,
-        "spec" => nil,
         "status" => %{
           "availableReplicas" => 1,
           "conditions" => [],
@@ -158,9 +156,8 @@ defmodule KazanModelsTest do
       )
       assert result == %{
         "items" => [
-          %{"status" => nil, "metadata" => nil, "spec" => nil},
+          %{},
         ],
-        "metadata" => nil
       }
     end
   end

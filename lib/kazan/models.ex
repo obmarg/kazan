@@ -114,7 +114,7 @@ defmodule Kazan.Models do
 
       case result do
         {:ok, properties} ->
-          {:ok, Enum.into(properties, %{})}
+          {:ok, properties |> Enum.reject(&val_is_nil?/1) |> Enum.into(%{})}
         {:err, _} = err ->
           err
       end
@@ -154,4 +154,7 @@ defmodule Kazan.Models do
       results -> {:ok, Enum.reverse(results)}
     end
   end
+
+  defp val_is_nil?({_, nil}), do: true
+  defp val_is_nil?(_), do: false
 end
