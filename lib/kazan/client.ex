@@ -27,7 +27,8 @@ defmodule Kazan.Client do
       method(request.method),
       server.url <> request.path,
       request.body || "",
-      [],
+      [{"Accept", "application/json"},
+       {"Content-Type", "application/json"}],
       params: request.query_params,
       ssl: ssl_options(server)
     )
