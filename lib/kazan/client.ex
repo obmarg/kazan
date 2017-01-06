@@ -78,11 +78,16 @@ defmodule Kazan.Client do
   defp method("patch"), do: :patch
 
   @spec check_status(HTTPoison.Response.t) :: {:ok, String.t}
-  defp check_status(%{status_code: 200, body: body}) do
+  defp check_status(%{status_code: code, body: body}) when code in 200..299 do
     {:ok, body}
   end
   defp check_status(%{status_code: other, body: body}) do
-    {:error, {:http_error, other, body}}
+    data =
+      case Poison.decode(body) do
+        {:ok, data} -> data
+        _ -> body
+      end
+    {:error, {:http_error, other, data}}
   end
 
   @spec ssl_options(Server.t) :: Keyword.t
