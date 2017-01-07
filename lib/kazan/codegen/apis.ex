@@ -135,7 +135,7 @@ defmodule Kazan.Codegen.Apis do
         end
       :otherwise ->
         quote location: :keep do
-          Dict.merge(Enum.into(options, %{}), params)
+          Map.merge(Enum.into(options, %{}), params)
         end
     end
 
