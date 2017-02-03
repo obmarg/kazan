@@ -1,3 +1,12 @@
+### v0.3.0 (03/02/17)
+
+- Relax some requirements dependencies.
+- Add content-type & accepts headers into requests.
+- Strip nil values from maps before sending to Kube
+- Added some limited patching support
+- Decode JSON in error responses.
+- Fixed compiler warnings in Elixir 1.4
+
 ### v0.2.0 (04/01/17)
 
 - Improved documentation around model properties. Types of each of the
