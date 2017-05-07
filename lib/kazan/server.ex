@@ -3,7 +3,7 @@ defmodule Kazan.Server do
   Kazan.Server is a struct containing connection details for a kube server.
   """
 
-  @type auth_t :: nil | Kazan.Server.CertificateAuth.t
+  @type auth_t :: nil | Kazan.Server.CertificateAuth.t | Kazan.Server.TokenAuth.t
 
   defstruct [url: nil, ca_cert: nil, auth: nil]
 
@@ -75,6 +75,15 @@ defmodule Kazan.Server do
   end
 
   defp auth_from_user(
+    %{"token" => token},
+    _
+  ) do
+    %Kazan.Server.TokenAuth{
+      token: token
+    }
+  end
+
+  defp auth_from_user(
     %{"client-certificate-data" => cert_data,
       "client-key-data" => key_data}, _) do
     %Kazan.Server.CertificateAuth{
@@ -104,7 +113,7 @@ defmodule Kazan.Server do
     case Base.decode64(encoded_cert) do
       {:ok, cert_data} ->
           :public_key.pem_decode(cert_data)
-            |> Enum.find_value(fn 
+            |> Enum.find_value(fn
               {:Certificate, data, _} -> data
               _ -> nil
           end)
