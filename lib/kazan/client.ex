@@ -29,6 +29,11 @@ defmodule Kazan.Client do
                            type -> [{"Content-Type", type}]
                          end
 
+    headers = headers ++ case server.auth do
+      %Server.TokenAuth{token: token} -> [{"Authorization", "Bearer #{token}"}]
+      _ -> []
+    end
+
     res = HTTPoison.request(
       method(request.method),
       server.url <> request.path,
