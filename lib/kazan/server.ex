@@ -55,6 +55,25 @@ defmodule Kazan.Server do
     }
   end
 
+  @doc """
+  Server that will connect to the cluster that kazan is running on.
+
+  This will speak to the server via the `kubernetes` domain name, using the service account credentials that are stored on the filesystem.
+
+  [See the Kubernetes documentation for more information](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod).
+  """
+  @spec in_cluster(Keyword.t) :: t
+  def in_cluster(_options \\ []) do
+    basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
+    %__MODULE__{
+      url: "https://kubernetes",
+      ca_cert: cert_from_pem("ca.key", basepath),
+      auth: %Kazan.Server.TokenAuth{
+        token: Path.join([basepath, "token"]) |> File.read!
+      }
+    }
+  end
+
   @spec find_by_name([Map.t], String.t) :: Map.t
   defp find_by_name(elems, name) do
     Enum.find(elems, fn (elem) -> elem["name"] == name end)
