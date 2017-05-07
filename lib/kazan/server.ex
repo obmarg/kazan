@@ -54,6 +54,18 @@ defmodule Kazan.Server do
       insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"]
     }
   end
+  
+  @spec in_cluster(Keyword.t) :: t
+  def in_cluster(_options \\ []) do
+    basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
+    %__MODULE__{
+      url: "https://kubernetes",
+      ca_cert: cert_from_pem("ca.key", basepath),
+      auth: %Kazan.Server.TokenAuth{
+        token: Path.join([basepath, "token"]) |> File.read!
+      }
+    }
+  end
 
   @spec find_by_name([Map.t], String.t) :: Map.t
   defp find_by_name(elems, name) do
