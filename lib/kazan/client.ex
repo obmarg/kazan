@@ -93,10 +93,15 @@ defmodule Kazan.Client do
   @spec ssl_options(Server.t) :: Keyword.t
   defp ssl_options(server) do
     auth_options = ssl_auth_options(server.auth)
-    case server.ca_cert do
-      nil -> auth_options
-      cert -> auth_options ++ [cacerts: [cert]]
+    verify_options = case server.insecure_skip_tls_verify do
+      true -> [verify: :verify_none]
+      _ -> []
     end
+    ca_options = case server.ca_cert do
+      nil -> []
+      cert -> [cacerts: [cert]]
+    end
+    auth_options ++ verify_options ++ ca_options
   end
 
   defp ssl_auth_options(%Server.CertificateAuth{certificate: cert, key: key}) do
