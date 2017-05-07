@@ -5,10 +5,16 @@ defmodule Kazan.Server do
 
   @type auth_t :: nil | Kazan.Server.CertificateAuth.t | Kazan.Server.TokenAuth.t
 
-  defstruct [url: nil, ca_cert: nil, auth: nil]
+  defstruct [
+    url: nil,
+    ca_cert: nil,
+    auth: nil,
+    insecure_skip_tls_verify: nil
+  ]
 
   @type t :: %{
     url: String.t,
+    insecure_skip_tls_verify: Boolean.t,
     ca_cert: String.t | nil,
     auth: auth_t
   }
@@ -44,7 +50,8 @@ defmodule Kazan.Server do
     %__MODULE__{
       url: cluster["server"],
       ca_cert: get_cert(cluster, basepath),
-      auth: auth_from_user(user, basepath)
+      auth: auth_from_user(user, basepath),
+      insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"]
     }
   end
 
