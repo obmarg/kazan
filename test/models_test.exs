@@ -4,6 +4,7 @@ defmodule KazanModelsTest do
   alias Kazan.Models
   alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1
   alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Extensions.V1beta1
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Rbac
   alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.OwnerReference
 
   test "that we have some models" do
@@ -28,18 +29,13 @@ defmodule KazanModelsTest do
 
     test "that we can decode a model that contains a core kind" do
       {:ok, result} = Models.decode(
-        %{"kind" => "OwnerReference",
+        %{"kind" => "Pod",
           "apiVersion" => "v1",
-          "controller" => false,
-          "name" => "test",
-          "uid" => "test"}
+        }
       )
-      assert result == %OwnerReference{
-        kind: "OwnerReference",
-        api_version: "v1",
-        controller: false,
-        name: "test",
-        uid: "test"
+      assert result == %V1.Pod{
+        kind: "Pod",
+        api_version: "v1"
       }
     end
 
@@ -53,6 +49,21 @@ defmodule KazanModelsTest do
       )
       assert result == %V1beta1.APIVersion{
         name: "a name"
+      }
+    end
+    
+    test "that we can decode a model that contains an extension kind" do
+      {:ok, result} = Models.decode(
+        %{
+          "kind" => "ClusterRoleBinding",
+          "apiVersion" => "rbac.authorization.k8s.io/v1beta1",
+          "subjects" => []
+        }
+      )
+      assert result == %Rbac.V1beta1.ClusterRoleBinding{
+        kind: "ClusterRoleBinding",
+        api_version: "rbac.authorization.k8s.io/v1beta1",
+        subjects: []
       }
     end
 
