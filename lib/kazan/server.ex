@@ -3,12 +3,18 @@ defmodule Kazan.Server do
   Kazan.Server is a struct containing connection details for a kube server.
   """
 
-  @type auth_t :: nil | Kazan.Server.CertificateAuth.t
+  @type auth_t :: nil | Kazan.Server.CertificateAuth.t | Kazan.Server.TokenAuth.t
 
-  defstruct [url: nil, ca_cert: nil, auth: nil]
+  defstruct [
+    url: nil, 
+    ca_cert: nil, 
+    auth: nil,
+    insecure_skip_tls_verify: nil
+  ]
 
   @type t :: %{
     url: String.t,
+    insecure_skip_tls_verify: Boolean.t,
     ca_cert: String.t | nil,
     auth: auth_t
   }
@@ -44,7 +50,20 @@ defmodule Kazan.Server do
     %__MODULE__{
       url: cluster["server"],
       ca_cert: cert_from_pem(cluster["certificate-authority"], basepath),
-      auth: auth_from_user(user, basepath)
+      auth: auth_from_user(user, basepath),
+      insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"]
+    }
+  end
+  
+  @spec in_cluster(Keyword.t) :: t
+  def in_cluster(_options \\ []) do
+    basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
+    %__MODULE__{
+      url: "https://kubernetes",
+      ca_cert: cert_from_pem("ca.key", basepath),
+      auth: %Kazan.Server.TokenAuth{
+        token: Path.join([basepath, "token"]) |> File.read!
+      }
     }
   end
 
@@ -62,6 +81,15 @@ defmodule Kazan.Server do
     %Kazan.Server.CertificateAuth{
       certificate: cert_from_pem(cert_file, basepath),
       key: private_key_from_pem(key_file, basepath)
+    }
+  end
+  
+  defp auth_from_user(
+    %{"token" => token},
+    _
+  ) do
+    %Kazan.Server.TokenAuth{
+      token: token
     }
   end
 

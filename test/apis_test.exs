@@ -2,7 +2,8 @@ defmodule KazanApiTests do
   use ExUnit.Case
 
   alias Kazan.Apis.{CoreV1, ExtensionsV1beta1}
-  alias Kazan.Models.V1.{Namespace, ObjectMeta}
+  alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.ObjectMeta
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1.Namespace
 
   test "request without params" do
     {:ok, res} = CoreV1.list_pod_for_all_namespaces()
