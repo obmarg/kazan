@@ -41,12 +41,9 @@ defmodule Kazan.Server do
     cluster_name = options[:cluster] || context["cluster"]
     cluster = find_by_name(data["clusters"], cluster_name)["cluster"]
 
-    ca_cert = cert_from_pem(cluster["certificate-authority"], basepath) ||
-              cert_from_base64(cluster["certificate-authority-data"])
-
     %__MODULE__{
       url: cluster["server"],
-      ca_cert: ca_cert,
+      ca_cert: get_cert(cluster, basepath),
       auth: auth_from_user(user, basepath)
     }
   end
@@ -54,6 +51,15 @@ defmodule Kazan.Server do
   @spec find_by_name([Map.t], String.t) :: Map.t
   defp find_by_name(elems, name) do
     Enum.find(elems, fn (elem) -> elem["name"] == name end)
+  end
+
+  @spec get_cert(Map.t, String.t) :: binary
+  defp get_cert(%{"certificate-authority" => certfile}, basepath) do
+    cert_from_pem(certfile, basepath)
+  end
+
+  defp get_cert(%{"certificate-authority-data" => certdata}, _) do
+    cert_from_base64(certdata)
   end
 
   @spec auth_from_user(Map.t, String.t) :: auth_t
