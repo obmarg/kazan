@@ -41,9 +41,12 @@ defmodule Kazan.Server do
     cluster_name = options[:cluster] || context["cluster"]
     cluster = find_by_name(data["clusters"], cluster_name)["cluster"]
 
+    ca_cert = cert_from_pem(cluster["certificate-authority"], basepath) ||
+              cert_from_base64(cluster["certificate-authority-data"])
+
     %__MODULE__{
       url: cluster["server"],
-      ca_cert: cert_from_pem(cluster["certificate-authority"], basepath),
+      ca_cert: ca_cert,
       auth: auth_from_user(user, basepath)
     }
   end
@@ -65,6 +68,15 @@ defmodule Kazan.Server do
     }
   end
 
+  defp auth_from_user(
+    %{"client-certificate-data" => cert_data,
+      "client-key-data" => key_data}, _) do
+    %Kazan.Server.CertificateAuth{
+      certificate: cert_from_base64(cert_data),
+      key: private_key_from_base64(key_data)
+    }
+  end
+
   defp auth_from_user(_user, _basepath) do
     nil
   end
@@ -81,6 +93,19 @@ defmodule Kazan.Server do
     end)
   end
 
+  defp cert_from_base64(nil), do: nil
+  defp cert_from_base64(encoded_cert) do
+    case Base.decode64(encoded_cert) do
+      {:ok, cert_data} ->
+          :public_key.pem_decode(cert_data)
+            |> Enum.find_value(fn 
+              {:Certificate, data, _} -> data
+              _ -> nil
+          end)
+      _ -> nil
+    end
+  end
+
   @private_key_atoms [:RSAPrivateKey, :DSAPrivateKey, :ECPrivateKey, :PrivateKeyInfo]
 
   defp private_key_from_pem(nil, _), do: nil
@@ -93,4 +118,19 @@ defmodule Kazan.Server do
       _ -> false
     end)
   end
+
+  defp private_key_from_base64(nil), do: nil
+  defp private_key_from_base64(encoded_key) do
+    case Base.decode64(encoded_key) do
+      {:ok, key_data} ->
+        :public_key.pem_decode(key_data)
+        |> Enum.find_value(fn
+           {type, data, _} when type in @private_key_atoms -> {type, data}
+            _ -> false
+        end)
+      _ -> nil
+      end
+  end
+
+
 end
