@@ -43,7 +43,7 @@ defmodule Kazan.Server do
 
     %__MODULE__{
       url: cluster["server"],
-      ca_cert: cert_from_pem(cluster["certificate-authority"], basepath),
+      ca_cert: get_cert(cluster, basepath),
       auth: auth_from_user(user, basepath)
     }
   end
@@ -51,6 +51,15 @@ defmodule Kazan.Server do
   @spec find_by_name([Map.t], String.t) :: Map.t
   defp find_by_name(elems, name) do
     Enum.find(elems, fn (elem) -> elem["name"] == name end)
+  end
+
+  @spec get_cert(Map.t, String.t) :: binary
+  defp get_cert(%{"certificate-authority" => certfile}, basepath) do
+    cert_from_pem(certfile, basepath)
+  end
+
+  defp get_cert(%{"certificate-authority-data" => certdata}, _) do
+    cert_from_base64(certdata)
   end
 
   @spec auth_from_user(Map.t, String.t) :: auth_t
@@ -62,6 +71,15 @@ defmodule Kazan.Server do
     %Kazan.Server.CertificateAuth{
       certificate: cert_from_pem(cert_file, basepath),
       key: private_key_from_pem(key_file, basepath)
+    }
+  end
+
+  defp auth_from_user(
+    %{"client-certificate-data" => cert_data,
+      "client-key-data" => key_data}, _) do
+    %Kazan.Server.CertificateAuth{
+      certificate: cert_from_base64(cert_data),
+      key: private_key_from_base64(key_data)
     }
   end
 
@@ -81,6 +99,19 @@ defmodule Kazan.Server do
     end)
   end
 
+  defp cert_from_base64(nil), do: nil
+  defp cert_from_base64(encoded_cert) do
+    case Base.decode64(encoded_cert) do
+      {:ok, cert_data} ->
+          :public_key.pem_decode(cert_data)
+            |> Enum.find_value(fn 
+              {:Certificate, data, _} -> data
+              _ -> nil
+          end)
+      _ -> nil
+    end
+  end
+
   @private_key_atoms [:RSAPrivateKey, :DSAPrivateKey, :ECPrivateKey, :PrivateKeyInfo]
 
   defp private_key_from_pem(nil, _), do: nil
@@ -93,4 +124,19 @@ defmodule Kazan.Server do
       _ -> false
     end)
   end
+
+  defp private_key_from_base64(nil), do: nil
+  defp private_key_from_base64(encoded_key) do
+    case Base.decode64(encoded_key) do
+      {:ok, key_data} ->
+        :public_key.pem_decode(key_data)
+        |> Enum.find_value(fn
+           {type, data, _} when type in @private_key_atoms -> {type, data}
+            _ -> false
+        end)
+      _ -> nil
+      end
+  end
+
+
 end
