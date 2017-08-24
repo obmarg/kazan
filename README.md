@@ -1,7 +1,7 @@
 # Kazan
 
 Kazan is a Kubernetes API client for Elixir. It uses the OpenAPI specifications
-provided by elixir to generate most of it's functions and datastructures. This
+provided by kube to generate most of it's functions and datastructures. This
 allows the whole kube API to be supported with relatively little effort.
 
 Kazan should mostly be functional, though it is still somewhat experimental and
