@@ -39,7 +39,18 @@ defmodule Kazan.Models do
     cond do
       kind -> {:ok, kind}
       Map.has_key?(data, "kind") and Map.has_key?(data, "apiVersion") ->
-        version = data["apiVersion"] |> String.split("/") |> List.last
+        version = case data["apiVersion"] do
+          "v" <> v ->
+            "Io.K8s.Kubernetes.Pkg.Api.V#{v}"
+          "extensions/" <> ext ->
+            "Io.K8s.Kubernetes.Pkg.Apis.Extensions.#{ext}"
+          other ->
+            api = other
+            |> String.split("/")
+            |> Enum.map(fn x -> x |> String.split(".") |> List.first end)
+            |> Enum.join(".")
+            "Io.K8s.Kubernetes.Pkg.Apis.#{api}"
+        end
         {:ok, Kazan.Codegen.Models.module_name("#{version}.#{data["kind"]}")}
       :otherwise ->
         {:err, :missing_kind}
