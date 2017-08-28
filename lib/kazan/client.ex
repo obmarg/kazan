@@ -35,6 +35,7 @@ defmodule Kazan.Client do
 
     headers = headers ++ case server.auth do
       %Server.TokenAuth{token: token} -> [{"Authorization", "Bearer #{token}"}]
+      %{token: token} -> [{"Authorization", "Bearer #{token}"}]
       _ -> []
     end
 
@@ -116,6 +117,9 @@ defmodule Kazan.Client do
   end
 
   defp ssl_auth_options(%Server.CertificateAuth{certificate: cert, key: key}) do
+    [cert: cert, key: key]
+  end
+  defp ssl_auth_options(%{certificate: cert, key: key}) do
     [cert: cert, key: key]
   end
   defp ssl_auth_options(_), do: []
