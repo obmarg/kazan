@@ -6,8 +6,6 @@ defmodule Kazan.Client do
   """
   alias Kazan.{Request, Server}
 
-  require Logger
-
   @type run_result :: {:ok, struct} | {:error, term}
 
   @doc """
@@ -24,8 +22,6 @@ defmodule Kazan.Client do
   @spec run(Request.t, Keyword.t) :: run_result
   def run(request, options \\ []) do
     server = find_server(options)
-
-    Logger.warn(inspect server)
 
     headers = [{"Accept", "application/json"}]
     headers = headers ++ case request.content_type do
@@ -47,8 +43,6 @@ defmodule Kazan.Client do
       params: request.query_params,
       ssl: ssl_options(server)
     )
-
-    Logger.warn(inspect res)
 
     with {:ok, result} <- res,
          {:ok, body} <- check_status(result),
