@@ -50,12 +50,15 @@ defmodule Kazan.Codegen.Models do
   def module_name(model_name, opts \\ []) do
     fixed_name =
       model_name
+      |> strip_module_name_prefixes
       |> String.split(".")
       |> Enum.map(fn (str) ->
-      {first, rest} = String.Casing.titlecase_once(str)
-      first <> rest
-    end)
-    |> Enum.join(".")
+        # We can't just use String.titlecase because that
+        # lowercases all the following words...
+        {first, rest} = String.Casing.titlecase_once(str)
+        first <> rest
+      end)
+      |> Enum.join(".")
 
     if Keyword.get(opts, :unsafe, false) do
       Module.concat(Kazan.Models, fixed_name)
@@ -163,5 +166,21 @@ defmodule Kazan.Codegen.Models do
   # Atoms will not be linked if they include the Elixir. prefix.
   defp doc_ref(str) do
     str |> Atom.to_string |> String.replace(~r/^Elixir./, "")
+  end
+
+  # The Kube OAI specs have some extremely long namespace prefixes on them.
+  # These really long names make for a pretty ugly API in Elixir, so we chop off
+  # some common prefixes
+  defp strip_module_name_prefixes(name) do
+    case name do
+      "io.k8s.kubernetes.pkg.api." <> rest ->
+        "api." <> rest
+      "io.k8s.kubernetes.pkg.apis." <> rest ->
+        "apis." <> rest
+      "io.k8s.apimachinery.pkg." <> rest ->
+        "ApiMachinery." <> rest
+      "io.k8s.kube-aggregator." <> rest ->
+        "KubeAggregator" <> rest
+    end
   end
 end

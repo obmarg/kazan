@@ -1,8 +1,8 @@
 defmodule KazanIntegrationTest do
   use ExUnit.Case, async: true
 
-  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1
-  alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.{
+  alias Kazan.Models.Api.V1
+  alias Kazan.Models.ApiMachinery.Apis.Meta.V1.{
     ObjectMeta,
     DeleteOptions,
   }

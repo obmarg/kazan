@@ -1,11 +1,10 @@
 defmodule KazanModelsTest do
   use ExUnit.Case
-  
+
   alias Kazan.Models
-  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1
-  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Extensions.V1beta1
-  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Rbac
-  alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.OwnerReference
+  alias Kazan.Models.Api.V1
+  alias Kazan.Models.Apis.Extensions.V1beta1
+  alias Kazan.Models.Apis.Rbac
 
   test "that we have some models" do
     # Not a particularly thorough test, but whatever:
@@ -192,11 +191,17 @@ defmodule KazanModelsTest do
 
   describe "Models.oai_name_to_module" do
     test "it returns a module for known models" do
-      model = Kazan.Models.oai_name_to_module("v1.ComponentStatusList")
-      assert model == Kazan.Models.V1.ComponentStatusList
+      model = Kazan.Models.oai_name_to_module(
+        "io.k8s.kubernetes.pkg.api.v1.ComponentStatusList"
+      )
+      assert model == Kazan.Models.Api.V1.ComponentStatusList
     end
     test "it returns nil for unknown models" do
       assert Kazan.Models.oai_name_to_module("someName") == nil
+
+      assert Kazan.Models.oai_name_to_module(
+        "io.k8s.kubernetes.pkg.api.v1.SomeName"
+      ) == nil
     end
   end
 

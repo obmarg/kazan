@@ -39,7 +39,12 @@ defmodule Kazan.Models do
   """
   @spec oai_name_to_module(String.t) :: atom | nil
   def oai_name_to_module(oai_name) do
-    Kazan.Codegen.Models.module_name(oai_name)
+    try do
+      Kazan.Codegen.Models.module_name(oai_name)
+    rescue
+      CaseClauseError ->
+        nil
+    end
   end
 
   @spec guess_kind(Map.t, atom | nil) :: {:ok, atom} | {:err, term}
@@ -48,16 +53,16 @@ defmodule Kazan.Models do
       kind -> {:ok, kind}
       Map.has_key?(data, "kind") and Map.has_key?(data, "apiVersion") ->
         version = case data["apiVersion"] do
-          "v" <> v -> 
-            "Io.K8s.Kubernetes.Pkg.Api.V#{v}"
+          "v" <> v ->
+            "io.k8s.kubernetes.pkg.api.v#{v}"
           "extensions/" <> ext ->
-            "Io.K8s.Kubernetes.Pkg.Apis.Extensions.#{ext}"
+            "io.k8s.kubernetes.pkg.apis.extensions.#{ext}"
           other ->
-            api = other 
-            |> String.split("/") 
+            api = other
+            |> String.split("/")
             |> Enum.map(fn x -> x |> String.split(".") |> List.first end)
             |> Enum.join(".")
-            "Io.K8s.Kubernetes.Pkg.Apis.#{api}"
+            "io.k8s.kubernetes.pkg.apis.#{api}"
         end
         {:ok, Kazan.Codegen.Models.module_name("#{version}.#{data["kind"]}")}
       :otherwise ->
