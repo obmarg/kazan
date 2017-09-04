@@ -49,12 +49,19 @@ defmodule Kazan.Server do
 
     %__MODULE__{
       url: cluster["server"],
-      ca_cert: cert_from_pem(cluster["certificate-authority"], basepath),
+      ca_cert: get_cert(cluster, basepath),
       auth: auth_from_user(user, basepath),
       insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"]
     }
   end
 
+  @doc """
+  Server that will connect to the cluster that kazan is running on.
+
+  This will speak to the server via the `kubernetes` domain name, using the service account credentials that are stored on the filesystem.
+
+  [See the Kubernetes documentation for more information](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod).
+  """
   @spec in_cluster(Keyword.t) :: t
   def in_cluster(_options \\ []) do
     basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
@@ -90,6 +97,15 @@ defmodule Kazan.Server do
     %Kazan.Server.CertificateAuth{
       certificate: cert_from_pem(cert_file, basepath),
       key: private_key_from_pem(key_file, basepath)
+    }
+  end
+
+  defp auth_from_user(
+    %{"token" => token},
+    _
+  ) do
+    %Kazan.Server.TokenAuth{
+      token: token
     }
   end
 
