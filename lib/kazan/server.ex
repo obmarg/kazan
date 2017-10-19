@@ -118,6 +118,12 @@ defmodule Kazan.Server do
     }
   end
 
+  defp auth_from_user(%{"token" => token}, _) do
+    %Kazan.Server.TokenAuth{
+      token: token
+    }
+  end
+
   defp auth_from_user(_user, _basepath) do
     nil
   end
@@ -175,3 +181,4 @@ defmodule Kazan.Server do
 
 
 end
+

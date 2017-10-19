@@ -1,10 +1,15 @@
 defmodule KazanModelsTest do
   use ExUnit.Case
+
   alias Kazan.Models
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Extensions.V1beta1
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Apis.Rbac
+  alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.OwnerReference
 
   test "that we have some models" do
     # Not a particularly thorough test, but whatever:
-    %Models.V1.AttachedVolume{
+    %V1.AttachedVolume{
       device_path: "test",
       name: "test"
     }
@@ -14,9 +19,9 @@ defmodule KazanModelsTest do
     test "that we can decode a simple model when we know it's kind" do
       {:ok, result} = Models.decode(
         %{"devicePath" => "test", "name" => "test"},
-        Models.V1.AttachedVolume
+        V1.AttachedVolume
       )
-      assert result == %Models.V1.AttachedVolume{
+      assert result == %V1.AttachedVolume{
         device_path: "test",
         name: "test"
       }
@@ -24,18 +29,13 @@ defmodule KazanModelsTest do
 
     test "that we can decode a model that contains a core kind" do
       {:ok, result} = Models.decode(
-        %{"kind" => "OwnerReference",
+        %{"kind" => "Pod",
           "apiVersion" => "v1",
-          "controller" => false,
-          "name" => "test",
-          "uid" => "test"}
+        }
       )
-      assert result == %Models.V1.OwnerReference{
-        kind: "OwnerReference",
-        api_version: "v1",
-        controller: false,
-        name: "test",
-        uid: "test"
+      assert result == %V1.Pod{
+        kind: "Pod",
+        api_version: "v1"
       }
     end
 
@@ -47,8 +47,23 @@ defmodule KazanModelsTest do
           "name" => "a name"
         }
       )
-      assert result == %Models.V1beta1.APIVersion{
+      assert result == %V1beta1.APIVersion{
         name: "a name"
+      }
+    end
+
+    test "that we can decode a model that contains an extension kind" do
+      {:ok, result} = Models.decode(
+        %{
+          "kind" => "ClusterRoleBinding",
+          "apiVersion" => "rbac.authorization.k8s.io/v1beta1",
+          "subjects" => []
+        }
+      )
+      assert result == %Rbac.V1beta1.ClusterRoleBinding{
+        kind: "ClusterRoleBinding",
+        api_version: "rbac.authorization.k8s.io/v1beta1",
+        subjects: []
       }
     end
 
@@ -64,12 +79,12 @@ defmodule KazanModelsTest do
             "updatedReplicas" => 0
           }
         },
-        Models.V1beta1.Deployment
+        V1beta1.Deployment
       )
-      assert result == %Models.V1beta1.Deployment{
+      assert result == %V1beta1.Deployment{
         metadata: nil,
         spec: nil,
-        status: %Models.V1beta1.DeploymentStatus{
+        status: %V1beta1.DeploymentStatus{
           available_replicas: 1,
           conditions: [],
           observed_generation: 1,
@@ -87,12 +102,12 @@ defmodule KazanModelsTest do
             %{"status" => nil}, %{"status" => nil}
           ],
         },
-        Models.V1beta1.DeploymentList
+        V1beta1.DeploymentList
       )
-      assert result == %Models.V1beta1.DeploymentList{
+      assert result == %V1beta1.DeploymentList{
         items: [
-          %Models.V1beta1.Deployment{},
-          %Models.V1beta1.Deployment{},
+          %V1beta1.Deployment{},
+          %V1beta1.Deployment{},
         ],
         metadata: nil
       }
@@ -101,7 +116,7 @@ defmodule KazanModelsTest do
     test "that we can encode models with non-model $refs" do
       {:ok, result} = Models.decode(
         %{"startedAt" => "2016-02-29T12:30:30.120+00:00"},
-        Models.V1.ContainerStateRunning
+        V1.ContainerStateRunning
       )
       assert result
     end
@@ -110,7 +125,7 @@ defmodule KazanModelsTest do
   describe "Model.encode" do
     test "that we can encode a simple model" do
       {:ok, result} = Models.encode(
-        %Models.V1.AttachedVolume{
+        %V1.AttachedVolume{
           device_path: "test",
           name: "test"
         }
@@ -120,10 +135,10 @@ defmodule KazanModelsTest do
 
     test "that we can encode nested models" do
       {:ok, result} = Models.encode(
-        %Models.V1beta1.Deployment{
+        %V1beta1.Deployment{
           metadata: nil,
           spec: nil,
-          status: %Models.V1beta1.DeploymentStatus{
+          status: %V1beta1.DeploymentStatus{
             available_replicas: 1,
             conditions: [],
             observed_generation: 1,
@@ -147,9 +162,9 @@ defmodule KazanModelsTest do
 
     test "that we can encode arrays" do
       {:ok, result} = Models.encode(
-        %Models.V1beta1.DeploymentList{
+        %V1beta1.DeploymentList{
           items: [
-            %Models.V1beta1.Deployment{},
+            %V1beta1.Deployment{},
           ],
           metadata: nil
         }
@@ -163,8 +178,8 @@ defmodule KazanModelsTest do
 
     test "that nils are removed from nested models" do
       {:ok, result} = Models.encode(
-        %Models.V1.Pod{
-          spec: %Models.V1.PodSpec{
+        %V1.Pod{
+          spec: %V1.PodSpec{
             restart_policy: "Never"
           }
         }

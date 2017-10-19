@@ -1,7 +1,11 @@
 defmodule KazanIntegrationTest do
   use ExUnit.Case, async: true
 
-  alias Kazan.Models.V1
+  alias Kazan.Models.Io.K8s.Kubernetes.Pkg.Api.V1
+  alias Kazan.Models.Io.K8s.Apimachinery.Pkg.Apis.Meta.V1.{
+    ObjectMeta,
+    DeleteOptions,
+  }
 
   @moduletag :integration
 
@@ -40,7 +44,7 @@ defmodule KazanIntegrationTest do
     created_pod =
       Kazan.Apis.CoreV1.create_namespaced_pod!(
         %V1.Pod{
-          metadata: %V1.ObjectMeta{name: "kazan-test"},
+          metadata: %ObjectMeta{name: "kazan-test"},
           spec: %V1.PodSpec{
             containers: [
               %V1.Container{
@@ -63,7 +67,7 @@ defmodule KazanIntegrationTest do
 
     patched_pod = Kazan.Apis.CoreV1.patch_namespaced_pod!(
       %V1.Pod{
-        metadata: %V1.ObjectMeta{name: "kazan-test"},
+        metadata: %ObjectMeta{name: "kazan-test"},
         spec: %V1.PodSpec{
           active_deadline_seconds: 5
         }
@@ -81,7 +85,7 @@ defmodule KazanIntegrationTest do
     assert read_pod == patched_pod
 
     Kazan.Apis.CoreV1.delete_namespaced_pod!(
-      %V1.DeleteOptions{}, @namespace, "kazan-test"
+      %DeleteOptions{}, @namespace, "kazan-test"
     )
     |> Kazan.Client.run!(server: server)
   end
