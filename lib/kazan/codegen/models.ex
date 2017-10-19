@@ -37,7 +37,7 @@ defmodule Kazan.Codegen.Models do
 
       unquote_splicing(spec_forms)
 
-      def model_descs do
+      defp model_descs do
         unquote(Macro.escape(models))
       end
     end
