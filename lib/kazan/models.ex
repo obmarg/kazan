@@ -56,7 +56,7 @@ defmodule Kazan.Models do
 
   @spec model_desc(atom) :: {:ok, ModelDesc.t} | {:err, term}
   defp model_desc(kind) do
-    case Map.get(model_descs, kind) do
+    case Map.get(model_descs(), kind) do
       nil -> {:err, {:unknown_model, kind}}
       model_desc -> {:ok, model_desc}
     end

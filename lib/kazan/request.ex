@@ -87,9 +87,8 @@ defmodule Kazan.Request do
   defp build_query_params(param_groups, params) do
     param_groups
     |> Map.get("query", [])
-    |> Enum.filter_map(&(Map.has_key?(params, &1["name"])), fn (param) ->
-      {param["name"], params[param["name"]]}
-    end)
+    |> Enum.filter(&(Map.has_key?(params, &1["name"])))
+    |> Enum.map(fn (param) -> {param["name"], params[param["name"]]} end)
     |> Enum.into(%{})
   end
 

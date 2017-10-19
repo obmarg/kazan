@@ -19,7 +19,7 @@ defmodule Kazan.ClientTest do
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
-        |> Plug.Conn.resp(200, namespace_response)
+        |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("content-type", "application/json")
       end
 
@@ -37,7 +37,7 @@ defmodule Kazan.ClientTest do
         assert conn.query_params["pretty"] == "true"
 
         conn
-        |> Plug.Conn.resp(200, namespace_response)
+        |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("content-type", "application/json")
       end
 
@@ -49,7 +49,7 @@ defmodule Kazan.ClientTest do
 
       Bypass.expect bypass, fn conn ->
         conn
-        |> Plug.Conn.resp(500, namespace_response)
+        |> Plug.Conn.resp(500, namespace_response())
         |> Plug.Conn.put_resp_header("content-type", "application/json")
       end
 
@@ -76,7 +76,7 @@ defmodule Kazan.ClientTest do
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
-        |> Plug.Conn.resp(200, namespace_response)
+        |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("content-type", "application/json")
       end
 
@@ -127,7 +127,7 @@ defmodule Kazan.ClientTest do
   }
   """
 
-  defp namespace_response do
+  defp namespace_response() do
     @namespace_list
   end
 
