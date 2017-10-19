@@ -17,4 +17,27 @@ defmodule Kazan.Apis do
   alias Kazan.Codegen
 
   Codegen.Apis.from_spec("kube_specs/swagger.json")
+
+  @doc """
+  Maps OpenAPI spec operation IDs into functions that implement that operation.
+
+  Takes the ID of an operation in the OpenAPI spec, and returns the functions
+  that implement that operation as a list of {module, function} tuples.
+
+  Returns an empty list if no matching operation was found.
+  """
+  def oai_id_to_functions(oai_operation_id) do
+    operation_descs()
+    |> Enum.find(fn op -> op.operation_id == oai_operation_id end)
+    |> case do
+         nil -> []
+         operation ->
+           bang_function_name = String.to_existing_atom(
+             Atom.to_string(operation.function_name) <> "!"
+           )
+
+           [{operation.api_name, operation.function_name},
+            {operation.api_name, bang_function_name}]
+       end
+  end
 end

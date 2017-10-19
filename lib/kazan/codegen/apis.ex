@@ -19,7 +19,7 @@ defmodule Kazan.Codegen.Apis do
   remove for the sake of brevity.
   """
   defmacro from_spec(spec_file) do
-    operations = 
+    operations =
       File.read!(spec_file)
       |> Poison.decode!
       |> swagger_to_op_map
@@ -33,10 +33,9 @@ defmodule Kazan.Codegen.Apis do
       |> Enum.uniq
       |> Enum.each(&api_name &1, unsafe: true)
 
-    api_groups =
-      operations
-      |> Enum.map(&Operation.from_oai_desc/1)
-      |> Enum.group_by(fn (op) -> op.api_name end)
+    operations = Enum.map(operations, &Operation.from_oai_desc/1)
+
+    api_groups = Enum.group_by(operations, fn (op) -> op.api_name end)
 
     module_forms = for {module_name, functions} <- api_groups do
       function_forms = Enum.map(functions, &function_form/1)
@@ -55,6 +54,10 @@ defmodule Kazan.Codegen.Apis do
       @external_resource unquote(spec_file)
 
       unquote_splicing(module_forms)
+
+      defp operation_descs do
+        unquote(Macro.escape(operations))
+      end
     end
   end
 

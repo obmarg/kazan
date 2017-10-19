@@ -4,6 +4,18 @@ defmodule KazanApiTests do
   alias Kazan.Apis.{CoreV1, ExtensionsV1beta1}
   alias Kazan.Models.V1.{Namespace, ObjectMeta}
 
+  describe "Apis.oai_id_to_functions" do
+    test "it returns a list of functions for known operations" do
+      assert Kazan.Apis.oai_id_to_functions("getCoreV1APIResources") == [
+        {CoreV1, :get_api_resources},
+        {CoreV1, :get_api_resources!},
+      ]
+    end
+    test "it returns an empty list for unknown operations" do
+      assert Kazan.Apis.oai_id_to_functions("someUnknownOp") == []
+    end
+  end
+
   test "request without params" do
     {:ok, res} = CoreV1.list_pod_for_all_namespaces()
     assert res.body == nil

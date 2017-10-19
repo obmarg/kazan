@@ -174,4 +174,15 @@ defmodule KazanModelsTest do
       }
     end
   end
+
+  describe "Models.oai_name_to_module" do
+    test "it returns a module for known models" do
+      model = Kazan.Models.oai_name_to_module("v1.ComponentStatusList")
+      assert model == Kazan.Models.V1.ComponentStatusList
+    end
+    test "it returns nil for unknown models" do
+      assert Kazan.Models.oai_name_to_module("someName") == nil
+    end
+  end
+
 end

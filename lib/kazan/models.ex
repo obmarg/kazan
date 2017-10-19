@@ -34,6 +34,14 @@ defmodule Kazan.Models do
          do: {:ok, data}
   end
 
+  @doc """
+  Takes the name of a model in the OpenAPI spec, and returns the module that implements that model.
+  """
+  @spec oai_name_to_module(String.t) :: atom | nil
+  def oai_name_to_module(oai_name) do
+    Kazan.Codegen.Models.module_name(oai_name)
+  end
+
   @spec guess_kind(Map.t, atom | nil) :: {:ok, atom} | {:err, term}
   defp guess_kind(data, kind) do
     cond do
