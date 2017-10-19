@@ -21,7 +21,7 @@ defmodule Kazan.Codegen.Models do
     spec_forms = for {module_name, desc} <- models do
       property_names = Map.keys(desc.properties)
 
-      documentation = model_docs(desc.description, desc.properties)
+      documentation = model_docs(desc.id, desc.description, desc.properties)
 
       quote do
         defmodule unquote(module_name) do
@@ -119,12 +119,14 @@ defmodule Kazan.Codegen.Models do
   EEx.function_from_string(:defp, :model_docs, """
   <%= model_description %>
 
+  OpenAPI Definition: `<%= id %>`
+
   ### Properties
 
   <%= for {name, property} <- properties do %>
   * `<%= name %>` <%= if doc = property_type_doc(property) do %>:: <%= doc %> <% end %>
       * <%= process_description(property.description) %> <% end %>
-  """, [:model_description, :properties])
+  """, [:id, :model_description, :properties])
 
   # Creates a property type doc string.
   @spec property_type_doc(Property.t) :: String.t | nil

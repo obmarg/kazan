@@ -3,7 +3,9 @@ defmodule Kazan.Codegen.Models.ModelDesc do
   import Kazan.Codegen.Models, only: [module_name: 1, property_name: 1]
   alias Kazan.Codegen.Models.PropertyDesc
 
-  defstruct [:id, :module_name, :description, :required, :properties]
+  defstruct [
+    :id, :module_name, :description, :required, :properties
+  ]
 
   @type property_map :: %{atom: PropertyDesc.t}
   @type t :: %{
@@ -11,7 +13,7 @@ defmodule Kazan.Codegen.Models.ModelDesc do
     module_name: :atom,
     description: String.t,
     required: [:atom],
-    properties: property_map
+    properties: property_map,
   }
 
   @doc """
@@ -38,4 +40,3 @@ defmodule Kazan.Codegen.Models.ModelDesc do
     }
   end
 end
-

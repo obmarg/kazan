@@ -126,8 +126,7 @@ defmodule Kazan.Codegen.Apis do
 
     arguments = argument_forms(argument_params, optional_params)
     docs = function_docs(
-      operation.description, argument_params, optional_params,
-      operation.response_schema
+      operation.operation_id, operation.description, argument_params, optional_params, operation.response_schema
     )
 
     param_unpacking = if Enum.empty?(argument_params) do
@@ -250,6 +249,7 @@ defmodule Kazan.Codegen.Apis do
   EEx.function_from_string(:defp, :function_docs, """
   <%= if description do description end %>
 
+  OpenAPI Operation ID: `<%= operation_id %>`
   <%= unless Enum.empty?(parameters) do %>
   ### Parameters
 
@@ -272,7 +272,7 @@ defmodule Kazan.Codegen.Apis do
   See `<%= doc_ref(response_schema) %>`
   <% end %>
 
-  """, [:description, :parameters, :options, :response_schema])
+  """, [:operation_id, :description, :parameters, :options, :response_schema])
 
   defp module_doc(module_name) do
     module_name =
