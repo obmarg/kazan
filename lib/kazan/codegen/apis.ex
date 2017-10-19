@@ -19,12 +19,22 @@ defmodule Kazan.Codegen.Apis do
   remove for the sake of brevity.
   """
   defmacro from_spec(spec_file) do
-    api_groups =
+    operations = 
       File.read!(spec_file)
       |> Poison.decode!
       |> swagger_to_op_map
       |> Map.values
       |> Enum.flat_map(&duplicate_on_tags/1)
+
+    # Create the atoms for all the names of our operations.
+    :ok =
+      operations
+      |> Enum.map(fn (op_desc) -> op_desc["tag"] end)
+      |> Enum.uniq
+      |> Enum.each(&api_name &1, unsafe: true)
+
+    api_groups =
+      operations
       |> Enum.map(&Operation.from_oai_desc/1)
       |> Enum.group_by(fn (op) -> op.api_name end)
 
@@ -51,10 +61,18 @@ defmodule Kazan.Codegen.Apis do
   @doc """
   Builds an api_name from a tag on an OAI operation.
   """
-  @spec api_name(String.t) :: atom
-  def api_name(operation_tag) do
+  @spec api_name(String.t, Keyword.t) :: atom
+  def api_name(operation_tag, opts \\ []) do
     api_name = Macro.camelize(operation_tag)
-    Module.concat(Kazan.Apis, api_name)
+    if Keyword.get(opts, :unsafe, false) do
+      Module.concat(Kazan.Apis, api_name)
+    else
+      try do
+        Module.safe_concat(Kazan.Apis, api_name)
+      rescue ArgumentError ->
+          nil
+      end
+    end
   end
 
   @doc """

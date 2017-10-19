@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Apis.Parameter do
   @moduledoc false
-  import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
+  import Kazan.Codegen.Models, only: [definition_ref_to_module_name: 1]
 
   defstruct [:type, :var_name, :field_name, :description, :required, :schema]
 
@@ -21,7 +21,7 @@ defmodule Kazan.Codegen.Apis.Parameter do
       field_name: desc["name"],
       description: desc["description"],
       required: parse_required(desc["in"], desc["required"]),
-      schema: parse_definition_ref(get_in(desc, ["schema", "$ref"]))
+      schema: definition_ref_to_module_name(get_in(desc, ["schema", "$ref"]))
     }
   end
 

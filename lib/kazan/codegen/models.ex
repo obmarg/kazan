@@ -44,10 +44,10 @@ defmodule Kazan.Codegen.Models do
   end
 
   @doc """
-  Builds a module name atom from a OAI model name.
+  Builds a module name atom from an OAI model name.
   """
-  @spec module_name(String.t) :: atom
-  def module_name(model_name) do
+  @spec module_name(String.t, Keyword.t) :: atom | nil
+  def module_name(model_name, opts \\ []) do
     fixed_name =
       model_name
       |> String.split(".")
@@ -57,15 +57,23 @@ defmodule Kazan.Codegen.Models do
     end)
     |> Enum.join(".")
 
-    Module.concat(Kazan.Models, fixed_name)
+    if Keyword.get(opts, :unsafe, false) do
+      Module.concat(Kazan.Models, fixed_name)
+    else
+      try do
+        Module.safe_concat(Kazan.Models, fixed_name)
+      rescue ArgumentError ->
+        nil
+      end
+    end
   end
 
   @doc """
   Parses a $ref for a definition into a models module name.
   """
-  @spec parse_definition_ref(String.t) :: nil | :atom
-  def parse_definition_ref(nil), do: nil
-  def parse_definition_ref("#/definitions/" <> model_def) do
+  @spec definition_ref_to_module_name(String.t) :: nil | :atom
+  def definition_ref_to_module_name(nil), do: nil
+  def definition_ref_to_module_name("#/definitions/" <> model_def) do
     module_name(model_def)
   end
 
@@ -84,6 +92,10 @@ defmodule Kazan.Codegen.Models do
       |> File.read!
       |> Poison.decode!
       |> Map.get("definitions")
+
+    # First we need to go over all of the definitions and call module_name
+    # on their names w/ unsafe.  This ensures that the atoms for each models module name are defined, and lets us use the safe module_name call everywhere else...
+    Enum.each(definitions, fn {name, _} -> module_name(name, unsafe: true) end)
 
     # Most of the top-level definitions in the kube spec are models.
     # However, there are a few that are used in $ref statements to define common

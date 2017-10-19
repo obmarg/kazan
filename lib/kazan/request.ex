@@ -4,7 +4,7 @@ defmodule Kazan.Request do
   """
   defstruct [:method, :path, :query_params, :content_type, :body, :response_schema]
 
-  import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
+  import Kazan.Codegen.Models, only: [definition_ref_to_module_name: 1]
 
   @type t :: %__MODULE__{
     method: String.t,
@@ -67,7 +67,7 @@ defmodule Kazan.Request do
       query_params: build_query_params(param_groups, params),
       content_type: content_type(operation),
       body: build_body(param_groups, params),
-      response_schema: parse_definition_ref(
+      response_schema: definition_ref_to_module_name(
         operation["responses"]["200"]["schema"]["$ref"]
       )
     }

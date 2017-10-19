@@ -4,7 +4,7 @@ defmodule Kazan.Codegen.Apis.Operation do
   import Kazan.Codegen.Apis, only: [api_name: 1, function_name: 2]
   alias Kazan.Codegen.Apis.Parameter
 
-  import Kazan.Codegen.Models, only: [parse_definition_ref: 1]
+  import Kazan.Codegen.Models, only: [definition_ref_to_module_name: 1]
 
   defstruct [
     :function_name, :api_name, :operation_id,
@@ -29,7 +29,7 @@ defmodule Kazan.Codegen.Apis.Operation do
       api_name: api_name(desc["tag"]),
       operation_id: desc["operationId"],
       parameters: Enum.map(desc["parameters"], &Parameter.from_oai_desc/1),
-      response_schema: parse_definition_ref(
+      response_schema: definition_ref_to_module_name(
         desc["responses"]["200"]["schema"]["$ref"]
       ),
       description: desc["description"],
