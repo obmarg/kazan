@@ -87,11 +87,21 @@ defmodule Kazan.Codegen.Apis do
   API name out.
   """
   @spec function_name(String.t, String.t | atom) :: atom
-  def function_name(operation_id, tag) when is_binary(tag) do
-    operation_id
-    |> String.replace(Macro.camelize(tag), "")
-    |> Macro.underscore
-    |> String.to_atom
+  def function_name(operation_id, tag, opts \\ []) when is_binary(tag) do
+    string_name =
+      operation_id
+      |> String.replace(Macro.camelize(tag), "")
+      |> Macro.underscore
+
+    if Keyword.get(opts, :unsafe, false) do
+      String.to_atom(string_name)
+    else
+      try do
+        String.to_existing_atom(string_name)
+      rescue ArgumentError ->
+          nil
+      end
+    end
   end
 
   # Swagger tags are a list. There _appears_ to only be one tag per operation,
