@@ -125,7 +125,8 @@ defmodule Kazan.Server do
   # Reads data of a particular type from a .pem file.
   defp cert_from_pem(nil, _), do: nil
   defp cert_from_pem(filename, basepath) do
-    Path.join([basepath, filename])
+    filename
+    |> resolve_filename(basepath)
     |> File.read!
     |> :public_key.pem_decode
     |> Enum.find_value(fn
@@ -151,7 +152,8 @@ defmodule Kazan.Server do
 
   defp private_key_from_pem(nil, _), do: nil
   defp private_key_from_pem(filename, basepath) do
-    Path.join([basepath, filename])
+    filename
+    |> resolve_filename(basepath)
     |> File.read!
     |> :public_key.pem_decode
     |> Enum.find_value(fn
@@ -173,5 +175,15 @@ defmodule Kazan.Server do
       end
   end
 
-
+  # "resolves" the path a filename that may be relative or absolute.
+  # If absolute, then just uses that filename. Otherwise assumes it is relative
+  # to the basepath. This is so that paths in kubeconfig can be relative to the
+  # kubeconfig itself, rather than the current directory.
+  @spec resolve_filename(String.t, String.t) :: String.t
+  defp resolve_filename(filename, basepath) do
+    case Path.type(filename) do
+      :absolute -> filename
+      other -> Path.join([basepath, filename])
+    end
+  end
 end
