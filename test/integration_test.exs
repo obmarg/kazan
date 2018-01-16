@@ -89,4 +89,13 @@ defmodule KazanIntegrationTest do
     )
     |> Kazan.Client.run!(server: server)
   end
+
+  test "RBAC Authorization V1 Beta 1 API", %{server: server} do
+    cluster_roles =
+      Kazan.Apis.RbacAuthorizationV1beta1.list_cluster_role!()
+      |> Kazan.Client.run!(server: server)
+
+    assert cluster_roles.kind == "ClusterRoleList"
+    assert cluster_roles.items == []
+  end
 end
