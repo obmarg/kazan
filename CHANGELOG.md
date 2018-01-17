@@ -1,3 +1,9 @@
+### v0.5.0 (17/01/17)
+
+- Adds support for Kubernetes 1.7
+- Adds a script for kazan developers to use for downloading new kubernetes open
+  API specs.
+
 ### v0.4.0 (17/01/17)
 
 #### Breaking Changes
