@@ -18,7 +18,7 @@ defmodule Kazan.Mixfile do
      source_url: "https://github.com/obmarg/kazan",
      homepage_url: "https://github.com/obmarg/kazan",
      docs: [main: "readme",
-            extras: ["README.md"]]
+            extras: ["README.md", "CHANGELOG.md"]]
     ]
   end
 
