@@ -1,3 +1,32 @@
+### v0.4.0 (17/01/17)
+
+#### Breaking Changes
+
+- Support Kubernetes 1.6. This is a breaking change as many of the paths to
+  model modules have changed.
+- Dropped Elixir 1.3 support.
+- Make Kazan.Models.model_descs private.  This is potentially a breaking change.
+
+#### New Features.
+
+- Support for token authentication & skipping TLS verification. (Thanks @izaakschroeder)
+- In cluster service account authentication (Thanks @izaakschroeder)
+- Functions to map from OpenAPI model name or operation ID into modules or
+  functions. These are intended to be used for developers exploring the API in
+  the REPL.
+
+#### Improvements
+
+- OpenAPI operation & definition IDs are now documented in the exdocs.
+- No compiler warnings on Elixir 1.5
+- Absolute paths in kubeconfig will now be interpreted as such. Previously they
+  would be assumed as relative to the kubeconfig file.
+
+#### Bug Fixes
+
+- Various functions will no longer leak atoms if called with the names of models
+  or APIs that don't exist.
+
 ### v0.3.0 (03/02/17)
 
 - Relax some requirements dependencies.
