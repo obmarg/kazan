@@ -45,6 +45,7 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
     }
   end
 
+  # TODO: Need to move this somewhere...
 
   defp parse_items(nil, _), do: nil
   defp parse_items(map, refs), do: from_oai_desc(map, nil, refs)

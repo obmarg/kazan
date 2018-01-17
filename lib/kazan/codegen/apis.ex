@@ -4,6 +4,9 @@ defmodule Kazan.Codegen.Apis do
   import Kazan.Swagger, only: [swagger_to_op_map: 1]
   alias Kazan.Codegen.Apis.{Operation, Parameter}
 
+  # TODO: Could be worth looking into using bitwalker/libswagger
+  # for the swagger parsing itself.  At least get some proper structs to use...
+
   require EEx
 
   @doc """

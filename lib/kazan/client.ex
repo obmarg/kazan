@@ -23,6 +23,15 @@ defmodule Kazan.Client do
   def run(request, options \\ []) do
     server = find_server(options)
 
+    # TODO: So, need to handle patch requests somewhere...
+    # They are absolutely not the same as POST requests:
+    # Need to be sent as some sort of json patch request
+    # following RFC https://tools.ietf.org/html/rfc6902
+    # HURM.
+    # It also supports merge-patch but that's only really suitable if we don't
+    # over-use nils - otherwise we'll delete half the actual data. Basically
+    # looks like patching requires some extra support...
+
     headers = [{"Accept", "application/json"}]
     headers = headers ++ case request.content_type do
                            nil -> []
@@ -87,6 +96,7 @@ defmodule Kazan.Client do
     {:ok, body}
   end
   defp check_status(%{status_code: other, body: body}) do
+    # TODO: decide if this is the best approach for errors.
     data =
       case Poison.decode(body) do
         {:ok, data} -> data

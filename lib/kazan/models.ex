@@ -27,6 +27,9 @@ defmodule Kazan.Models do
   @doc """
   Encodes data from a Kazan model to plain Maps suitable for JSON encoding.
   """
+  # TODO: Might be good to implement an encode that takes a type, so we
+  # can encode random map/list structures without forcing people to use our custom
+  # structs...
   @spec encode(struct) :: {:ok, Map.t} | {:err, term}
   def encode(model) do
     with {:ok, desc} <- model_desc(model.__struct__),
@@ -65,6 +68,8 @@ defmodule Kazan.Models do
             "io.k8s.kubernetes.pkg.apis.#{api}"
         end
         {:ok, Kazan.Codegen.Models.module_name("#{version}.#{data["kind"]}")}
+      # TODO: Might also have to look in object metadata?
+      # See v1.ObjectMeta
       :otherwise ->
         {:err, :missing_kind}
     end

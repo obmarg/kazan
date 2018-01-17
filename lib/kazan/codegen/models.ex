@@ -19,6 +19,7 @@ defmodule Kazan.Codegen.Models do
     models = parse_models(spec_file)
 
     spec_forms = for {module_name, desc} <- models do
+      # TODO: Might be nice if the kind etc. fields had defaults?
       property_names = Map.keys(desc.properties)
 
       documentation = model_docs(desc.id, desc.description, desc.properties)
@@ -28,6 +29,7 @@ defmodule Kazan.Codegen.Models do
           @moduledoc unquote(documentation)
 
           defstruct unquote(property_names)
+          # TODO: also need typespecs, validation functions, decoders etc.
         end
       end
     end
