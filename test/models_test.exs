@@ -41,16 +41,16 @@ defmodule KazanModelsTest do
     test "that we can decode a model that contains a v1beta1 kind" do
       {:ok, result} = Models.decode(
         %{
-          "kind" => "APIVersion",
+          "kind" => "Scale",
           "apiVersion" => "extensions/v1beta1",
-          "name" => "a name"
         }
       )
-      assert result == %V1beta1.APIVersion{
-        name: "a name"
+      assert result == %V1beta1.Scale{
+        kind: "Scale",
+        api_version: "extensions/v1beta1"
       }
     end
-    
+
     test "that we can decode a model that contains an extension kind" do
       {:ok, result} = Models.decode(
         %{
