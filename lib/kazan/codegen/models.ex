@@ -52,12 +52,7 @@ defmodule Kazan.Codegen.Models do
       model_name
       |> strip_module_name_prefixes
       |> String.split(".")
-      |> Enum.map(fn (str) ->
-        # We can't just use String.titlecase because that
-        # lowercases all the following words...
-        {first, rest} = String.Casing.titlecase_once(str)
-        first <> rest
-      end)
+      |> Enum.map(&titlecase_once/1)
       |> Enum.join(".")
 
     if Keyword.get(opts, :unsafe, false) do
@@ -182,5 +177,11 @@ defmodule Kazan.Codegen.Models do
       "io.k8s.kube-aggregator." <> rest ->
         "KubeAggregator" <> rest
     end
+  end
+
+  # Uppercases the first character of str
+  defp titlecase_once(str) do
+    first_letter = String.first(str)
+    String.replace_prefix(str, first_letter, String.upcase(first_letter))
   end
 end
