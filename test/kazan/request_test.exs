@@ -2,8 +2,8 @@ defmodule RequestTest do
   use ExUnit.Case, async: true
 
   alias Kazan.Request
-  alias Kazan.Models.Api.V1
-  alias Kazan.Models.ApiMachinery.Apis.Meta.V1.ObjectMeta
+  alias Kazan.Models.Core.V1
+  alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
 
   describe "Request.create" do
     test "building a get request with no parameters" do
@@ -42,7 +42,7 @@ defmodule RequestTest do
     test "building a POST request" do
       body_data = %V1.Binding{target: %V1.ObjectReference{}}
       {:ok, request} = Request.create(
-        "createCoreV1NamespacedBinding", 
+        "createCoreV1NamespacedBinding",
         %{"namespace" => "test",
           "body" => body_data}
       )
@@ -58,7 +58,7 @@ defmodule RequestTest do
         metadata: %ObjectMeta{name: "test2"}
       }
       {:ok, request} = Request.create(
-        "patchCoreV1Namespace", 
+        "patchCoreV1Namespace",
         %{"name" => "test",
           "body" => body_data}
       )

@@ -2,13 +2,13 @@ defmodule KazanModelsTest do
   use ExUnit.Case
 
   alias Kazan.Models
-  alias Kazan.Models.Api.V1
-  alias Kazan.Models.Apis.Extensions.V1beta1
-  alias Kazan.Models.Apis.Rbac
+  alias Kazan.Models.Core
+  alias Kazan.Models.Extensions
+  alias Kazan.Models.Rbac
 
   test "that we have some models" do
     # Not a particularly thorough test, but whatever:
-    %V1.AttachedVolume{
+    %Core.V1.AttachedVolume{
       device_path: "test",
       name: "test"
     }
@@ -18,9 +18,9 @@ defmodule KazanModelsTest do
     test "that we can decode a simple model when we know it's kind" do
       {:ok, result} = Models.decode(
         %{"devicePath" => "test", "name" => "test"},
-        V1.AttachedVolume
+        Core.V1.AttachedVolume
       )
-      assert result == %V1.AttachedVolume{
+      assert result == %Core.V1.AttachedVolume{
         device_path: "test",
         name: "test"
       }
@@ -32,7 +32,7 @@ defmodule KazanModelsTest do
           "apiVersion" => "v1",
         }
       )
-      assert result == %V1.Pod{
+      assert result == %Core.V1.Pod{
         kind: "Pod",
         api_version: "v1"
       }
@@ -45,7 +45,7 @@ defmodule KazanModelsTest do
           "apiVersion" => "extensions/v1beta1",
         }
       )
-      assert result == %V1beta1.Scale{
+      assert result == %Extensions.V1beta1.Scale{
         kind: "Scale",
         api_version: "extensions/v1beta1"
       }
@@ -78,12 +78,12 @@ defmodule KazanModelsTest do
             "updatedReplicas" => 0
           }
         },
-        V1beta1.Deployment
+        Extensions.V1beta1.Deployment
       )
-      assert result == %V1beta1.Deployment{
+      assert result == %Extensions.V1beta1.Deployment{
         metadata: nil,
         spec: nil,
-        status: %V1beta1.DeploymentStatus{
+        status: %Extensions.V1beta1.DeploymentStatus{
           available_replicas: 1,
           conditions: [],
           observed_generation: 1,
@@ -101,12 +101,12 @@ defmodule KazanModelsTest do
             %{"status" => nil}, %{"status" => nil}
           ],
         },
-        V1beta1.DeploymentList
+        Extensions.V1beta1.DeploymentList
       )
-      assert result == %V1beta1.DeploymentList{
+      assert result == %Extensions.V1beta1.DeploymentList{
         items: [
-          %V1beta1.Deployment{},
-          %V1beta1.Deployment{},
+          %Extensions.V1beta1.Deployment{},
+          %Extensions.V1beta1.Deployment{},
         ],
         metadata: nil
       }
@@ -115,7 +115,7 @@ defmodule KazanModelsTest do
     test "that we can encode models with non-model $refs" do
       {:ok, result} = Models.decode(
         %{"startedAt" => "2016-02-29T12:30:30.120+00:00"},
-        V1.ContainerStateRunning
+        Core.V1.ContainerStateRunning
       )
       assert result
     end
@@ -124,7 +124,7 @@ defmodule KazanModelsTest do
   describe "Model.encode" do
     test "that we can encode a simple model" do
       {:ok, result} = Models.encode(
-        %V1.AttachedVolume{
+        %Core.V1.AttachedVolume{
           device_path: "test",
           name: "test"
         }
@@ -134,10 +134,10 @@ defmodule KazanModelsTest do
 
     test "that we can encode nested models" do
       {:ok, result} = Models.encode(
-        %V1beta1.Deployment{
+        %Extensions.V1beta1.Deployment{
           metadata: nil,
           spec: nil,
-          status: %V1beta1.DeploymentStatus{
+          status: %Extensions.V1beta1.DeploymentStatus{
             available_replicas: 1,
             conditions: [],
             observed_generation: 1,
@@ -161,9 +161,9 @@ defmodule KazanModelsTest do
 
     test "that we can encode arrays" do
       {:ok, result} = Models.encode(
-        %V1beta1.DeploymentList{
+        %Extensions.V1beta1.DeploymentList{
           items: [
-            %V1beta1.Deployment{},
+            %Extensions.V1beta1.Deployment{},
           ],
           metadata: nil
         }
@@ -177,8 +177,8 @@ defmodule KazanModelsTest do
 
     test "that nils are removed from nested models" do
       {:ok, result} = Models.encode(
-        %V1.Pod{
-          spec: %V1.PodSpec{
+        %Core.V1.Pod{
+          spec: %Core.V1.PodSpec{
             restart_policy: "Never"
           }
         }
@@ -192,15 +192,15 @@ defmodule KazanModelsTest do
   describe "Models.oai_name_to_module" do
     test "it returns a module for known models" do
       model = Kazan.Models.oai_name_to_module(
-        "io.k8s.kubernetes.pkg.api.v1.ComponentStatusList"
+        "io.k8s.api.core.v1.ComponentStatusList"
       )
-      assert model == Kazan.Models.Api.V1.ComponentStatusList
+      assert model == Core.V1.ComponentStatusList
     end
     test "it returns nil for unknown models" do
       assert Kazan.Models.oai_name_to_module("someName") == nil
 
       assert Kazan.Models.oai_name_to_module(
-        "io.k8s.kubernetes.pkg.api.v1.SomeName"
+        "io.k8s.api.core.v1.SomeName"
       ) == nil
     end
   end

@@ -2,8 +2,8 @@ defmodule KazanApiTests do
   use ExUnit.Case
 
   alias Kazan.Apis.{CoreV1, ExtensionsV1beta1}
-  alias Kazan.Models.ApiMachinery.Apis.Meta.V1.ObjectMeta
-  alias Kazan.Models.Api.V1.Namespace
+  alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
+  alias Kazan.Models.Core.V1.Namespace
 
   describe "Apis.oai_id_to_functions" do
     test "it returns a list of functions for known operations" do
