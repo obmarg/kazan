@@ -179,42 +179,17 @@ defmodule Kazan.Codegen.Models do
       # Deprecated
       "io.k8s.kubernetes.pkg.apis." <> rest ->
         "apis." <> rest
+
+      "io.k8s.api." <> rest ->
+        rest
+      "io.k8s.apimachinery.pkg.apis." <> rest ->
+        "Apimachinery." <> rest
       "io.k8s.apimachinery.pkg." <> rest ->
-        "ApiMachinery." <> rest
-      "io.k8s.kube-aggregator." <> rest ->
-        "KubeAggregator" <> rest
-      "io.k8s.api.core." <> rest ->
-        "Api." <> rest
-      "io.k8s.apiextensions-apiserver." <> rest ->
-        "ApiExtensionsApiServer." <> rest
-      "io.k8s.api.autoscaling." <> rest ->
-        "Apis.AutoScaling." <> rest
-      "io.k8s.api.storage." <> rest ->
-        "Apis.Storage." <> rest
-      "io.k8s.api.certificates." <> rest ->
-        "Apis.Certificates." <> rest
-      "io.k8s.api.apps." <> rest ->
-        "Apis.Apps." <> rest
-      "io.k8s.api.rbac." <> rest ->
-        "Apis.Rbac." <> rest
-      "io.k8s.api.authorization." <> rest ->
-        "Apis.Authorization." <> rest
-      "io.k8s.api.extensions." <> rest ->
-        "Apis.Extensions." <> rest
-      "io.k8s.api.networking." <> rest ->
-        "Apis.Networking." <> rest
-      "io.k8s.api.batch." <> rest ->
-        "Apis.Batch." <> rest
-      "io.k8s.api.admissionregistration." <> rest ->
-        "Apis.AdmissionRegistration." <> rest
-      "io.k8s.api.policy." <> rest ->
-        "Apis.Policy." <> rest
-      "io.k8s.api.settings." <> rest ->
-        "Apis.Settings." <> rest
-      "io.k8s.api.authentication." <> rest ->
-        "Apis.Authentication." <> rest
-      "io.k8s.api.scheduling." <> rest ->
-        "Apis.Scheduling." <> rest
+        "Apimachinery." <> rest
+      "io.k8s.kube-aggregator.pkg.apis." <> rest ->
+        "KubeAggregator." <> rest
+      "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
+        "ApiextensionsApiserver." <> rest
     end
   end
 end
