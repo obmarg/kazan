@@ -168,14 +168,23 @@ defmodule Kazan.Codegen.Models do
   # some common prefixes
   defp strip_module_name_prefixes(name) do
     case name do
+      # Deprecated
       "io.k8s.kubernetes.pkg.api." <> rest ->
         "api." <> rest
+      # Deprecated
       "io.k8s.kubernetes.pkg.apis." <> rest ->
         "apis." <> rest
+
+      "io.k8s.api." <> rest ->
+        rest
+      "io.k8s.apimachinery.pkg.apis." <> rest ->
+        "Apimachinery." <> rest
       "io.k8s.apimachinery.pkg." <> rest ->
-        "ApiMachinery." <> rest
-      "io.k8s.kube-aggregator." <> rest ->
-        "KubeAggregator" <> rest
+        "Apimachinery." <> rest
+      "io.k8s.kube-aggregator.pkg.apis." <> rest ->
+        "KubeAggregator." <> rest
+      "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
+        "ApiextensionsApiserver." <> rest
     end
   end
 
