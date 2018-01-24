@@ -13,13 +13,13 @@ at any time.
 - Support for most Kubernetes API calls.
 - Structs for most Kubernetes API structures.
 - Documentation of all models & calls.
-- Client certificate autentation.
+- Client certificate & token based authentication.
 - Loading config from kubeconfig files.
 
 ### Not Implemented
 
 - Support for watch requests.
-- Non-certificate based authentication.
+- Other forms of authentication
 - Patching with `application/json-patch+json` or
   `application/strategic-merge-patch+json` content types.
 - Removing fields when patching with `application/merge-patch+json`.
