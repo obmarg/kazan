@@ -183,7 +183,7 @@ defmodule Kazan.Server do
   defp resolve_filename(filename, basepath) do
     case Path.type(filename) do
       :absolute -> filename
-      other -> Path.join([basepath, filename])
+      _ -> Path.join([basepath, filename])
     end
   end
 end
