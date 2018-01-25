@@ -1,3 +1,8 @@
+### v0.5.1 (25/01/17)
+
+- Kazan now compiles on Elixir 1.6+
+- Fixed a compiler warning.
+
 ### v0.5.0 (17/01/17)
 
 - Adds support for Kubernetes 1.7
