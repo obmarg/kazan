@@ -66,12 +66,19 @@ defmodule Kazan.Codegen.Apis do
   """
   @spec api_name(String.t, Keyword.t) :: atom
   def api_name(operation_tag, opts \\ []) do
-    api_name = Macro.camelize(operation_tag)
+    components =
+      case String.split(operation_tag, "_") do
+        [group, version] ->
+          [Kazan.Apis, String.capitalize(group), String.capitalize(version)]
+        [group] ->
+          [Kazan.Apis, String.capitalize(group)]
+      end
+
     if Keyword.get(opts, :unsafe, false) do
-      Module.concat(Kazan.Apis, api_name)
+      Module.concat(components)
     else
       try do
-        Module.safe_concat(Kazan.Apis, api_name)
+        Module.safe_concat(components)
       rescue ArgumentError ->
           nil
       end

@@ -15,6 +15,8 @@ all APIs might be changed.
 
 - The k8s 1.8 specs changed the OAI names of most of the models in the API. As a
   result, most of the models under `Kazan.Models` have changed location.
+- Most APIs have changed modules slightly to have a dot between the group name
+  and the version. For example: `Kazan.Apis.CoreV1` is now `Kazan.Apis.Core.V1`.
 
 ### New Features
 

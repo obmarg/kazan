@@ -1,7 +1,8 @@
 defmodule KazanApiTests do
   use ExUnit.Case
 
-  alias Kazan.Apis.{CoreV1, ExtensionsV1beta1}
+  alias Kazan.Apis.Core.V1, as: CoreV1
+  alias Kazan.Apis.Extensions.V1beta1, as: ExtensionsV1beta1
   alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
   alias Kazan.Models.Core.V1.Namespace
 

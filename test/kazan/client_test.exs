@@ -1,9 +1,11 @@
 defmodule Kazan.ClientTest do
   use ExUnit.Case
 
+  alias Kazan.Apis.Core.V1, as: CoreV1
+
   setup do
     bypass = Bypass.open
-    request = Kazan.Apis.CoreV1.list_namespace!()
+    request = CoreV1.list_namespace!()
     server = %Kazan.Server{url: "http://localhost:#{bypass.port}"}
     {:ok, %{bypass: bypass, request: request, server: server}}
   end
