@@ -4,7 +4,6 @@ defmodule KazanApiTests do
   alias Kazan.Apis.Core.V1, as: CoreV1
   alias Kazan.Apis.Extensions.V1beta1, as: ExtensionsV1beta1
   alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
-  alias Kazan.Models.Core.V1.Namespace
 
   describe "Apis.oai_id_to_functions" do
     test "it returns a list of functions for known operations" do
@@ -46,7 +45,7 @@ defmodule KazanApiTests do
 
   test "request with body params" do
     {:ok, res} = CoreV1.create_namespace(
-      %Namespace{
+      %CoreV1.Namespace{
         metadata: %ObjectMeta{
           name: "test"
         }

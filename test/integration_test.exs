@@ -4,7 +4,6 @@ defmodule KazanIntegrationTest do
   alias Kazan.Apis.Core.V1, as: CoreV1
   alias Kazan.Apis.Extensions.V1beta1, as: ExtensionsV1beta1
   alias Kazan.Apis.Rbacauthorization.V1beta1, as: RbacauthorizationV1beta1
-  alias Kazan.Models.Core.V1
   alias Kazan.Models.Apimachinery.Meta.V1.{
     ObjectMeta,
     DeleteOptions,
@@ -46,11 +45,11 @@ defmodule KazanIntegrationTest do
   test "can create, patch and delete a pod", %{server: server} do
     created_pod =
       CoreV1.create_namespaced_pod!(
-        %V1.Pod{
+        %CoreV1.Pod{
           metadata: %ObjectMeta{name: "kazan-test"},
-          spec: %V1.PodSpec{
+          spec: %CoreV1.PodSpec{
             containers: [
-              %V1.Container{
+              %CoreV1.Container{
                 args: [],
                 image: "obmarg/health-proxy",
                 name: "main-process",
@@ -69,9 +68,9 @@ defmodule KazanIntegrationTest do
     assert read_pod.spec == %{created_pod.spec | node_name: read_pod.spec.node_name}
 
     patched_pod = CoreV1.patch_namespaced_pod!(
-      %V1.Pod{
+      %CoreV1.Pod{
         metadata: %ObjectMeta{name: "kazan-test"},
-        spec: %V1.PodSpec{
+        spec: %CoreV1.PodSpec{
           active_deadline_seconds: 5
         }
       },

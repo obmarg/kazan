@@ -2,7 +2,7 @@ defmodule Kazan.Codegen.Apis do
   @moduledoc false
   # Macros for generating API clients from OAI specs.
   import Kazan.Swagger, only: [swagger_to_op_map: 1]
-  alias Kazan.Codegen.Apis.{Operation, Parameter}
+  alias Kazan.Codegen.Apis.{ApiId, Operation, Parameter}
 
   require EEx
 
@@ -31,15 +31,17 @@ defmodule Kazan.Codegen.Apis do
       operations
       |> Enum.map(fn (op_desc) -> op_desc["tag"] end)
       |> Enum.uniq
-      |> Enum.each(&api_name &1, unsafe: true)
+      |> Enum.map(&ApiId.from_oai_tag/1)
+      |> Enum.each(&api_module &1, unsafe: true)
 
     operations = Enum.map(operations, &Operation.from_oai_desc/1)
 
-    api_groups = Enum.group_by(operations, fn (op) -> op.api_name end)
+    api_groups = Enum.group_by(operations, fn (op) -> op.api_id end)
 
-    module_forms = for {module_name, functions} <- api_groups do
+    module_forms = for {api_id, functions} <- api_groups do
       function_forms = Enum.map(functions, &function_form/1)
-      module_doc = module_doc(module_name)
+      module_doc = module_doc(api_id)
+      module_name = api_module(api_id)
 
       quote do
         defmodule unquote(module_name) do
@@ -62,16 +64,15 @@ defmodule Kazan.Codegen.Apis do
   end
 
   @doc """
-  Builds an api_name from a tag on an OAI operation.
+  Builds an api module name from an ApiId.
   """
-  @spec api_name(String.t, Keyword.t) :: atom
-  def api_name(operation_tag, opts \\ []) do
+  @spec api_module(ApiId.t, Keyword.t) :: atom
+  def api_module(api_id, opts \\ []) do
     components =
-      case String.split(operation_tag, "_") do
-        [group, version] ->
-          [Kazan.Apis, String.capitalize(group), String.capitalize(version)]
-        [group] ->
-          [Kazan.Apis, String.capitalize(group)]
+      if api_id.version != nil do
+        [Kazan.Apis, api_id.group, api_id.version]
+      else
+        [Kazan.Apis, api_id.group]
       end
 
     if Keyword.get(opts, :unsafe, false) do
@@ -295,15 +296,30 @@ defmodule Kazan.Codegen.Apis do
 
   """, [:operation_id, :description, :parameters, :options, :response_schema])
 
-  defp module_doc(module_name) do
-    module_name =
-      module_name |> Atom.to_string |> String.split(".") |> List.last
-    """
-    Contains functions for the #{module_name} API.
+  defp module_doc(api_id) do
+    case api_id do
+      %{group: group, version: nil} ->
+        """
+        Module for the #{group} API group.
 
-    Each of these functions will output a Kazan.Request suitable for passing to
-    Kazan.Client.
-    """
+        This module contains functions that can be used to query the avaliable
+        versions of the #{group} API in a k8s server. Each of these functions
+        will output a `Kazan.Request` suitable for passing to `Kazan.Client`.
+
+        The submodules of this module provide implementations of each of those
+        versions.
+        """
+      %{group: group, version: version} ->
+        """
+        Contains functions for #{version} of the #{group} API group.
+
+        Each of these functions will output a `Kazan.Request` suitable for passing
+        to `Kazan.Client`.
+
+        This module also contains struct submodules that can be sent & received
+        from this version of the #{group} API.
+        """
+    end
   end
 
   # Strips the `Elixir.` prefix from an atom for use in documentation.

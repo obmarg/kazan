@@ -113,12 +113,10 @@ Alternatively, you might want to specify the server to send the request to:
 ```elixir
 server = Kazan.Server.in_cluster
 
-Kazan.Apis.CoreV1.list_pod_for_all_namespaces!
+Kazan.Apis.Core.V1.list_pod_for_all_namespaces!
 |> Kazan.Client.run!(server: server)
-# %Kazan.Models.V1.PodList{...}
+# %Kazan.Apis.Core.V1.PodList{...}
 ```
 
 More details on building requests can be found in the documentation for
 `Kazan.Apis`.
-
-All the models reutrned by the application can be found under `Kazan.Models`
