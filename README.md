@@ -50,10 +50,48 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ## Configuration
 
-Assuming you're only intendeding to communicate with a single Kubernetes server,
-it's recommended to configure this server in your `config.exs`:
+Kazan uses the `Kazan.Server` struct to contain server & authentication
+configuration details. `Kazan.Server` also provides some convenience functions
+to create a `Kazan.Server` from external sources such as a kube config file, or
+a kube service account.
 
+If your application is only going to be talking to a single kubernetes cluster,
+then it's recommended to configure that cluster in your mix config. This makes
+working with kazan slightly easier, as you can call `Kazan.Client.run` without
+providing a server every time.
+
+### In Cluster Authentication
+
+If your code is going to be running on a kubernetes cluster and you wish to use
+the kubernetes service account that can be configured like this:
+
+```elixir
+    config :kazan, :server, :in_cluster
+```
+
+Alternatively, the `Kazan.Server.in_cluster` function can be used to create a
+server for passing straight into the `Kazan.Client`
+
+### Configuration via kube config file.
+
+If you have a kube config file that contains the cluster & auth details you wish to use, kazan can use that:
+
+```elixir
+    config :kazan, :server, {:kubeconfig, "path/to/file"}
+```
+
+Alternatively, the `Kazan.Server.from_kubeconfig` function can be used to create a
+server for passing straight into the `Kazan.Client`
+
+### Configuring server details directly
+
+If you wish to configure the server details manually, kazan can also accept a map of server parameters:
+
+```elixir
     config :kazan, :server, %{url: "kubernetes.default"}
+```
+
+See the `Kazan.Server` documentation to see what fields this supports.
 
 ## Usage
 
@@ -62,11 +100,21 @@ Making a request with Kazan is done in two stages.
 1. Build the request object using one of the functions in `Kazan.Api.*`.
 2. Run that request using `Kazan.Client`.
 
-For example, to get all of the pods from a server:
+For example, to get all of the pods from the server configured in the mix config:
 
 ```elixir
 Kazan.Apis.CoreV1.list_pod_for_all_namespaces!
 |> Kazan.Client.run!
+# %Kazan.Models.V1.PodList{...}
+```
+
+Alternatively, you might want to specify the server to send the request to:
+
+```elixir
+server = Kazan.Server.in_cluster
+
+Kazan.Apis.CoreV1.list_pod_for_all_namespaces!
+|> Kazan.Client.run!(server: server)
 # %Kazan.Models.V1.PodList{...}
 ```
 
