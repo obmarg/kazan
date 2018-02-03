@@ -18,7 +18,10 @@ all APIs might be changed.
 
 ### New Features
 
-- Updated Kubernetes specs to 1.8 (Thanks @chazsconi)
+- Updated Kubernetes specs to 1.8 (Thanks @chazsconi).
+- Kazan can now load server details from kubeconfig provided in Mix configuration.
+- Kazan can now be configured to use in cluster authentication from the Mix
+  configuration.
 
 ### Changes
 
@@ -27,7 +30,7 @@ all APIs might be changed.
 ### Bug Fixes
 
 - API functions that take no arguments will no longer raise
-  `Protocol.UndefinedError`
+  `Protocol.UndefinedError`.
 
 ## v0.5.1 - 2018-01-17
 

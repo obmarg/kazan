@@ -69,8 +69,16 @@ defmodule Kazan.Client do
     case Keyword.get(options, :server) do
       nil ->
         case Application.get_env(:kazan, :server) do
-          nil -> raise "No server is configured"
-          details -> struct(Server, details)
+          nil ->
+            raise "No server is configured"
+          {:kubeconfig, filename} ->
+            Server.from_kubeconfig(filename)
+          {:kubeconfig, filename, opts} ->
+            Server.from_kubeconfig(filename, opts)
+          :in_cluster ->
+            Server.in_cluster
+          details ->
+            struct(Server, details)
         end
       server -> server
     end
