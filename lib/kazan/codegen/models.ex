@@ -17,6 +17,7 @@ defmodule Kazan.Codegen.Models do
   """
   defmacro from_spec(spec_file) do
     models = parse_models(spec_file)
+    resource_id_index = build_resource_id_index(models)
 
     spec_forms = for {module_name, desc} <- models do
       property_names = Map.keys(desc.properties)
@@ -37,8 +38,14 @@ defmodule Kazan.Codegen.Models do
 
       unquote_splicing(spec_forms)
 
+      # Function returns a map of module name -> ModelDesc
       defp model_descs do
         unquote(Macro.escape(models))
+      end
+
+      # Returns a map of ResourceId to module
+      defp resource_id_index do
+        unquote(Macro.escape(resource_id_index))
       end
     end
   end
@@ -186,6 +193,18 @@ defmodule Kazan.Codegen.Models do
       "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
         "ApiextensionsApiserver." <> rest
     end
+  end
+
+  @spec build_resource_id_index(%{atom => ModelDesc.t}) :: %{ResourceId => atom}
+  defp build_resource_id_index(model_map) do
+    model_map
+    |> Map.values
+    |> Enum.flat_map(fn model_desc ->
+        Enum.map(model_desc.resource_ids, fn resource_id ->
+          {resource_id, model_desc.module_name}
+        end)
+      end)
+    |> Enum.into(%{})
   end
 
   # Uppercases the first character of str

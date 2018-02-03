@@ -26,6 +26,12 @@ all APIs might be changed.
 ### Changes
 
 - Switched CHANGELOG to use a format based on Keep a Changelog.
+- Better documentation around how to authenticate with kubernetes.
+- Changed the way "unknown" models are deserialized from k8s. We now try to
+  match the `apiVersion` and `kind` fields with the data provided in the
+  `x-kubernetes-group-version-kind` field in the OAI spec. If we're attempting
+  to deserialize a model that doesn't hae this present in the spec, things may
+  go wrong.
 
 ### Bug Fixes
 

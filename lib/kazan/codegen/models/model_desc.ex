@@ -1,15 +1,16 @@
 defmodule Kazan.Codegen.Models.ModelDesc do
   @moduledoc false
   import Kazan.Codegen.Models, only: [module_name: 1, property_name: 1]
-  alias Kazan.Codegen.Models.PropertyDesc
+  alias Kazan.Codegen.Models.{ResourceId, PropertyDesc}
 
   defstruct [
-    :id, :module_name, :description, :required, :properties
+    :id, :resource_ids, :module_name, :description, :required, :properties
   ]
 
   @type property_map :: %{atom: PropertyDesc.t}
   @type t :: %{
     id: String.t,
+    resource_ids: [ResourceId],
     module_name: :atom,
     description: String.t,
     required: [:atom],
@@ -30,6 +31,7 @@ defmodule Kazan.Codegen.Models.ModelDesc do
   def from_oai_desc({name, map}, refs) do
     %__MODULE__{
       id: name,
+      resource_ids: ResourceId.from_oai_desc(map),
       module_name: module_name(name),
       description: map["description"],
       required: Map.get(map, "required", []) |> Enum.map(&property_name/1),

@@ -9,7 +9,7 @@ defmodule Kazan.Models do
   """
   require Kazan.Codegen.Models
   alias Kazan.Codegen
-  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc}
+  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc, ResourceId}
 
   Codegen.Models.from_spec("kube_specs/swagger.json")
 
@@ -52,19 +52,32 @@ defmodule Kazan.Models do
     cond do
       kind -> {:ok, kind}
       Map.has_key?(data, "kind") and Map.has_key?(data, "apiVersion") ->
-        version = case String.split(data["apiVersion"], "/") do
-          [coreVersion] ->
-            "io.k8s.api.core.#{coreVersion}"
-          other ->
-            api = other
-            |> Enum.map(fn x -> x |> String.split(".") |> List.first end)
-            |> Enum.join(".")
-            "io.k8s.api.#{api}"
+        case model_from_version_and_kind(data["apiVersion"], data["kind"]) do
+          nil ->
+            {:err, :unknown_kind}
+          module ->
+            {:ok, module}
         end
-        {:ok, Kazan.Codegen.Models.module_name("#{version}.#{data["kind"]}")}
       :otherwise ->
         {:err, :missing_kind}
     end
+  end
+
+  @spec model_from_version_and_kind(String.t, String.t) :: atom | nil
+  defp model_from_version_and_kind(version, kind) do
+    # version will be in one of two formats:
+    # `version` for core resources
+    # `group/version` for other resources.
+    {group, version} =
+      case String.split(version, "/") do
+        [coreVersion] ->
+          {"", coreVersion}
+        [group, version] ->
+          {group, version}
+      end
+
+    resource_id = %ResourceId{group: group, version: version, kind: kind}
+    Map.get(resource_id_index(), resource_id)
   end
 
   @spec model_desc(atom) :: {:ok, ModelDesc.t} | {:err, term}
