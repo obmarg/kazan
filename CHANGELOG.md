@@ -24,6 +24,11 @@ all APIs might be changed.
 
 - Switched CHANGELOG to use a format based on Keep a Changelog.
 
+### Bug Fixes
+
+- API functions that take no arguments will no longer raise
+  `Protocol.UndefinedError`
+
 ## v0.5.1 - 2018-01-17
 
 ### Bug Fixes

@@ -158,6 +158,7 @@ defmodule Kazan.Codegen.Apis do
     option_merging = cond do
       Enum.empty?(optional_params) ->
         quote do
+          params
         end
       Enum.empty?(argument_params) ->
         quote location: :keep do
