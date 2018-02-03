@@ -5,14 +5,18 @@ defmodule Kazan.Apis do
   This module contains many sub-modules, one corresponding to each API group
   present in the OpenAPI specification for Kubernetes.
 
-  Each of these modules will contain functions that can be called to generate
-  Kazan.Request structures that can be fed into Kazan.Client.
+  Each of these modules will contain submodules that repreesent the different
+  versions of the API group. Within those submodules will be functions that can
+  be called to generate `Kazan.Request` structures that can be fed into
+  `Kazan.Client`. The version submodules will also contain any structs that can
+  be sent & received by that particular version of the API group.
 
-  The functions arguments are generated so that any HTTP body parameter is
-  first, followed by any path parameters in path order, followed by any required
-  query parameters. Optional query parameters should go in the optional final
-  keyword argument.
+  Each request functions arguments are generated so that any HTTP body parameter
+  is first, followed by any path parameters in path order, followed by any
+  required query parameters. Optional query parameters should go in the optional
+  final keyword argument.
   """
+
   require Kazan.Codegen.Apis
   alias Kazan.Codegen
 
@@ -36,8 +40,8 @@ defmodule Kazan.Apis do
              Atom.to_string(operation.function_name) <> "!"
            )
 
-           [{operation.api_name, operation.function_name},
-            {operation.api_name, bang_function_name}]
+           [{operation.api_module, operation.function_name},
+            {operation.api_module, bang_function_name}]
        end
   end
 end

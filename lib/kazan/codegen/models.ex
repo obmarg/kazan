@@ -55,18 +55,13 @@ defmodule Kazan.Codegen.Models do
   """
   @spec module_name(String.t, Keyword.t) :: atom | nil
   def module_name(model_name, opts \\ []) do
-    fixed_name =
-      model_name
-      |> strip_module_name_prefixes
-      |> String.split(".")
-      |> Enum.map(&titlecase_once/1)
-      |> Enum.join(".")
+    components = module_name_components(model_name)
 
     if Keyword.get(opts, :unsafe, false) do
-      Module.concat(Kazan.Models, fixed_name)
+      Module.concat(components)
     else
       try do
-        Module.safe_concat(Kazan.Models, fixed_name)
+        Module.safe_concat(components)
       rescue ArgumentError ->
         nil
       end
@@ -172,26 +167,32 @@ defmodule Kazan.Codegen.Models do
 
   # The Kube OAI specs have some extremely long namespace prefixes on them.
   # These really long names make for a pretty ugly API in Elixir, so we chop off
-  # some common prefixes
-  defp strip_module_name_prefixes(name) do
+  # some common prefixes.
+  # We also need to categorise things into API specific models or models that
+  # live in the models module.
+  @spec module_name_components(String.t) :: nonempty_improper_list(atom, String.t)
+  defp module_name_components(name) do
+    to_components = fn str ->
+      str |> String.split(".") |> Enum.map(&titlecase_once/1)
+    end
+
     case name do
       # Deprecated
       "io.k8s.kubernetes.pkg.api." <> rest ->
-        "api." <> rest
+        [Kazan.Apis] ++ to_components.(rest)
       # Deprecated
       "io.k8s.kubernetes.pkg.apis." <> rest ->
-        "apis." <> rest
-
+        [Kazan.Apis] ++ to_components.(rest)
       "io.k8s.api." <> rest ->
-        rest
+        [Kazan.Apis] ++ to_components.(rest)
       "io.k8s.apimachinery.pkg.apis." <> rest ->
-        "Apimachinery." <> rest
+        [Kazan.Models.Apimachinery] ++ to_components.(rest)
       "io.k8s.apimachinery.pkg." <> rest ->
-        "Apimachinery." <> rest
+        [Kazan.Models.Apimachinery] ++ to_components.(rest)
       "io.k8s.kube-aggregator.pkg.apis." <> rest ->
-        "KubeAggregator." <> rest
+        [Kazan.Models.KubeAggregator] ++ to_components.(rest)
       "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
-        "ApiextensionsApiserver." <> rest
+        [Kazan.Models.ApiextensionsApiserver] ++ to_components.(rest)
     end
   end
 
@@ -208,6 +209,8 @@ defmodule Kazan.Codegen.Models do
   end
 
   # Uppercases the first character of str
+  # This is different from capitalize, in that it leaves the rest of the string
+  # alone.
   defp titlecase_once(str) do
     first_letter = String.first(str)
     String.replace_prefix(str, first_letter, String.upcase(first_letter))

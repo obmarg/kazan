@@ -2,9 +2,9 @@ defmodule KazanModelsTest do
   use ExUnit.Case
 
   alias Kazan.Models
-  alias Kazan.Models.Core
-  alias Kazan.Models.Extensions
-  alias Kazan.Models.Rbac
+  alias Kazan.Apis.Rbac
+  alias Kazan.Apis.Core
+  alias Kazan.Apis.Extensions
 
   test "that we have some models" do
     # Not a particularly thorough test, but whatever:

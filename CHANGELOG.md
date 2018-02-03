@@ -13,10 +13,16 @@ all APIs might be changed.
 
 ### Breaking Changes
 
-- The k8s 1.8 specs changed the OAI names of most of the models in the API. As a
-  result, most of the models under `Kazan.Models` have changed location.
-- Most APIs have changed modules slightly to have a dot between the group name
-  and the version. For example: `Kazan.Apis.CoreV1` is now `Kazan.Apis.Core.V1`.
+- The module names of most APIs & many models has been changed.
+  - APIs module names have changed slightly to have a dot between the group name
+    and the version. For example: `Kazan.Apis.CoreV1` is now `Kazan.Apis.Core.V1`.
+  - Models that are associated with an API now live inside that APIs module,
+    rather than under `Kazan.Models`.  For example `Kazan.Models.Api.V1.Container`
+    now lives under `Kazan.Apis.Core.V1.Container`
+  - Models that are not associated with specific APIs (e.g. Apimachinery models)
+    still live under `Kazan.Models`.
+  - Some underlying changes in the names of models in the k8s spec may also have
+    caused things to move around.
 
 ### New Features
 
@@ -34,6 +40,12 @@ all APIs might be changed.
   `x-kubernetes-group-version-kind` field in the OAI spec. If we're attempting
   to deserialize a model that doesn't hae this present in the spec, things may
   go wrong.
+- Improved the documentation of API modules.
+
+### Deprecations
+
+- `Kazan.Models.oai_name_to_module` still supports the older OAI name format,
+  but this is now deprecated and will be removed in a future version.
 
 ### Bug Fixes
 
