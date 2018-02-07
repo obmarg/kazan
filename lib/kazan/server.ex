@@ -67,7 +67,7 @@ defmodule Kazan.Server do
     basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
     %__MODULE__{
       url: "https://kubernetes",
-      ca_cert: cert_from_pem("ca.key", basepath),
+      ca_cert: cert_from_pem("ca.crt", basepath),
       auth: %Kazan.Server.TokenAuth{
         token: Path.join([basepath, "token"]) |> File.read!
       }
