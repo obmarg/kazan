@@ -20,7 +20,10 @@ all APIs might be changed.
     rather than under `Kazan.Models`.  For example `Kazan.Models.Api.V1.Container`
     now lives under `Kazan.Apis.Core.V1.Container`
   - Models that are not associated with specific APIs (e.g. Apimachinery models)
-    still live under `Kazan.Models`.
+    still live under `Kazan.Models`. However, the capitalization of modules may
+    have changed. For example `ApiMachinery` is now `Apimachinery`. This is
+    mostly for consistencies sake - most module names only have the first letter
+    capitalized, so `Apimachinery` etc. should be no different.
   - Some underlying changes in the names of models in the k8s spec may also have
     caused things to move around.
 
