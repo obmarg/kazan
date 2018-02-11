@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Models.ModelDesc do
   @moduledoc false
-  import Kazan.Codegen.Models, only: [module_name: 1, property_name: 1]
+  import Kazan.Codegen.Models, only: [module_name: 1]
   alias Kazan.Codegen.Models.{ResourceId, PropertyDesc}
 
   defstruct [
@@ -26,6 +26,10 @@ defmodule Kazan.Codegen.Models.ModelDesc do
   * `map` is the map description of the OAI model.
   * `refs` is a map of $ref values that we should swap in if we encounter them
     in our properties.
+
+  Note: This function creates atoms, so is currently unsafe to call on user
+  supplied data. It should only be called at build time as part of kazan
+  codegen.
   """
   @spec from_oai_desc({String.t, Map.t}, Map.t) :: t
   def from_oai_desc({name, map}, refs) do
@@ -40,5 +44,11 @@ defmodule Kazan.Codegen.Models.ModelDesc do
                      PropertyDesc.from_oai_desc(desc, name, refs)}
                   end
     }
+  end
+
+  # Builds an atom property name from an OAI property name.
+  @spec property_name(String.t) :: atom
+  defp property_name(str) do
+    str |> Macro.underscore |> String.to_atom
   end
 end

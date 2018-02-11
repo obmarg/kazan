@@ -26,6 +26,8 @@ all APIs might be changed.
     capitalized, so `Apimachinery` etc. should be no different.
   - Some underlying changes in the names of models in the k8s spec may also have
     caused things to move around.
+- It wasn't public API, but `Kazan.Codegen.Models.property_name/1` has been
+  removed.
 
 ### New Features
 

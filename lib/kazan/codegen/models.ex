@@ -77,14 +77,6 @@ defmodule Kazan.Codegen.Models do
     module_name(model_def)
   end
 
-  @doc """
-  Builds an atom property name from an OAI property name.
-  """
-  @spec property_name(String.t) :: atom
-  def property_name(str) do
-    str |> Macro.underscore |> String.to_atom
-  end
-
   @spec parse_models(String.t) :: [ModelDesc.t]
   defp parse_models(spec_file) do
     definitions =

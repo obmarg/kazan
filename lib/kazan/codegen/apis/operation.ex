@@ -22,6 +22,13 @@ defmodule Kazan.Codegen.Apis.Operation do
   }
 
   @spec from_oai_desc(Map.t) :: t
+  @doc """
+  Creates an Operation from it's open API description.
+
+  Note: This function creates atoms, so is currently unsafe to call on user
+  supplied data. It should only be called at build time as part of kazan
+  codegen.
+  """
   def from_oai_desc(desc) do
     api_id = ApiId.from_oai_tag(desc["tag"])
 
