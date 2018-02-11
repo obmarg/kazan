@@ -1,6 +1,9 @@
 defmodule Kazan.Request do
   @moduledoc """
   Kazan.Request is a struct that describes an HTTP request.
+
+  Users should mostly treat this struct as opaque - `Kazan.run` consumes it, and
+  functions in the various `Kazan.Apis` submodules construct it.
   """
   defstruct [:method, :path, :query_params, :content_type, :body, :response_schema]
 

@@ -24,7 +24,7 @@ defmodule KazanIntegrationTest do
   test "can list namespaces on an actual server", %{server: server} do
     namespace_list =
       CoreV1.list_namespace!
-      |> Kazan.Client.run!(server: server)
+      |> Kazan.run!(server: server)
 
     # Check that there's a default namespace.
     assert Enum.find(namespace_list.items, fn (namespace) ->
@@ -34,12 +34,12 @@ defmodule KazanIntegrationTest do
 
   test "can list pods on an actual server", %{server: server} do
     CoreV1.list_namespaced_pod!(@namespace)
-    |> Kazan.Client.run!(server: server)
+    |> Kazan.run!(server: server)
   end
 
   test "can list deployments on an actual server", %{server: server} do
     ExtensionsV1beta1.list_namespaced_deployment!(@namespace)
-    |> Kazan.Client.run!(server: server)
+    |> Kazan.run!(server: server)
   end
 
   test "can create, patch and delete a pod", %{server: server} do
@@ -59,11 +59,11 @@ defmodule KazanIntegrationTest do
         },
         @namespace
       )
-      |> Kazan.Client.run!(server: server)
+      |> Kazan.run!(server: server)
 
     read_pod =
       CoreV1.read_namespaced_pod!(@namespace, "kazan-test")
-      |> Kazan.Client.run!(server: server)
+      |> Kazan.run!(server: server)
 
     assert read_pod.spec == %{created_pod.spec | node_name: read_pod.spec.node_name}
 
@@ -76,26 +76,26 @@ defmodule KazanIntegrationTest do
       },
       @namespace,
       "kazan-test"
-    ) |> Kazan.Client.run!(server: server)
+    ) |> Kazan.run!(server: server)
 
     assert patched_pod.spec == %{read_pod.spec | active_deadline_seconds: 5}
 
     read_pod =
       CoreV1.read_namespaced_pod!(@namespace, "kazan-test")
-      |> Kazan.Client.run!(server: server)
+      |> Kazan.run!(server: server)
 
     assert read_pod == patched_pod
 
     CoreV1.delete_namespaced_pod!(
       %DeleteOptions{}, @namespace, "kazan-test"
     )
-    |> Kazan.Client.run!(server: server)
+    |> Kazan.run!(server: server)
   end
 
   test "RBAC Authorization V1 Beta 1 API", %{server: server} do
     cluster_roles =
       RbacauthorizationV1beta1.list_cluster_role!()
-      |> Kazan.Client.run!(server: server)
+      |> Kazan.run!(server: server)
 
     assert cluster_roles.kind == "ClusterRoleList"
     assert cluster_roles.items == []
