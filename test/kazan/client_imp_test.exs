@@ -1,4 +1,4 @@
-defmodule Kazan.ClientTest do
+defmodule Kazan.Client.ImpTest do
   use ExUnit.Case
 
   alias Kazan.Apis.Core.V1, as: CoreV1
@@ -10,8 +10,8 @@ defmodule Kazan.ClientTest do
     {:ok, %{bypass: bypass, request: request, server: server}}
   end
 
-  describe "Client.run" do
-    import Kazan.Client, only: [run: 2]
+  describe "Client.Imp.run" do
+    import Kazan.Client.Imp, only: [run: 2]
 
     test "returns decoded data if everything is good", context do
       %{request: request, bypass: bypass, server: server} = context
@@ -67,8 +67,8 @@ defmodule Kazan.ClientTest do
     end
   end
 
-  describe "Client.run!" do
-    import Kazan.Client, only: [run!: 2]
+  describe "Client.Imp.run!" do
+    import Kazan.Client.Imp, only: [run!: 2]
 
     test "returns decoded data if everything is good", context do
       %{request: request, bypass: bypass, server: server} = context

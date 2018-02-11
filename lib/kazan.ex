@@ -25,7 +25,7 @@ defmodule Kazan do
 
   The server must be set in the kazan config.
   """
-  defdelegate run(request), to: Kazan.Client
+  defdelegate run(request), to: Kazan.Client.Imp
 
   @doc """
   Makes a request against a kube server.
@@ -38,17 +38,17 @@ defmodule Kazan do
   this request to. This will override any server provided in the Application
   config.
   """
-  defdelegate run(request, opts), to: Kazan.Client
+  defdelegate run(request, opts), to: Kazan.Client.Imp
 
   @doc """
   Like `run/2`, but raises on Error.  See `run/2` for more details.
   """
   @spec run!(Request.t, Keyword.t) :: struct | no_return
-  defdelegate run!(request, opts), to: Kazan.Client
+  defdelegate run!(request, opts), to: Kazan.Client.Imp
 
   @doc """
   Like `run/1`, but raises on Error.  See `run/1` for more details.
   """
   @spec run!(Request.t) :: struct | no_return
-  defdelegate run!(request), to: Kazan.Client
+  defdelegate run!(request), to: Kazan.Client.Imp
 end
