@@ -49,6 +49,8 @@ all APIs might be changed.
 
 - `Kazan.Models.oai_name_to_module` still supports the older OAI name format,
   but this is now deprecated and will be removed in a future version.
+- `Kazan.Client` has been deprecated in favor of exposing these functions in
+  `Kazan`.  See #23 for the justification.
 
 ### Bug Fixes
 

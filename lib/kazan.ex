@@ -15,7 +15,7 @@ defmodule Kazan do
       used to build requests and can be received in responses from the API.
   - `Kazan.Models` contains other structs that can be sent and received by k8s,
     but are not specifically tied to any one API group.
-  - `Kazan.Client` is responsible for actually sending those requests.
+  - `Kazan.run` is responsible for actually sending those requests.
 
   See the [README](readme.html) for example usage.
   """

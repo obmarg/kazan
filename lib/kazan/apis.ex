@@ -8,8 +8,8 @@ defmodule Kazan.Apis do
   Each of these modules will contain submodules that repreesent the different
   versions of the API group. Within those submodules will be functions that can
   be called to generate `Kazan.Request` structures that can be fed into
-  `Kazan.Client`. The version submodules will also contain any structs that can
-  be sent & received by that particular version of the API group.
+  `Kazan.run`. The version submodules will also contain any structs that can be
+  sent & received by that particular version of the API group.
 
   Each request functions arguments are generated so that any HTTP body parameter
   is first, followed by any path parameters in path order, followed by any

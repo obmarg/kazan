@@ -304,7 +304,7 @@ defmodule Kazan.Codegen.Apis do
 
         This module contains functions that can be used to query the avaliable
         versions of the #{group} API in a k8s server. Each of these functions
-        will output a `Kazan.Request` suitable for passing to `Kazan.Client`.
+        will output a `Kazan.Request` suitable for passing to `Kazan.run`.
 
         The submodules of this module provide implementations of each of those
         versions.
@@ -314,7 +314,7 @@ defmodule Kazan.Codegen.Apis do
         Contains functions for #{version} of the #{group} API group.
 
         Each of these functions will output a `Kazan.Request` suitable for passing
-        to `Kazan.Client`.
+        to `Kazan.run`.
 
         This module also contains struct submodules that can be sent & received
         from this version of the #{group} API.
