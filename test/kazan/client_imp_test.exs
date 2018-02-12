@@ -13,7 +13,7 @@ defmodule Kazan.Client.ImpTest do
   describe "Client.Imp.run" do
     import Kazan.Client.Imp, only: [run: 2]
 
-    test "returns decoded data if everything is good", context do
+    test "returns decoded data if application/json returned", context do
       %{request: request, bypass: bypass, server: server} = context
 
       Bypass.expect bypass, fn conn ->
@@ -22,12 +22,28 @@ defmodule Kazan.Client.ImpTest do
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end
 
       {:ok, data} = run(request, server: server)
       assert data
       assert length(data.items) == 1
+    end
+
+    test "returns raw data if non application/json is returned", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      Bypass.expect bypass, fn conn ->
+        assert conn.method == "GET"
+        assert conn.request_path == "/api/v1/namespaces"
+
+        conn
+        |> Plug.Conn.resp(200, "some text")
+        |> Plug.Conn.put_resp_header("Content-Type", "text/plain")
+      end
+
+      {:ok, data} = run(request, server: server)
+      assert "some text" == data
     end
 
     test "passes on query parameters if supplied", context do
@@ -40,7 +56,7 @@ defmodule Kazan.Client.ImpTest do
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end
 
       {:ok, _} = run(request, server: server)
@@ -52,7 +68,7 @@ defmodule Kazan.Client.ImpTest do
       Bypass.expect bypass, fn conn ->
         conn
         |> Plug.Conn.resp(500, namespace_response())
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end
 
       {:error, {:http_error, 500, _}} = run(request, server: server)
@@ -79,7 +95,7 @@ defmodule Kazan.Client.ImpTest do
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end
 
       data = run!(request, server: server)
