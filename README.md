@@ -15,10 +15,10 @@ at any time.
 - Documentation of all models & calls.
 - Client certificate & token based authentication.
 - Loading config from kubeconfig files.
+- Support for watch requests.
 
 ### Not Implemented
 
-- Support for watch requests.
 - Other forms of authentication
 - Patching with `application/json-patch+json` or
   `application/strategic-merge-patch+json` content types.
@@ -120,3 +120,6 @@ Kazan.Apis.Core.V1.list_pod_for_all_namespaces!
 
 More details on building requests can be found in the documentation for
 `Kazan.Apis`.
+
+Details on creating watch requests can be found in the documentation for
+`Kazan.Watcher`.

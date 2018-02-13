@@ -16,6 +16,7 @@ defmodule Kazan do
   - `Kazan.Models` contains other structs that can be sent and received by k8s,
     but are not specifically tied to any one API group.
   - `Kazan.run` is responsible for actually sending those requests.
+  - `Kazan.Watcher` is responsible for watching for changes to kube resources.
 
   See the [README](readme.html) for example usage.
   """
