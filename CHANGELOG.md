@@ -58,6 +58,9 @@ all APIs might be changed.
 
 - API functions that take no arguments will no longer raise
   `Protocol.UndefinedError`.
+- `read_namespaced_pod_log` and other calls that return plain text will now
+  return that text, rather than attempting & failing to decode JSON. (thanks
+  @chazsconi)
 
 ## v0.5.1 - 2018-01-17
 
