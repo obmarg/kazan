@@ -35,6 +35,7 @@ all APIs might be changed.
 - Kazan can now load server details from kubeconfig provided in Mix configuration.
 - Kazan can now be configured to use in cluster authentication from the Mix
   configuration.
+- We now support watch requests with `Kazan.Watcher`.  (Thanks @chazsconi)
 
 ### Changes
 
