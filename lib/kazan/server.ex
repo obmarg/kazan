@@ -66,7 +66,7 @@ defmodule Kazan.Server do
   def in_cluster(_options \\ []) do
     basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
     %__MODULE__{
-      url: "https://kubernetes",
+      url: "https://#{System.get_env("KUBERNETES_SERVICE_HOST")}:#{System.get_env("KUBERNETES_SERVICE_PORT")}",
       ca_cert: cert_from_pem("ca.crt", basepath),
       auth: %Kazan.Server.TokenAuth{
         token: Path.join([basepath, "token"]) |> File.read!
