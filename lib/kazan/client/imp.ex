@@ -33,31 +33,53 @@ defmodule Kazan.Client.Imp do
       _ -> []
     end
 
+    stream_to = Keyword.get(options, :stream_to)
+
+    request_options =
+      [ params: request.query_params,
+        ssl: ssl_options(server)]
+
+    request_options =
+      case stream_to do
+        nil ->
+          request_options
+        pid ->
+          request_options ++
+          [ stream_to: pid,
+            recv_timeout: Keyword.get(options, :recv_timeout, 15000) ]
+      end
+
     res = HTTPoison.request(
       method(request.method),
       server.url <> request.path,
       request.body || "",
       headers,
-      params: request.query_params,
-      ssl: ssl_options(server)
+      request_options
     )
 
-    with {:ok, result} <- res,
-         {:ok, body} <- check_status(result),
-         {:ok, content_type} <- get_content_type(result) do
-      case content_type do
-        "application/json" ->
-          with {:ok, data} <- Poison.decode(body),
-               {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
-               do: {:ok, model}
+    case stream_to do
+      nil ->
+        with {:ok, result} <- res,
+             {:ok, body} <- check_status(result),
+             {:ok, content_type} <- get_content_type(result) do
+          case content_type do
+            "application/json" ->
+              with {:ok, data} <- Poison.decode(body),
+                   {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
+                   do: {:ok, model}
 
-        "text/plain" ->
-          {:ok, body}
+            "text/plain" ->
+              {:ok, body}
 
-        _ ->
-          {:error, :unsupported_content_type}
-
-      end
+            _ ->
+              {:error, :unsupported_content_type}
+          end
+        end
+      _pid ->
+        case res do
+          {:ok, %HTTPoison.AsyncResponse{id: id}} -> {:ok, id}
+          other -> other
+        end
     end
   end
 
