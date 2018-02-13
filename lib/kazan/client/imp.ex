@@ -44,9 +44,21 @@ defmodule Kazan.Client.Imp do
 
     with {:ok, result} <- res,
          {:ok, body} <- check_status(result),
-         {:ok, data} <- Poison.decode(body),
-         {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
-         do: {:ok, model}
+         {:ok, content_type} <- get_content_type(result) do
+      case content_type do
+        "application/json" ->
+          with {:ok, data} <- Poison.decode(body),
+               {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
+               do: {:ok, model}
+
+        "text/plain" ->
+          {:ok, body}
+
+        _ ->
+          {:error, :unsupported_content_type}
+
+      end
+    end
   end
 
   @doc """
@@ -100,6 +112,14 @@ defmodule Kazan.Client.Imp do
         _ -> body
       end
     {:error, {:http_error, other, data}}
+  end
+
+  @spec get_content_type(HTTPoison.Response.t) :: {:ok, String.t} | {:error, :no_content_type}
+  defp get_content_type(%{headers: headers}) do
+    case List.keyfind(headers, "Content-Type", 0) do
+      nil -> {:error, :no_content_type}
+      {_, content_type} -> {:ok, content_type}
+    end
   end
 
   @spec ssl_options(Server.t) :: Keyword.t

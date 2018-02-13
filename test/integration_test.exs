@@ -100,4 +100,50 @@ defmodule KazanIntegrationTest do
     assert cluster_roles.kind == "ClusterRoleList"
     assert cluster_roles.items == []
   end
+
+  test "Can read pod logs", %{server: server} do
+    on_exit fn ->
+      CoreV1.delete_namespaced_pod!(%DeleteOptions{}, @namespace, "read-logs-test")
+      |> Kazan.run!(server: server)
+    end
+
+    CoreV1.create_namespaced_pod!(
+     %CoreV1.Pod{
+       metadata: %ObjectMeta{name: "read-logs-test"},
+       spec: %CoreV1.PodSpec{
+         containers: [
+           %CoreV1.Container{
+             args: [],
+             image: "alpine",
+             command: ["sh", "-c", "echo hello"],
+             name: "main-process"
+           }
+         ]
+       }
+     },
+     @namespace
+    )
+    |> Kazan.run!(server: server)
+
+    wait_for_pod_to_run("read-logs-test", 10, server: server)
+
+    log_lines =
+     CoreV1.read_namespaced_pod_log!(@namespace, "read-logs-test")
+     |> Kazan.run!(server: server)
+
+    assert log_lines == "hello\n"
+  end
+
+  defp wait_for_pod_to_run(_pod_name, 0, _) do
+    flunk("Timed out waiting for pod to start")
+  end
+
+  defp wait_for_pod_to_run(pod_name, retries, [server: server]) do
+    %CoreV1.Pod{status: %CoreV1.PodStatus{phase: phase}} = CoreV1.read_namespaced_pod_status!(@namespace, pod_name)
+    |> Kazan.run!(server: server)
+    if phase != "Running" do
+      :timer.sleep(1000)
+      wait_for_pod_to_run(pod_name, retries - 1, server: server)
+    end
+  end
 end
