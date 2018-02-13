@@ -30,7 +30,7 @@ defmodule Kazan.Client.ImpTest do
       assert length(data.items) == 1
     end
 
-    test "returns raw data if non application/json is returned", context do
+    test "returns raw data if text/plain is returned", context do
       %{request: request, bypass: bypass, server: server} = context
 
       Bypass.expect bypass, fn conn ->
@@ -44,6 +44,35 @@ defmodule Kazan.Client.ImpTest do
 
       {:ok, data} = run(request, server: server)
       assert "some text" == data
+    end
+
+    test "returns error if unknown content type", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      Bypass.expect bypass, fn conn ->
+        assert conn.method == "GET"
+        assert conn.request_path == "/api/v1/namespaces"
+
+        conn
+        |> Plug.Conn.resp(200, "some text")
+        |> Plug.Conn.put_resp_header("Content-Type", "foo/bar")
+      end
+
+      assert {:error, :unsupported_content_type} == run(request, server: server)
+    end
+
+    test "returns error if no content type header", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      Bypass.expect bypass, fn conn ->
+        assert conn.method == "GET"
+        assert conn.request_path == "/api/v1/namespaces"
+
+        conn
+        |> Plug.Conn.resp(200, "some text")
+      end
+
+      assert {:error, :no_content_type} == run(request, server: server)
     end
 
     test "passes on query parameters if supplied", context do

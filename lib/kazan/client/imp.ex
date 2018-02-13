@@ -51,8 +51,12 @@ defmodule Kazan.Client.Imp do
                {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
                do: {:ok, model}
 
-        _ ->
+        "text/plain" ->
           {:ok, body}
+
+        _ ->
+          {:error, :unsupported_content_type}
+
       end
     end
   end
