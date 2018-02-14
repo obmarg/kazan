@@ -4,18 +4,23 @@ defmodule Kazan.Codegen.Models.ModelDesc do
   alias Kazan.Codegen.Models.{ResourceId, PropertyDesc}
 
   defstruct [
-    :id, :resource_ids, :module_name, :description, :required, :properties
+    :id,
+    :resource_ids,
+    :module_name,
+    :description,
+    :required,
+    :properties
   ]
 
-  @type property_map :: %{atom: PropertyDesc.t}
+  @type property_map :: %{atom: PropertyDesc.t()}
   @type t :: %{
-    id: String.t,
-    resource_ids: [ResourceId],
-    module_name: :atom,
-    description: String.t,
-    required: [:atom],
-    properties: property_map,
-  }
+          id: String.t(),
+          resource_ids: [ResourceId],
+          module_name: :atom,
+          description: String.t(),
+          required: [:atom],
+          properties: property_map
+        }
 
   @doc """
   Creates a ModelDesc from an OAI description.
@@ -31,7 +36,7 @@ defmodule Kazan.Codegen.Models.ModelDesc do
   supplied data. It should only be called at build time as part of kazan
   codegen.
   """
-  @spec from_oai_desc({String.t, Map.t}, Map.t) :: t
+  @spec from_oai_desc({String.t(), Map.t()}, Map.t()) :: t
   def from_oai_desc({name, map}, refs) do
     %__MODULE__{
       id: name,
@@ -39,16 +44,16 @@ defmodule Kazan.Codegen.Models.ModelDesc do
       module_name: module_name(name),
       description: map["description"],
       required: Map.get(map, "required", []) |> Enum.map(&property_name/1),
-      properties: for {name, desc} <- map["properties"], into: %{} do
-                    {property_name(name),
-                     PropertyDesc.from_oai_desc(desc, name, refs)}
-                  end
+      properties:
+        for {name, desc} <- map["properties"], into: %{} do
+          {property_name(name), PropertyDesc.from_oai_desc(desc, name, refs)}
+        end
     }
   end
 
   # Builds an atom property name from an OAI property name.
-  @spec property_name(String.t) :: atom
+  @spec property_name(String.t()) :: atom
   defp property_name(str) do
-    str |> Macro.underscore |> String.to_atom
+    str |> Macro.underscore() |> String.to_atom()
   end
 end

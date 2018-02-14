@@ -20,6 +20,7 @@ defmodule Kazan.LineBuffer do
           new_lines = String.split(pending <> chunk, "\n")
           {Enum.drop(new_lines, -1), List.last(new_lines)}
       end
+
     %LineBuffer{lines: lines ++ new_lines, pending: pending}
   end
 

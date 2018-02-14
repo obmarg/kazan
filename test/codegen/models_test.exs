@@ -9,9 +9,12 @@ defmodule KazanCodegenModelsTest do
     end
 
     test "returns a module name when in unsafe mode" do
-      mod_name = Models.module_name(
-        "io.k8s.api.core.v1.something", unsafe: true
-      )
+      mod_name =
+        Models.module_name(
+          "io.k8s.api.core.v1.something",
+          unsafe: true
+        )
+
       assert mod_name == Kazan.Apis.Core.V1.Something
     end
 

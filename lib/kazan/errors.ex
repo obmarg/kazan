@@ -5,7 +5,7 @@ defmodule Kazan.RemoteError do
   defexception [:reason]
 
   def message(error) do
-    "Server responded with #{inspect error.reason}"
+    "Server responded with #{inspect(error.reason)}"
   end
 end
 

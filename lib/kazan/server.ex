@@ -3,21 +3,20 @@ defmodule Kazan.Server do
   Kazan.Server is a struct containing connection details for a kube server.
   """
 
-  @type auth_t :: nil | Kazan.Server.CertificateAuth.t | Kazan.Server.TokenAuth.t
+  @type auth_t ::
+          nil | Kazan.Server.CertificateAuth.t() | Kazan.Server.TokenAuth.t()
 
-  defstruct [
-    url: nil,
-    ca_cert: nil,
-    auth: nil,
-    insecure_skip_tls_verify: nil
-  ]
+  defstruct url: nil,
+            ca_cert: nil,
+            auth: nil,
+            insecure_skip_tls_verify: nil
 
   @type t :: %{
-    url: String.t,
-    insecure_skip_tls_verify: Boolean.t,
-    ca_cert: String.t | nil,
-    auth: auth_t
-  }
+          url: String.t(),
+          insecure_skip_tls_verify: Boolean.t(),
+          ca_cert: String.t() | nil,
+          auth: auth_t
+        }
 
   @doc """
   Parses Kube server details from a provided kubeconfig file.
@@ -32,11 +31,11 @@ defmodule Kazan.Server do
   * `user` can be used to override the default user we pull from the file.
   * `cluster` can be used to override the default cluster we pull from the file.
   """
-  @spec from_kubeconfig(String.t, Keyword.t) :: t
+  @spec from_kubeconfig(String.t(), Keyword.t()) :: t
   def from_kubeconfig(config_file, options \\ []) do
     data = YamlElixir.read_from_file(config_file)
 
-    basepath = config_file |> Path.absname |> Path.dirname
+    basepath = config_file |> Path.absname() |> Path.dirname()
 
     context_name = options[:context] || data["current-context"]
     context = find_by_name(data["contexts"], context_name)["context"]
@@ -62,24 +61,25 @@ defmodule Kazan.Server do
 
   [See the Kubernetes documentation for more information](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod).
   """
-  @spec in_cluster(Keyword.t) :: t
+  @spec in_cluster(Keyword.t()) :: t
   def in_cluster(_options \\ []) do
     basepath = "/var/run/secrets/kubernetes.io/serviceaccount"
+
     %__MODULE__{
       url: "https://kubernetes",
       ca_cert: cert_from_pem("ca.key", basepath),
       auth: %Kazan.Server.TokenAuth{
-        token: Path.join([basepath, "token"]) |> File.read!
+        token: Path.join([basepath, "token"]) |> File.read!()
       }
     }
   end
 
-  @spec find_by_name([Map.t], String.t) :: Map.t
+  @spec find_by_name([Map.t()], String.t()) :: Map.t()
   defp find_by_name(elems, name) do
-    Enum.find(elems, fn (elem) -> elem["name"] == name end)
+    Enum.find(elems, fn elem -> elem["name"] == name end)
   end
 
-  @spec get_cert(Map.t, String.t) :: binary
+  @spec get_cert(Map.t(), String.t()) :: binary
   defp get_cert(%{"certificate-authority" => certfile}, basepath) do
     cert_from_pem(certfile, basepath)
   end
@@ -88,12 +88,11 @@ defmodule Kazan.Server do
     cert_from_base64(certdata)
   end
 
-  @spec auth_from_user(Map.t, String.t) :: auth_t
+  @spec auth_from_user(Map.t(), String.t()) :: auth_t
   defp auth_from_user(
-    %{"client-certificate" => cert_file,
-      "client-key" => key_file},
-    basepath
-  ) do
+         %{"client-certificate" => cert_file, "client-key" => key_file},
+         basepath
+       ) do
     %Kazan.Server.CertificateAuth{
       certificate: cert_from_pem(cert_file, basepath),
       key: private_key_from_pem(key_file, basepath)
@@ -101,17 +100,21 @@ defmodule Kazan.Server do
   end
 
   defp auth_from_user(
-    %{"token" => token},
-    _
-  ) do
+         %{"token" => token},
+         _
+       ) do
     %Kazan.Server.TokenAuth{
       token: token
     }
   end
 
   defp auth_from_user(
-    %{"client-certificate-data" => cert_data,
-      "client-key-data" => key_data}, _) do
+         %{
+           "client-certificate-data" => cert_data,
+           "client-key-data" => key_data
+         },
+         _
+       ) do
     %Kazan.Server.CertificateAuth{
       certificate: cert_from_base64(cert_data),
       key: private_key_from_base64(key_data)
@@ -124,11 +127,12 @@ defmodule Kazan.Server do
 
   # Reads data of a particular type from a .pem file.
   defp cert_from_pem(nil, _), do: nil
+
   defp cert_from_pem(filename, basepath) do
     filename
     |> resolve_filename(basepath)
-    |> File.read!
-    |> :public_key.pem_decode
+    |> File.read!()
+    |> :public_key.pem_decode()
     |> Enum.find_value(fn
       {:Certificate, data, _} -> data
       _ -> nil
@@ -136,26 +140,35 @@ defmodule Kazan.Server do
   end
 
   defp cert_from_base64(nil), do: nil
+
   defp cert_from_base64(encoded_cert) do
     case Base.decode64(encoded_cert) do
       {:ok, cert_data} ->
-          :public_key.pem_decode(cert_data)
-            |> Enum.find_value(fn
-              {:Certificate, data, _} -> data
-              _ -> nil
-          end)
-      _ -> nil
+        :public_key.pem_decode(cert_data)
+        |> Enum.find_value(fn
+          {:Certificate, data, _} -> data
+          _ -> nil
+        end)
+
+      _ ->
+        nil
     end
   end
 
-  @private_key_atoms [:RSAPrivateKey, :DSAPrivateKey, :ECPrivateKey, :PrivateKeyInfo]
+  @private_key_atoms [
+    :RSAPrivateKey,
+    :DSAPrivateKey,
+    :ECPrivateKey,
+    :PrivateKeyInfo
+  ]
 
   defp private_key_from_pem(nil, _), do: nil
+
   defp private_key_from_pem(filename, basepath) do
     filename
     |> resolve_filename(basepath)
-    |> File.read!
-    |> :public_key.pem_decode
+    |> File.read!()
+    |> :public_key.pem_decode()
     |> Enum.find_value(fn
       {type, data, _} when type in @private_key_atoms -> {type, data}
       _ -> false
@@ -163,23 +176,26 @@ defmodule Kazan.Server do
   end
 
   defp private_key_from_base64(nil), do: nil
+
   defp private_key_from_base64(encoded_key) do
     case Base.decode64(encoded_key) do
       {:ok, key_data} ->
         :public_key.pem_decode(key_data)
         |> Enum.find_value(fn
-           {type, data, _} when type in @private_key_atoms -> {type, data}
-            _ -> false
+          {type, data, _} when type in @private_key_atoms -> {type, data}
+          _ -> false
         end)
-      _ -> nil
-      end
+
+      _ ->
+        nil
+    end
   end
 
   # "resolves" the path a filename that may be relative or absolute.
   # If absolute, then just uses that filename. Otherwise assumes it is relative
   # to the basepath. This is so that paths in kubeconfig can be relative to the
   # kubeconfig itself, rather than the current directory.
-  @spec resolve_filename(String.t, String.t) :: String.t
+  @spec resolve_filename(String.t(), String.t()) :: String.t()
   defp resolve_filename(filename, basepath) do
     case Path.type(filename) do
       :absolute -> filename

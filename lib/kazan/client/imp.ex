@@ -18,44 +18,54 @@ defmodule Kazan.Client.Imp do
   this request to. This will override any server provided in the Application
   config.
   """
-  @spec run(Request.t, Keyword.t) :: run_result
+  @spec run(Request.t(), Keyword.t()) :: run_result
   def run(request, options \\ []) do
     server = find_server(options)
 
     headers = [{"Accept", "application/json"}]
-    headers = headers ++ case request.content_type do
-                           nil -> []
-                           type -> [{"Content-Type", type}]
-                         end
 
-    headers = headers ++ case server.auth do
-      %Server.TokenAuth{token: token} -> [{"Authorization", "Bearer #{token}"}]
-      _ -> []
-    end
+    headers =
+      headers ++
+        case request.content_type do
+          nil -> []
+          type -> [{"Content-Type", type}]
+        end
+
+    headers =
+      headers ++
+        case server.auth do
+          %Server.TokenAuth{token: token} ->
+            [{"Authorization", "Bearer #{token}"}]
+
+          _ ->
+            []
+        end
 
     stream_to = Keyword.get(options, :stream_to)
 
-    request_options =
-      [ params: request.query_params,
-        ssl: ssl_options(server)]
+    request_options = [params: request.query_params, ssl: ssl_options(server)]
 
     request_options =
       case stream_to do
         nil ->
           request_options
+
         pid ->
           request_options ++
-          [ stream_to: pid,
-            recv_timeout: Keyword.get(options, :recv_timeout, 15000) ]
+            [
+              stream_to: pid,
+              recv_timeout: Keyword.get(options, :recv_timeout, 15000)
+            ]
       end
 
-    res = HTTPoison.request(
-      method(request.method),
-      server.url <> request.path,
-      request.body || "",
-      headers,
-      request_options
-    )
+    res =
+      HTTPoison.request(
+        method(request.method),
+        server.url <> request.path,
+        request.body || "",
+        headers,
+        request_options
+      )
 
     case stream_to do
       nil ->
@@ -65,7 +75,8 @@ defmodule Kazan.Client.Imp do
           case content_type do
             "application/json" ->
               with {:ok, data} <- Poison.decode(body),
-                   {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
+                   {:ok, model} <-
+                     Kazan.Models.decode(data, request.response_schema),
                    do: {:ok, model}
 
             "text/plain" ->
@@ -75,6 +86,7 @@ defmodule Kazan.Client.Imp do
               {:error, :unsupported_content_type}
           end
         end
+
       _pid ->
         case res do
           {:ok, %HTTPoison.AsyncResponse{id: id}} -> {:ok, id}
@@ -86,7 +98,7 @@ defmodule Kazan.Client.Imp do
   @doc """
   Like `run`, but raises on Error.  See `run/2` for more details.
   """
-  @spec run!(Request.t, Keyword.t) :: struct | no_return
+  @spec run!(Request.t(), Keyword.t()) :: struct | no_return
   def run!(request, options \\ []) do
     case run(request, options) do
       {:ok, result} -> result
@@ -97,23 +109,29 @@ defmodule Kazan.Client.Imp do
   # Figures out which server we should use.  In order of preference:
   # - A server specified in the keyword arguments
   # - A server specified in the kazan config
-  @spec find_server(Keyword.t) :: Server.t
+  @spec find_server(Keyword.t()) :: Server.t()
   defp find_server(options) do
     case Keyword.get(options, :server) do
       nil ->
         case Application.get_env(:kazan, :server) do
           nil ->
             raise "No server is configured"
+
           {:kubeconfig, filename} ->
             Server.from_kubeconfig(filename)
+
           {:kubeconfig, filename, opts} ->
             Server.from_kubeconfig(filename, opts)
+
           :in_cluster ->
-            Server.in_cluster
+            Server.in_cluster()
+
           details ->
             struct(Server, details)
         end
-      server -> server
+
+      server ->
+        server
     end
   end
 
@@ -123,20 +141,23 @@ defmodule Kazan.Client.Imp do
   defp method("delete"), do: :delete
   defp method("patch"), do: :patch
 
-  @spec check_status(HTTPoison.Response.t) :: {:ok, String.t}
+  @spec check_status(HTTPoison.Response.t()) :: {:ok, String.t()}
   defp check_status(%{status_code: code, body: body}) when code in 200..299 do
     {:ok, body}
   end
+
   defp check_status(%{status_code: other, body: body}) do
     data =
       case Poison.decode(body) do
         {:ok, data} -> data
         _ -> body
       end
+
     {:error, {:http_error, other, data}}
   end
 
-  @spec get_content_type(HTTPoison.Response.t) :: {:ok, String.t} | {:error, :no_content_type}
+  @spec get_content_type(HTTPoison.Response.t()) ::
+          {:ok, String.t()} | {:error, :no_content_type}
   defp get_content_type(%{headers: headers}) do
     case List.keyfind(headers, "Content-Type", 0) do
       nil -> {:error, :no_content_type}
@@ -144,22 +165,28 @@ defmodule Kazan.Client.Imp do
     end
   end
 
-  @spec ssl_options(Server.t) :: Keyword.t
+  @spec ssl_options(Server.t()) :: Keyword.t()
   defp ssl_options(server) do
     auth_options = ssl_auth_options(server.auth)
-    verify_options = case server.insecure_skip_tls_verify do
-      true -> [verify: :verify_none]
-      _ -> []
-    end
-    ca_options = case server.ca_cert do
-      nil -> []
-      cert -> [cacerts: [cert]]
-    end
+
+    verify_options =
+      case server.insecure_skip_tls_verify do
+        true -> [verify: :verify_none]
+        _ -> []
+      end
+
+    ca_options =
+      case server.ca_cert do
+        nil -> []
+        cert -> [cacerts: [cert]]
+      end
+
     auth_options ++ verify_options ++ ca_options
   end
 
   defp ssl_auth_options(%Server.CertificateAuth{certificate: cert, key: key}) do
     [cert: cert, key: key]
   end
+
   defp ssl_auth_options(_), do: []
 end

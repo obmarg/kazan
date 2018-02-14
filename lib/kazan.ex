@@ -44,12 +44,12 @@ defmodule Kazan do
   @doc """
   Like `run/2`, but raises on Error.  See `run/2` for more details.
   """
-  @spec run!(Request.t, Keyword.t) :: struct | no_return
+  @spec run!(Request.t(), Keyword.t()) :: struct | no_return
   defdelegate run!(request, opts), to: Kazan.Client.Imp
 
   @doc """
   Like `run/1`, but raises on Error.  See `run/1` for more details.
   """
-  @spec run!(Request.t) :: struct | no_return
+  @spec run!(Request.t()) :: struct | no_return
   defdelegate run!(request), to: Kazan.Client.Imp
 end

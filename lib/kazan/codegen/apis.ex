@@ -21,36 +21,37 @@ defmodule Kazan.Codegen.Apis do
   defmacro from_spec(spec_file) do
     operations =
       File.read!(spec_file)
-      |> Poison.decode!
+      |> Poison.decode!()
       |> swagger_to_op_map
-      |> Map.values
+      |> Map.values()
       |> Enum.flat_map(&duplicate_on_tags/1)
 
     # Create the atoms for all the names of our operations.
     :ok =
       operations
-      |> Enum.map(fn (op_desc) -> op_desc["tag"] end)
-      |> Enum.uniq
+      |> Enum.map(fn op_desc -> op_desc["tag"] end)
+      |> Enum.uniq()
       |> Enum.map(&ApiId.from_oai_tag/1)
-      |> Enum.each(&api_module &1, unsafe: true)
+      |> Enum.each(&api_module(&1, unsafe: true))
 
     operations = Enum.map(operations, &Operation.from_oai_desc/1)
 
-    api_groups = Enum.group_by(operations, fn (op) -> op.api_id end)
+    api_groups = Enum.group_by(operations, fn op -> op.api_id end)
 
-    module_forms = for {api_id, functions} <- api_groups do
-      function_forms = Enum.map(functions, &function_form/1)
-      module_doc = module_doc(api_id)
-      module_name = api_module(api_id)
+    module_forms =
+      for {api_id, functions} <- api_groups do
+        function_forms = Enum.map(functions, &function_form/1)
+        module_doc = module_doc(api_id)
+        module_name = api_module(api_id)
 
-      quote do
-        defmodule unquote(module_name) do
-          @moduledoc unquote(module_doc)
+        quote do
+          defmodule unquote(module_name) do
+            @moduledoc unquote(module_doc)
 
-          unquote_splicing(function_forms)
+            unquote_splicing(function_forms)
+          end
         end
       end
-    end
 
     quote do
       @external_resource unquote(spec_file)
@@ -66,7 +67,7 @@ defmodule Kazan.Codegen.Apis do
   @doc """
   Builds an api module name from an ApiId.
   """
-  @spec api_module(ApiId.t, Keyword.t) :: atom
+  @spec api_module(ApiId.t(), Keyword.t()) :: atom
   def api_module(api_id, opts \\ []) do
     components =
       if api_id.version != nil do
@@ -80,7 +81,8 @@ defmodule Kazan.Codegen.Apis do
     else
       try do
         Module.safe_concat(components)
-      rescue ArgumentError ->
+      rescue
+        ArgumentError ->
           nil
       end
     end
@@ -94,19 +96,20 @@ defmodule Kazan.Codegen.Apis do
   API. We don't want to have such large function names, so we try to strip the
   API name out.
   """
-  @spec function_name(String.t, String.t | atom) :: atom
+  @spec function_name(String.t(), String.t() | atom) :: atom
   def function_name(operation_id, tag, opts \\ []) when is_binary(tag) do
     string_name =
       operation_id
       |> String.replace(Macro.camelize(tag), "")
-      |> Macro.underscore
+      |> Macro.underscore()
 
     if Keyword.get(opts, :unsafe, false) do
       String.to_atom(string_name)
     else
       try do
         String.to_existing_atom(string_name)
-      rescue ArgumentError ->
+      rescue
+        ArgumentError ->
           nil
       end
     end
@@ -116,7 +119,7 @@ defmodule Kazan.Codegen.Apis do
   # but there could be more.  We handle that by duplicating on tags.
   # Once this function is finished, we will have a bunch of operations with a
   # single tag.
-  @spec duplicate_on_tags(Map.t) :: [Map.t]
+  @spec duplicate_on_tags(Map.t()) :: [Map.t()]
   defp duplicate_on_tags(operation) do
     for tag <- operation["tags"] do
       operation |> Map.put("tag", tag) |> Map.delete("tags")
@@ -124,14 +127,12 @@ defmodule Kazan.Codegen.Apis do
   end
 
   # Builds the quoted function form for an operation function.
-  @spec function_form(Operation.t) :: term
+  @spec function_form(Operation.t()) :: term
   defp function_form(operation) do
-    param_groups = Enum.group_by(
-      operation.parameters,
-      fn (param) -> param.type end
-    )
+    param_groups =
+      Enum.group_by(operation.parameters, fn param -> param.type end)
 
-    is_required = fn (param) -> param.required end
+    is_required = fn param -> param.required end
     query_params = Map.get(param_groups, :query, [])
 
     path_params =
@@ -139,80 +140,101 @@ defmodule Kazan.Codegen.Apis do
 
     # The main arguments our function will take:
     argument_params =
-      Map.get(param_groups, :body, [])
-      ++ path_params
-      ++ Enum.filter(query_params, is_required)
+      Map.get(param_groups, :body, []) ++
+        path_params ++ Enum.filter(query_params, is_required)
 
     optional_params = Enum.reject(query_params, is_required)
 
     arguments = argument_forms(argument_params, optional_params)
-    docs = function_docs(
-      operation.operation_id, operation.description, argument_params, optional_params, operation.response_schema
-    )
 
-    param_unpacking = if Enum.empty?(argument_params) do
-      quote do
-        %{}
-      end
-    else
-      argument_map_pairs = for arg <- argument_params do
-        {arg.var_name, Macro.var(arg.var_name, __MODULE__)}
-      end
-      quote location: :keep do
-        %{unquote_splicing(argument_map_pairs)}
-      end
-    end
+    docs =
+      function_docs(
+        operation.operation_id,
+        operation.description,
+        argument_params,
+        optional_params,
+        operation.response_schema
+      )
 
-    option_merging = cond do
-      Enum.empty?(optional_params) ->
+    param_unpacking =
+      if Enum.empty?(argument_params) do
         quote do
-          params
+          %{}
         end
-      Enum.empty?(argument_params) ->
-        quote location: :keep do
-          Enum.into(options, %{})
-        end
-      :otherwise ->
-        quote location: :keep do
-          Map.merge(Enum.into(options, %{}), params)
-        end
-    end
+      else
+        argument_map_pairs =
+          for arg <- argument_params do
+            {arg.var_name, Macro.var(arg.var_name, __MODULE__)}
+          end
 
-    transform_map = for parameter <- operation.parameters, into: %{} do
-      {parameter.var_name, parameter.field_name}
-    end
+        quote location: :keep do
+          %{unquote_splicing(argument_map_pairs)}
+        end
+      end
 
-    bang_function_name = String.to_atom(
-      Atom.to_string(operation.function_name) <> "!"
-    )
-    argument_forms_in_call = argument_call_forms(
-      argument_params, optional_params
-    )
+    option_merging =
+      cond do
+        Enum.empty?(optional_params) ->
+          quote do
+            params
+          end
+
+        Enum.empty?(argument_params) ->
+          quote location: :keep do
+            Enum.into(options, %{})
+          end
+
+        :otherwise ->
+          quote location: :keep do
+            Map.merge(Enum.into(options, %{}), params)
+          end
+      end
+
+    transform_map =
+      for parameter <- operation.parameters, into: %{} do
+        {parameter.var_name, parameter.field_name}
+      end
+
+    bang_function_name =
+      String.to_atom(Atom.to_string(operation.function_name) <> "!")
+
+    argument_forms_in_call =
+      argument_call_forms(
+        argument_params,
+        optional_params
+      )
 
     quote location: :keep do
       @doc unquote(docs)
       def unquote(operation.function_name)(unquote_splicing(arguments)) do
         params = unquote(param_unpacking)
         params = unquote(option_merging)
-        {:ok, req} = Kazan.Request.create(
-          unquote(operation.operation_id),
-          Kazan.Codegen.Apis.transform_request_parameters(
-            unquote(Macro.escape(transform_map)),
-            params
+
+        {:ok, req} =
+          Kazan.Request.create(
+            unquote(operation.operation_id),
+            Kazan.Codegen.Apis.transform_request_parameters(
+              unquote(Macro.escape(transform_map)),
+              params
+            )
           )
-        )
       end
 
       @doc unquote(docs)
       def unquote(bang_function_name)(unquote_splicing(arguments)) do
-        rv = unquote(operation.function_name)(
-          unquote_splicing(argument_forms_in_call)
-        )
+        rv =
+          unquote(operation.function_name)(
+            unquote_splicing(argument_forms_in_call)
+          )
+
         case rv do
-          {:ok, result} -> result
+          {:ok, result} ->
+            result
+
           {:err, reason} ->
             raise Kazan.BuildRequestError,
-              reason: reason, operation: unquote(operation.function_name)
+              reason: reason,
+              operation: unquote(operation.function_name)
         end
       end
     end
@@ -226,34 +248,35 @@ defmodule Kazan.Codegen.Apis do
   end
 
   # List of argument forms to go in function argument lists.
-  @spec argument_forms([Map.t], [Map.t]) :: [term]
+  @spec argument_forms([Map.t()], [Map.t()]) :: [term]
   defp argument_forms(argument_params, []) do
     for param <- argument_params do
       Macro.var(param.var_name, __MODULE__)
     end
   end
+
   defp argument_forms(argument_params, _optional_params) do
-    argument_forms(argument_params, [])
-    ++ [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
+    argument_forms(argument_params, []) ++
+      [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
   end
 
   # List of arugment forms to go in call to function from bang function.
-  @spec argument_call_forms([Map.t], [Map.t]) :: [term]
+  @spec argument_call_forms([Map.t()], [Map.t()]) :: [term]
   defp argument_call_forms(argument_params, []) do
     for param <- argument_params do
       Macro.var(param.var_name, __MODULE__)
     end
   end
+
   defp argument_call_forms(argument_params, _optional_params) do
-    argument_forms(argument_params, [])
-    ++ [Macro.var(:options, __MODULE__)]
+    argument_forms(argument_params, []) ++ [Macro.var(:options, __MODULE__)]
   end
 
   # The Kube API specs provide path parameters in an unintuitive order,
   # so we sort them by the order they appear in the request path here.
-  @spec sort_path_params([Parameter.t], String.t) :: [Parameter.t]
+  @spec sort_path_params([Parameter.t()], String.t()) :: [Parameter.t()]
   defp sort_path_params(parameters, path) do
-    Enum.sort(parameters, fn (param1, param2) ->
+    Enum.sort(parameters, fn param1, param2 ->
       loc1 = str_index("{#{param1.field_name}}", path)
       loc2 = str_index("{#{param2.field_name}}", path)
       loc1 <= loc2
@@ -268,33 +291,38 @@ defmodule Kazan.Codegen.Apis do
     end
   end
 
-  EEx.function_from_string(:defp, :function_docs, """
-  <%= if description do description end %>
+  EEx.function_from_string(
+    :defp,
+    :function_docs,
+    """
+    <%= if description do description end %>
 
-  OpenAPI Operation ID: `<%= operation_id %>`
-  <%= unless Enum.empty?(parameters) do %>
-  ### Parameters
+    OpenAPI Operation ID: `<%= operation_id %>`
+    <%= unless Enum.empty?(parameters) do %>
+    ### Parameters
 
-  <%= for param <- parameters do %>
-  * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= doc_ref(param.schema) %>`. <% end %> <% end %>
-  <% end %>
+    <%= for param <- parameters do %>
+    * `<%= param.var_name %>` - <%= param.description %><%= if param.schema do %>See `<%= doc_ref(param.schema) %>`. <% end %> <% end %>
+    <% end %>
 
-  <%= unless Enum.empty?(options) do %>
+    <%= unless Enum.empty?(options) do %>
 
-  ### Options
+    ### Options
 
-  <%= for option <- options do %>
-  * `<%= option.var_name %>` - <%= option.description %>
-  <% end %>
-  <% end %>
+    <%= for option <- options do %>
+    * `<%= option.var_name %>` - <%= option.description %>
+    <% end %>
+    <% end %>
 
-  <%= if response_schema do %>
-  ### Response
+    <%= if response_schema do %>
+    ### Response
 
-  See `<%= doc_ref(response_schema) %>`
-  <% end %>
+    See `<%= doc_ref(response_schema) %>`
+    <% end %>
 
-  """, [:operation_id, :description, :parameters, :options, :response_schema])
+    """,
+    [:operation_id, :description, :parameters, :options, :response_schema]
+  )
 
   defp module_doc(api_id) do
     case api_id do
@@ -309,6 +337,7 @@ defmodule Kazan.Codegen.Apis do
         The submodules of this module provide implementations of each of those
         versions.
         """
+
       %{group: group, version: version} ->
         """
         Contains functions for #{version} of the #{group} API group.
@@ -325,6 +354,6 @@ defmodule Kazan.Codegen.Apis do
   # Strips the `Elixir.` prefix from an atom for use in documentation.
   # Atoms will not be linked if they include the Elixir. prefix.
   defp doc_ref(str) do
-    str |> Atom.to_string |> String.replace(~r/^Elixir./, "")
+    str |> Atom.to_string() |> String.replace(~r/^Elixir./, "")
   end
 end

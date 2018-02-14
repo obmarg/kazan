@@ -4,7 +4,7 @@ defmodule Kazan.Client.ImpTest do
   alias Kazan.Apis.Core.V1, as: CoreV1
 
   setup do
-    bypass = Bypass.open
+    bypass = Bypass.open()
     request = CoreV1.list_namespace!()
     server = %Kazan.Server{url: "http://localhost:#{bypass.port}"}
     {:ok, %{bypass: bypass, request: request, server: server}}
@@ -16,14 +16,14 @@ defmodule Kazan.Client.ImpTest do
     test "returns decoded data if application/json returned", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
-      end
+      end)
 
       {:ok, data} = run(request, server: server)
       assert data
@@ -33,14 +33,14 @@ defmodule Kazan.Client.ImpTest do
     test "returns raw data if text/plain is returned", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
         |> Plug.Conn.resp(200, "some text")
         |> Plug.Conn.put_resp_header("Content-Type", "text/plain")
-      end
+      end)
 
       {:ok, data} = run(request, server: server)
       assert "some text" == data
@@ -49,14 +49,14 @@ defmodule Kazan.Client.ImpTest do
     test "returns error if unknown content type", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
         |> Plug.Conn.resp(200, "some text")
         |> Plug.Conn.put_resp_header("Content-Type", "foo/bar")
-      end
+      end)
 
       assert {:error, :unsupported_content_type} == run(request, server: server)
     end
@@ -64,13 +64,13 @@ defmodule Kazan.Client.ImpTest do
     test "returns error if no content type header", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
         |> Plug.Conn.resp(200, "some text")
-      end
+      end)
 
       assert {:error, :no_content_type} == run(request, server: server)
     end
@@ -79,14 +79,14 @@ defmodule Kazan.Client.ImpTest do
       %{request: request, bypass: bypass, server: server} = context
       request = %{request | query_params: %{"pretty" => "true"}}
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         conn = Plug.Conn.fetch_query_params(conn)
         assert conn.query_params["pretty"] == "true"
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
-      end
+      end)
 
       {:ok, _} = run(request, server: server)
     end
@@ -94,11 +94,11 @@ defmodule Kazan.Client.ImpTest do
     test "returns error on non-200 status", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         conn
         |> Plug.Conn.resp(500, namespace_response())
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
-      end
+      end)
 
       {:error, {:http_error, 500, _}} = run(request, server: server)
     end
@@ -118,14 +118,14 @@ defmodule Kazan.Client.ImpTest do
     test "returns decoded data if everything is good", context do
       %{request: request, bypass: bypass, server: server} = context
 
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/api/v1/namespaces"
 
         conn
         |> Plug.Conn.resp(200, namespace_response())
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
-      end
+      end)
 
       data = run!(request, server: server)
       assert data

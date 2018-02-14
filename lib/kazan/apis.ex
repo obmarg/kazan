@@ -34,14 +34,19 @@ defmodule Kazan.Apis do
     operation_descs()
     |> Enum.find(fn op -> op.operation_id == oai_operation_id end)
     |> case do
-         nil -> []
-         operation ->
-           bang_function_name = String.to_existing_atom(
-             Atom.to_string(operation.function_name) <> "!"
-           )
+      nil ->
+        []
 
-           [{operation.api_module, operation.function_name},
-            {operation.api_module, bang_function_name}]
-       end
+      operation ->
+        bang_function_name =
+          String.to_existing_atom(
+            Atom.to_string(operation.function_name) <> "!"
+          )
+
+        [
+          {operation.api_module, operation.function_name},
+          {operation.api_module, bang_function_name}
+        ]
+    end
   end
 end

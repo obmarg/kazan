@@ -72,7 +72,13 @@ defmodule Kazan.Watcher do
     # Chunked HTTP responses are not always a complete line, so we must buffer them
     # until we have a complete line before parsing.
 
-    defstruct id: nil, request: nil, send_to: nil, name: nil, buffer: nil, rv: nil, client_opts: []
+    defstruct id: nil,
+              request: nil,
+              send_to: nil,
+              name: nil,
+              buffer: nil,
+              rv: nil,
+              client_opts: []
   end
 
   @doc """
@@ -96,22 +102,34 @@ defmodule Kazan.Watcher do
   def init([request, send_to, opts]) do
     {rv, opts} = Keyword.pop(opts, :resource_version)
     {name, opts} = Keyword.pop(opts, :name, inspect(self()))
+
     rv =
       case rv do
         nil ->
-          Logger.info "Obtaining initial rv"
+          Logger.info("Obtaining initial rv")
           {:ok, object} = Kazan.run(request, opts)
           extract_rv(object)
+
         rv ->
           rv
       end
+
     client_opts =
       opts
       |> Keyword.put_new(:recv_timeout, 5 * 60 * 1000)
-    Logger.info "Watcher init: #{name} rv: #{rv} request: #{inspect request}"
+
+    Logger.info("Watcher init: #{name} rv: #{rv} request: #{inspect(request)}")
+
     state =
-      %State{request: request, rv: rv, send_to: send_to, name: name, client_opts: client_opts}
+      %State{
+        request: request,
+        rv: rv,
+        send_to: send_to,
+        name: name,
+        client_opts: client_opts
+      }
       |> start_request()
+
     {:ok, state}
   end
 
@@ -126,56 +144,72 @@ defmodule Kazan.Watcher do
   end
 
   @impl GenServer
-  def handle_info(%HTTPoison.AsyncChunk{chunk: chunk, id: request_id},
-                  %State{id: request_id, buffer: buffer} = state) do
-
+  def handle_info(
+        %HTTPoison.AsyncChunk{chunk: chunk, id: request_id},
+        %State{id: request_id, buffer: buffer} = state
+      ) do
     {lines, buffer} =
       buffer
       |> LineBuffer.add_chunk(chunk)
       |> LineBuffer.get_lines()
 
-      new_rv = process_lines(state, lines)
+    new_rv = process_lines(state, lines)
 
     {:noreply, %State{state | buffer: buffer, rv: new_rv}}
   end
 
   @impl GenServer
-  def handle_info(%HTTPoison.Error{reason: {:closed, :timeout}}, %State{name: name, rv: rv} = state) do
-    Logger.info "Received Timeout: #{name} rv: #{rv}"
+  def handle_info(
+        %HTTPoison.Error{reason: {:closed, :timeout}},
+        %State{name: name, rv: rv} = state
+      ) do
+    Logger.info("Received Timeout: #{name} rv: #{rv}")
     {:noreply, start_request(state)}
   end
 
   @impl GenServer
-  def handle_info(%HTTPoison.AsyncEnd{id: request_id},
-                  %State{id: request_id, name: name, rv: rv} = state) do
-    Logger.info "Received AsyncEnd: #{name} rv: #{rv}"
+  def handle_info(
+        %HTTPoison.AsyncEnd{id: request_id},
+        %State{id: request_id, name: name, rv: rv} = state
+      ) do
+    Logger.info("Received AsyncEnd: #{name} rv: #{rv}")
     {:noreply, start_request(state)}
   end
 
   # INTERNAL
 
-  defp start_request(%State{request: request, name: name, rv: rv, client_opts: client_opts} = state) do
+  defp start_request(
+         %State{request: request, name: name, rv: rv, client_opts: client_opts} =
+           state
+       ) do
     query_params =
       request.query_params
       |> Map.put("watch", true)
       |> Map.put("resourceVersion", rv)
+
     request = %Kazan.Request{request | query_params: query_params}
     {:ok, id} = Kazan.run(request, [{:stream_to, self()} | client_opts])
-    Logger.info "Started request: #{name} rv: #{rv}"
+    Logger.info("Started request: #{name} rv: #{rv}")
     %State{state | id: id, buffer: LineBuffer.new()}
   end
 
   defp process_lines(%State{name: name, send_to: send_to, rv: rv}, lines) do
-    Logger.debug "Process lines: #{name}"
-    Enum.reduce(lines, rv, fn(line, current_rv) ->
+    Logger.debug("Process lines: #{name}")
+
+    Enum.reduce(lines, rv, fn line, current_rv ->
       {:ok, %{"type" => type, "object" => raw_object}} = Poison.decode(line)
       {:ok, model} = Kazan.Models.decode(raw_object)
+
       case {type, extract_rv(raw_object)} do
         {_, ^current_rv} ->
-          Logger.warn "Duplicate message: #{name} type: #{type} rv: #{current_rv}"
+          Logger.warn(
+            "Duplicate message: #{name} type: #{type} rv: #{current_rv}"
+          )
+
           current_rv
+
         {_, new_rv} ->
-          Logger.debug "Received message: #{name} type: #{type} rv: #{new_rv}"
+          Logger.debug("Received message: #{name} type: #{type} rv: #{new_rv}")
           send(send_to, %WatchEvent{type: type, object: model})
           new_rv
       end

@@ -5,13 +5,13 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
   defstruct [:type, :format, :description, :ref, :field, :items]
 
   @type t :: %{
-    :type => String.t | nil,
-    :format => String.t | nil,
-    :description => String.t | nil,
-    :ref => atom | nil,
-    :field => String.t | nil,
-    :items => t | nil
-  }
+          :type => String.t() | nil,
+          :format => String.t() | nil,
+          :description => String.t() | nil,
+          :ref => atom | nil,
+          :field => String.t() | nil,
+          :items => t | nil
+        }
 
   @doc """
   Builds a property from an open API property map.
@@ -25,15 +25,16 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
   If this property has a $ref that is not present in `refs` then we assume that
   it is a reference to another model.
   """
-  @spec from_oai_desc(Map.t, String.t, Map.t) :: t
+  @spec from_oai_desc(Map.t(), String.t(), Map.t()) :: t
   def from_oai_desc(map, field, refs) do
     ref = definition_ref_to_module_name(map["$ref"])
 
-    map = if Map.has_key?(refs, ref) do
-      map |> Map.merge(refs[ref]) |> Map.delete("$ref")
-    else
-      map
-    end
+    map =
+      if Map.has_key?(refs, ref) do
+        map |> Map.merge(refs[ref]) |> Map.delete("$ref")
+      else
+        map
+      end
 
     %__MODULE__{
       type: map["type"],
@@ -45,8 +46,6 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
     }
   end
 
-
   defp parse_items(nil, _), do: nil
   defp parse_items(map, refs), do: from_oai_desc(map, nil, refs)
 end
-

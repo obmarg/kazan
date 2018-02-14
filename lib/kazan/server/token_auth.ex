@@ -2,8 +2,8 @@ defmodule Kazan.Server.TokenAuth do
   defstruct [:token]
 
   @type t :: %__MODULE__{
-    token: binary
-  }
+          token: binary
+        }
 
   defimpl Inspect, for: __MODULE__ do
     # We define a custom inspect implementation to avoid printing key details to
@@ -11,7 +11,7 @@ defmodule Kazan.Server.TokenAuth do
     import Inspect.Algebra
 
     def inspect(_auth, _opts) do
-      concat ["#TokenAuth<...>"]
+      concat(["#TokenAuth<...>"])
     end
   end
 end

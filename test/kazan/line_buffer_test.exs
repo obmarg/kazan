@@ -4,8 +4,9 @@ defmodule Kazan.LineBufferTest do
 
   test "get_lines with nothing" do
     {lines, _buffer} =
-       LineBuffer.new()
-       |> LineBuffer.get_lines()
+      LineBuffer.new()
+      |> LineBuffer.get_lines()
+
     assert [] == lines
   end
 
@@ -14,6 +15,7 @@ defmodule Kazan.LineBufferTest do
       LineBuffer.new()
       |> LineBuffer.add_chunk("c1\n")
       |> LineBuffer.get_lines()
+
     assert ["c1"] == lines
   end
 
@@ -23,6 +25,7 @@ defmodule Kazan.LineBufferTest do
       |> LineBuffer.add_chunk("c1\nc2\n")
       |> LineBuffer.add_chunk("c3\nc4\n")
       |> LineBuffer.get_lines()
+
     assert ["c1", "c2", "c3", "c4"] == lines
   end
 
@@ -33,6 +36,7 @@ defmodule Kazan.LineBufferTest do
       |> LineBuffer.add_chunk("c3\nc")
       |> LineBuffer.add_chunk("4\nc5\n")
       |> LineBuffer.get_lines()
+
     assert ["c1", "c2", "c3", "c4", "c5"] == lines
   end
 
@@ -42,12 +46,14 @@ defmodule Kazan.LineBufferTest do
       |> LineBuffer.add_chunk("c1\nc2\n")
       |> LineBuffer.add_chunk("c3\nc")
       |> LineBuffer.get_lines()
+
     assert ["c1", "c2", "c3"] == lines
 
     {lines, _buffer} =
       buffer
       |> LineBuffer.add_chunk("4\nc5\n")
       |> LineBuffer.get_lines()
+
     assert ["c4", "c5"] == lines
   end
 
@@ -57,6 +63,7 @@ defmodule Kazan.LineBufferTest do
       |> LineBuffer.add_chunk("c1\n")
       |> LineBuffer.add_chunk("")
       |> LineBuffer.get_lines()
+
     assert ["c1"] == lines
   end
 
@@ -66,6 +73,7 @@ defmodule Kazan.LineBufferTest do
       |> LineBuffer.add_chunk("c1")
       |> LineBuffer.add_chunk("\n")
       |> LineBuffer.get_lines()
+
     assert ["c1"] == lines
   end
 end

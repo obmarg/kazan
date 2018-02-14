@@ -6,10 +6,10 @@ defmodule Kazan.Codegen.Models.ResourceId do
   defstruct [:group, :version, :kind]
 
   @type t :: %{
-    group: String.t,
-    version: String.t,
-    kind: String.t
-  }
+          group: String.t(),
+          version: String.t(),
+          kind: String.t()
+        }
 
   @doc """
   Parses some ResourceIds from a models OAI description.
@@ -17,7 +17,7 @@ defmodule Kazan.Codegen.Models.ResourceId do
   This reads from the x-kubernetes-group-version-kind data - if this isn't
   present then we assume the model has no ResourceID.
   """
-  @spec from_oai_desc(Map.t) :: [t]
+  @spec from_oai_desc(Map.t()) :: [t]
   def from_oai_desc(model_desc) do
     if model_desc["x-kubernetes-group-version-kind"] do
       parse_x_kube_gvk(model_desc["x-kubernetes-group-version-kind"])
@@ -26,7 +26,7 @@ defmodule Kazan.Codegen.Models.ResourceId do
     end
   end
 
-  @spec parse_x_kube_gvk([Map.t] | Map.t) :: [t]
+  @spec parse_x_kube_gvk([Map.t()] | Map.t()) :: [t]
   defp parse_x_kube_gvk(gvks) when is_list(gvks) do
     Enum.flat_map(gvks, &parse_x_kube_gvk/1)
   end
