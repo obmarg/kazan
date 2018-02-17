@@ -210,14 +210,13 @@ defmodule Kazan.Codegen.Apis do
         params = unquote(param_unpacking)
         params = unquote(option_merging)
 
-        {:ok, req} =
-          Kazan.Request.create(
-            unquote(operation.operation_id),
-            Kazan.Codegen.Apis.transform_request_parameters(
-              unquote(Macro.escape(transform_map)),
-              params
-            )
+        Kazan.Request.create(
+          unquote(operation.operation_id),
+          Kazan.Codegen.Apis.transform_request_parameters(
+            unquote(Macro.escape(transform_map)),
+            params
           )
+        )
       end
 
       @doc unquote(docs)
