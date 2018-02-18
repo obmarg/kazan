@@ -8,8 +8,8 @@ defmodule Kazan.Apis do
   Each of these modules will contain submodules that repreesent the different
   versions of the API group. Within those submodules will be functions that can
   be called to generate `Kazan.Request` structures that can be fed into
-  `Kazan.Client`. The version submodules will also contain any structs that can
-  be sent & received by that particular version of the API group.
+  `Kazan.run`. The version submodules will also contain any structs that can be
+  sent & received by that particular version of the API group.
 
   Each request functions arguments are generated so that any HTTP body parameter
   is first, followed by any path parameters in path order, followed by any
@@ -34,14 +34,19 @@ defmodule Kazan.Apis do
     operation_descs()
     |> Enum.find(fn op -> op.operation_id == oai_operation_id end)
     |> case do
-         nil -> []
-         operation ->
-           bang_function_name = String.to_existing_atom(
-             Atom.to_string(operation.function_name) <> "!"
-           )
+      nil ->
+        []
 
-           [{operation.api_module, operation.function_name},
-            {operation.api_module, bang_function_name}]
-       end
+      operation ->
+        bang_function_name =
+          String.to_existing_atom(
+            Atom.to_string(operation.function_name) <> "!"
+          )
+
+        [
+          {operation.api_module, operation.function_name},
+          {operation.api_module, bang_function_name}
+        ]
+    end
   end
 end

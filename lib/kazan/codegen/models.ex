@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Models do
   @moduledoc false
-  #Macros for generating client code from OAI specs.
+  # Macros for generating client code from OAI specs.
   require EEx
 
   alias Kazan.Codegen.Models.ModelDesc
@@ -19,19 +19,20 @@ defmodule Kazan.Codegen.Models do
     models = parse_models(spec_file)
     resource_id_index = build_resource_id_index(models)
 
-    spec_forms = for {module_name, desc} <- models do
-      property_names = Map.keys(desc.properties)
+    spec_forms =
+      for {module_name, desc} <- models do
+        property_names = Map.keys(desc.properties)
 
-      documentation = model_docs(desc.id, desc.description, desc.properties)
+        documentation = model_docs(desc.id, desc.description, desc.properties)
 
-      quote do
-        defmodule unquote(module_name) do
-          @moduledoc unquote(documentation)
+        quote do
+          defmodule unquote(module_name) do
+            @moduledoc unquote(documentation)
 
-          defstruct unquote(property_names)
+            defstruct unquote(property_names)
+          end
         end
       end
-    end
 
     quote do
       Module.put_attribute(__MODULE__, :external_resource, unquote(spec_file))
@@ -53,7 +54,7 @@ defmodule Kazan.Codegen.Models do
   @doc """
   Builds a module name atom from an OAI model name.
   """
-  @spec module_name(String.t, Keyword.t) :: atom | nil
+  @spec module_name(String.t(), Keyword.t()) :: atom | nil
   def module_name(model_name, opts \\ []) do
     components = module_name_components(model_name)
 
@@ -62,8 +63,9 @@ defmodule Kazan.Codegen.Models do
     else
       try do
         Module.safe_concat(components)
-      rescue ArgumentError ->
-        nil
+      rescue
+        ArgumentError ->
+          nil
       end
     end
   end
@@ -71,26 +73,19 @@ defmodule Kazan.Codegen.Models do
   @doc """
   Parses a $ref for a definition into a models module name.
   """
-  @spec definition_ref_to_module_name(String.t) :: nil | :atom
+  @spec definition_ref_to_module_name(String.t()) :: nil | :atom
   def definition_ref_to_module_name(nil), do: nil
+
   def definition_ref_to_module_name("#/definitions/" <> model_def) do
     module_name(model_def)
   end
 
-  @doc """
-  Builds an atom property name from an OAI property name.
-  """
-  @spec property_name(String.t) :: atom
-  def property_name(str) do
-    str |> Macro.underscore |> String.to_atom
-  end
-
-  @spec parse_models(String.t) :: [ModelDesc.t]
+  @spec parse_models(String.t()) :: [ModelDesc.t()]
   defp parse_models(spec_file) do
     definitions =
       spec_file
-      |> File.read!
-      |> Poison.decode!
+      |> File.read!()
+      |> Poison.decode!()
       |> Map.get("definitions")
 
     # First we need to go over all of the definitions and call module_name
@@ -112,57 +107,76 @@ defmodule Kazan.Codegen.Models do
     definitions
     |> Enum.filter(is_model)
     |> Enum.map(&ModelDesc.from_oai_desc(&1, refs))
-    |> Enum.map(fn (desc) -> {desc.module_name, desc} end)
+    |> Enum.map(fn desc -> {desc.module_name, desc} end)
     |> Enum.into(%{})
   end
 
-  EEx.function_from_string(:defp, :model_docs, """
-  <%= model_description %>
+  EEx.function_from_string(
+    :defp,
+    :model_docs,
+    """
+    <%= model_description %>
 
-  OpenAPI Definition: `<%= id %>`
+    OpenAPI Definition: `<%= id %>`
 
-  ### Properties
+    ### Properties
 
-  <%= for {name, property} <- properties do %>
-  * `<%= name %>` <%= if doc = property_type_doc(property) do %>:: <%= doc %> <% end %>
-      * <%= process_description(property.description) %> <% end %>
-  """, [:id, :model_description, :properties])
+    <%= for {name, property} <- properties do %>
+    * `<%= name %>` <%= if doc = property_type_doc(property) do %>:: <%= doc %> <% end %>
+        * <%= process_description(property.description) %> <% end %>
+    """,
+    [:id, :model_description, :properties]
+  )
 
   # Creates a property type doc string.
-  @spec property_type_doc(Property.t) :: String.t | nil
+  @spec property_type_doc(Property.t()) :: String.t() | nil
   defp property_type_doc(property) do
     if property.ref do
       "`#{doc_ref(property.ref)}`"
     else
       case property.type do
-        "array" -> "[ #{property_type_doc(property.items)} ]"
-        "integer" -> "`Integer`"
-        "number" -> "`Float`"
-        "object" -> "`Map`"
-        "string" -> case property.format do
-                      "date" -> "`Date`"
-                      "date-time" -> "`DateTime`"
-                      _ -> "`String`"
-                    end
-        "boolean" -> "`Boolean`"
+        "array" ->
+          "[ #{property_type_doc(property.items)} ]"
+
+        "integer" ->
+          "`Integer`"
+
+        "number" ->
+          "`Float`"
+
+        "object" ->
+          "`Map`"
+
+        "string" ->
+          case property.format do
+            "date" -> "`Date`"
+            "date-time" -> "`DateTime`"
+            _ -> "`String`"
+          end
+
+        "boolean" ->
+          "`Boolean`"
       end
     end
   end
 
   # Pre-processes a fields description.
   # Useful for making actual links out of HTTP links etc.
-  @spec process_description(String.t) :: String.t
+  @spec process_description(String.t()) :: String.t()
   defp process_description(nil), do: ""
+
   defp process_description(desc) do
     String.replace(
-      desc, ~r{ (more info): (https?://.*)(\s|$)}i, " [\\1](\\2)."
+      desc,
+      ~r{ (more info): (https?://.*)(\s|$)}i,
+      " [\\1](\\2)."
     )
   end
 
   # Strips the `Elixir.` prefix from an atom for use in documentation.
   # Atoms will not be linked if they include the Elixir. prefix.
   defp doc_ref(str) do
-    str |> Atom.to_string |> String.replace(~r/^Elixir./, "")
+    str |> Atom.to_string() |> String.replace(~r/^Elixir./, "")
   end
 
   # The Kube OAI specs have some extremely long namespace prefixes on them.
@@ -170,7 +184,8 @@ defmodule Kazan.Codegen.Models do
   # some common prefixes.
   # We also need to categorise things into API specific models or models that
   # live in the models module.
-  @spec module_name_components(String.t) :: nonempty_improper_list(atom, String.t)
+  @spec module_name_components(String.t()) ::
+          nonempty_improper_list(atom, String.t())
   defp module_name_components(name) do
     to_components = fn str ->
       str |> String.split(".") |> Enum.map(&titlecase_once/1)
@@ -180,31 +195,39 @@ defmodule Kazan.Codegen.Models do
       # Deprecated
       "io.k8s.kubernetes.pkg.api." <> rest ->
         [Kazan.Apis] ++ to_components.(rest)
+
       # Deprecated
       "io.k8s.kubernetes.pkg.apis." <> rest ->
         [Kazan.Apis] ++ to_components.(rest)
+
       "io.k8s.api." <> rest ->
         [Kazan.Apis] ++ to_components.(rest)
+
       "io.k8s.apimachinery.pkg.apis." <> rest ->
         [Kazan.Models.Apimachinery] ++ to_components.(rest)
+
       "io.k8s.apimachinery.pkg." <> rest ->
         [Kazan.Models.Apimachinery] ++ to_components.(rest)
+
       "io.k8s.kube-aggregator.pkg.apis." <> rest ->
         [Kazan.Models.KubeAggregator] ++ to_components.(rest)
+
       "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
         [Kazan.Models.ApiextensionsApiserver] ++ to_components.(rest)
     end
   end
 
-  @spec build_resource_id_index(%{atom => ModelDesc.t}) :: %{ResourceId => atom}
+  @spec build_resource_id_index(%{atom => ModelDesc.t()}) :: %{
+          ResourceId => atom
+        }
   defp build_resource_id_index(model_map) do
     model_map
-    |> Map.values
+    |> Map.values()
     |> Enum.flat_map(fn model_desc ->
-        Enum.map(model_desc.resource_ids, fn resource_id ->
-          {resource_id, model_desc.module_name}
-        end)
+      Enum.map(model_desc.resource_ids, fn resource_id ->
+        {resource_id, model_desc.module_name}
       end)
+    end)
     |> Enum.into(%{})
   end
 

@@ -20,9 +20,14 @@ all APIs might be changed.
     rather than under `Kazan.Models`.  For example `Kazan.Models.Api.V1.Container`
     now lives under `Kazan.Apis.Core.V1.Container`
   - Models that are not associated with specific APIs (e.g. Apimachinery models)
-    still live under `Kazan.Models`.
+    still live under `Kazan.Models`. However, the capitalization of modules may
+    have changed. For example `ApiMachinery` is now `Apimachinery`. This is
+    mostly for consistencies sake - most module names only have the first letter
+    capitalized, so `Apimachinery` etc. should be no different.
   - Some underlying changes in the names of models in the k8s spec may also have
     caused things to move around.
+- It wasn't public API, but `Kazan.Codegen.Models.property_name/1` has been
+  removed.
 
 ### New Features
 
@@ -30,6 +35,7 @@ all APIs might be changed.
 - Kazan can now load server details from kubeconfig provided in Mix configuration.
 - Kazan can now be configured to use in cluster authentication from the Mix
   configuration.
+- We now support watch requests with `Kazan.Watcher`.  (Thanks @chazsconi)
 
 ### Changes
 
@@ -46,11 +52,16 @@ all APIs might be changed.
 
 - `Kazan.Models.oai_name_to_module` still supports the older OAI name format,
   but this is now deprecated and will be removed in a future version.
+- `Kazan.Client` has been deprecated in favor of exposing these functions in
+  `Kazan`.  See #23 for the justification.
 
 ### Bug Fixes
 
 - API functions that take no arguments will no longer raise
   `Protocol.UndefinedError`.
+- `read_namespaced_pod_log` and other calls that return plain text will now
+  return that text, rather than attempting & failing to decode JSON. (thanks
+  @chazsconi)
 
 ## v0.5.1 - 2018-01-17
 

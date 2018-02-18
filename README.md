@@ -8,6 +8,8 @@ Kazan should mostly be functional, though it is still somewhat experimental and
 untested. Parts of the API may not work, and the Kazan interface may be changed
 at any time.
 
+Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/kazan-k8s/Lobby).
+
 ### Features
 
 - Support for most Kubernetes API calls.
@@ -15,10 +17,10 @@ at any time.
 - Documentation of all models & calls.
 - Client certificate & token based authentication.
 - Loading config from kubeconfig files.
+- Support for watch requests.
 
 ### Not Implemented
 
-- Support for watch requests.
 - Other forms of authentication
 - Patching with `application/json-patch+json` or
   `application/strategic-merge-patch+json` content types.
@@ -57,7 +59,7 @@ a kube service account.
 
 If your application is only going to be talking to a single kubernetes cluster,
 then it's recommended to configure that cluster in your mix config. This makes
-working with kazan slightly easier, as you can call `Kazan.Client.run` without
+working with kazan slightly easier, as you can call `Kazan.run` without
 providing a server every time.
 
 ### In Cluster Authentication
@@ -70,7 +72,7 @@ the kubernetes service account that can be configured like this:
 ```
 
 Alternatively, the `Kazan.Server.in_cluster` function can be used to create a
-server for passing straight into the `Kazan.Client`
+server for passing straight into `Kazan.run`
 
 ### Configuration via kube config file.
 
@@ -81,7 +83,7 @@ If you have a kube config file that contains the cluster & auth details you wish
 ```
 
 Alternatively, the `Kazan.Server.from_kubeconfig` function can be used to create a
-server for passing straight into the `Kazan.Client`
+server for passing straight into `Kazan.run`
 
 ### Configuring server details directly
 
@@ -98,7 +100,7 @@ See the `Kazan.Server` documentation to see what fields this supports.
 Making a request with Kazan is done in two stages.
 
 1. Build the request object using one of the functions in `Kazan.Api.*`.
-2. Run that request using `Kazan.Client`.
+2. Run that request using `Kazan.run`.
 
 For example, to get all of the pods from the server configured in the mix config:
 
@@ -114,9 +116,12 @@ Alternatively, you might want to specify the server to send the request to:
 server = Kazan.Server.in_cluster
 
 Kazan.Apis.Core.V1.list_pod_for_all_namespaces!
-|> Kazan.Client.run!(server: server)
+|> Kazan.run!(server: server)
 # %Kazan.Apis.Core.V1.PodList{...}
 ```
 
 More details on building requests can be found in the documentation for
 `Kazan.Apis`.
+
+Details on creating watch requests can be found in the documentation for
+`Kazan.Watcher`.

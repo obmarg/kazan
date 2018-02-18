@@ -17,7 +17,7 @@ defmodule Kazan.Swagger do
         |> Map.update("parameters", parameters, &Enum.concat(parameters, &1))
       end)
     end)
-    |> Enum.map(fn (operation) ->
+    |> Enum.map(fn operation ->
       {operation["operationId"], operation}
     end)
     |> Enum.into(%{})

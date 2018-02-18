@@ -14,7 +14,8 @@ defmodule Kazan.ServerTest do
     end
 
     test "can load other context" do
-      config = from_kubeconfig("test/test_data/kubeconfig", context: "other-context")
+      config =
+        from_kubeconfig("test/test_data/kubeconfig", context: "other-context")
 
       assert config.url == "https://172.17.4.99:443"
       assert config.ca_cert

@@ -6,16 +6,17 @@ defmodule Kazan.Codegen.Apis.ApiId do
   defstruct [:group, :version]
 
   @type t :: %{
-    group: String.t,
-    version: String.t | nil
-  }
+          group: String.t(),
+          version: String.t() | nil
+        }
 
-  @spec from_oai_tag(String.t) :: t
+  @spec from_oai_tag(String.t()) :: t
   def from_oai_tag(operation_tag) do
     {group, version} =
       case String.split(operation_tag, "_") do
         [group, version] ->
           {String.capitalize(group), String.capitalize(version)}
+
         [group] ->
           {String.capitalize(group), nil}
       end
