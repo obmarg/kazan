@@ -8,6 +8,8 @@ Kazan should mostly be functional, though it is still somewhat experimental and
 untested. Parts of the API may not work, and the Kazan interface may be changed
 at any time.
 
+Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/kazan-k8s/Lobby).
+
 ### Features
 
 - Support for most Kubernetes API calls.
