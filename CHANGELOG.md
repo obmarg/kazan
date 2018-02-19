@@ -62,6 +62,9 @@ all APIs might be changed.
 - `read_namespaced_pod_log` and other calls that return plain text will now
   return that text, rather than attempting & failing to decode JSON. (thanks
   @chazsconi)
+- In cluster authentication using `Kazan.Server.in_cluster` should now work
+  properly.  It now reads the correct ca.crt file, and gets server details from
+  environment variables, similar to the Go client.  (Thanks @mayppong)
 
 ## v0.5.1 - 2018-01-17
 
