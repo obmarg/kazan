@@ -11,6 +11,10 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+Nothing yet.
+
+## v0.6.0 - 2018-02-19
+
 ### Breaking Changes
 
 - The module names of most APIs & many models has been changed.
