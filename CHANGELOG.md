@@ -69,6 +69,8 @@ Nothing yet.
 - In cluster authentication using `Kazan.Server.in_cluster` should now work
   properly.  It now reads the correct ca.crt file, and gets server details from
   environment variables, similar to the Go client.  (Thanks @mayppong)
+- Non-bang versions of API function calls will no longer crash if parameters
+  are missing, or another validation error occurs.
 
 ## v0.5.1 - 2018-01-17
 
