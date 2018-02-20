@@ -19,7 +19,7 @@ defmodule Kazan.Client.Imp do
   config.
   """
   @spec run(Request.t(), Keyword.t()) :: run_result
-  def run(request, options \\ []) do
+  def run(%Request{} = request, options \\ []) do
     server = find_server(options)
 
     headers = [{"Accept", "application/json"}]
@@ -99,7 +99,7 @@ defmodule Kazan.Client.Imp do
   Like `run`, but raises on Error.  See `run/2` for more details.
   """
   @spec run!(Request.t(), Keyword.t()) :: struct | no_return
-  def run!(request, options \\ []) do
+  def run!(%Request{} = request, options \\ []) do
     case run(request, options) do
       {:ok, result} -> result
       {:error, reason} -> raise Kazan.RemoteError, reason: reason
