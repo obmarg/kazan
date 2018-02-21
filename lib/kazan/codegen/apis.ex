@@ -250,7 +250,15 @@ defmodule Kazan.Codegen.Apis do
   @spec argument_forms([Map.t()], [Map.t()]) :: [term]
   defp argument_forms(argument_params, []) do
     for param <- argument_params do
-      Macro.var(param.var_name, __MODULE__)
+      case param.schema do
+        nil ->
+          Macro.var(param.var_name, __MODULE__)
+        schema ->
+          {:=, [], [
+            {:%, [], [schema, Macro.escape(%{})]},
+            Macro.var(param.var_name, __MODULE__)
+          ]}
+      end
     end
   end
 

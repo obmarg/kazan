@@ -26,7 +26,7 @@ defmodule Kazan.Codegen.Apis.Operation do
           path: String.t()
         }
 
-  @spec from_oai_desc(Map.t()) :: t
+  @spec from_oai_desc(Map.t(), Map.t()) :: t
   @doc """
   Creates an Operation from it's open API description.
 
@@ -34,7 +34,7 @@ defmodule Kazan.Codegen.Apis.Operation do
   supplied data. It should only be called at build time as part of kazan
   codegen.
   """
-  def from_oai_desc(desc) do
+  def from_oai_desc(desc, definitions) do
     api_id = ApiId.from_oai_tag(desc["tag"])
 
     %__MODULE__{
@@ -47,7 +47,7 @@ defmodule Kazan.Codegen.Apis.Operation do
       api_module: Codegen.Apis.api_module(api_id),
       api_id: api_id,
       operation_id: desc["operationId"],
-      parameters: Enum.map(desc["parameters"], &Parameter.from_oai_desc/1),
+      parameters: Enum.map(desc["parameters"], &(Parameter.from_oai_desc &1, definitions)),
       response_schema:
         Codegen.Models.definition_ref_to_module_name(
           desc["responses"]["200"]["schema"]["$ref"]
