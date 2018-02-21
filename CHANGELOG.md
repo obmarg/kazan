@@ -11,7 +11,10 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
-Nothing yet.
+### Changes
+
+- `Kazan.run` now pattern matches on argument types, so if a user accidentally
+  passes a `{:ok, request}` to it, they'll get a better error message.
 
 ## v0.6.0 - 2018-02-19
 
