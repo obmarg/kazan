@@ -14,7 +14,7 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 
 - Support for most Kubernetes API calls.
 - Structs for most Kubernetes API structures.
-- Documentation of all models & calls.
+- [Documentation of all models & calls](https://hexdocs.pm/kazan/Kazan.html).
 - Client certificate & token based authentication.
 - Loading config from kubeconfig files.
 - Support for watch requests.
@@ -93,14 +93,16 @@ If you wish to configure the server details manually, kazan can also accept a ma
     config :kazan, :server, %{url: "kubernetes.default"}
 ```
 
-See the `Kazan.Server` documentation to see what fields this supports.
+See the [`Kazan.Server`
+documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
+this supports.
 
 ## Usage
 
 Making a request with Kazan is done in two stages.
 
 1. Build the request object using one of the functions in `Kazan.Api.*`.
-2. Run that request using `Kazan.run`.
+2. Run that request using [`Kazan.run`](https://hexdocs.pm/kazan/Kazan.html#run/1).
 
 For example, to get all of the pods from the server configured in the mix config:
 
@@ -120,8 +122,8 @@ Kazan.Apis.Core.V1.list_pod_for_all_namespaces!
 # %Kazan.Apis.Core.V1.PodList{...}
 ```
 
-More details on building requests can be found in the documentation for
-`Kazan.Apis`.
+More details on building requests can be found in the [documentation for
+`Kazan.Apis`](https://hexdocs.pm/kazan/Kazan.Apis.html#content).
 
-Details on creating watch requests can be found in the documentation for
-`Kazan.Watcher`.
+Details on creating watch requests can be found in the [documentation for
+`Kazan.Watcher`](https://hexdocs.pm/kazan/Kazan.Watcher.html).
