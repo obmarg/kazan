@@ -141,6 +141,8 @@ defmodule Kazan.Watcher do
       }
       |> start_request()
 
+    # Monitor send_to process so we can terminate when it goes down
+    Process.monitor(send_to)
     {:ok, state}
   end
 
@@ -185,6 +187,20 @@ defmodule Kazan.Watcher do
       ) do
     debug(state, "Received AsyncEnd: #{name} rv: #{rv}")
     {:noreply, start_request(state)}
+  end
+
+  @impl GenServer
+  def handle_info({:DOWN, _ref, :process, pid, reason}, %State{} = state) do
+    %State{name: name, id: id} = state
+
+    Logger.info(
+      "#{inspect(self())} - #{name} send_to process #{inspect(pid)} :DOWN reason: #{
+        reason
+      }"
+    )
+
+    :hackney.stop_async(id)
+    {:stop, :normal, state}
   end
 
   # INTERNAL
