@@ -5,8 +5,8 @@ provided by kube to generate most of it's functions and datastructures. This
 allows the whole kube API to be supported with relatively little effort.
 
 Kazan should mostly work though it's not thoroughly tested against the actual 
-kubernetes API.  If you find a bug in the library please file a bug (or submit
-a PR) and I'll try and get it fixed.
+kubernetes API.  If you find a bug in the library please file an issue (or 
+submit a PR) and I'll try and get it fixed.
 
 I'm reasonably happy with the API at the moment so I don't expect to change it
 too drastically.  However I can't speak for the k8s API specifications that 
