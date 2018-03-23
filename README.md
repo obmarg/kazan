@@ -4,9 +4,14 @@ Kazan is a Kubernetes API client for Elixir. It uses the OpenAPI specifications
 provided by kube to generate most of it's functions and datastructures. This
 allows the whole kube API to be supported with relatively little effort.
 
-Kazan should mostly be functional, though it is still somewhat experimental and
-untested. Parts of the API may not work, and the Kazan interface may be changed
-at any time.
+Kazan should mostly work though it's not thoroughly tested against the actual 
+kubernetes API.  If you find a bug in the library please file a bug (or submit
+a PR) and I'll try and get it fixed.
+
+I'm reasonably happy with the API at the moment so I don't expect to change it
+too drastically.  However I can't speak for the k8s API specifications that 
+the kazan code is generated from.  Also the library is still pre-1.0 so if I 
+find a better way to put it together I may end up changing things.
 
 Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/kazan-k8s/Lobby).
 
