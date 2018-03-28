@@ -2,6 +2,7 @@ defmodule Kazan.Server do
   @moduledoc """
   Kazan.Server is a struct containing connection details for a kube server.
   """
+  alias __MODULE__
 
   @type auth_t ::
           nil | Kazan.Server.CertificateAuth.t() | Kazan.Server.TokenAuth.t()
@@ -86,6 +87,33 @@ defmodule Kazan.Server do
         token: Path.join([basepath, "token"]) |> File.read!()
       }
     }
+  end
+
+  # Server.from_map can be used to convert a map into a Server.t. Useful when
+  # working with mix config, where the kazan structs are unavaliable.
+  @doc false
+  @spec from_map(Server.t | Map.t) :: Server.t
+  def from_map(%Server{} = server), do: server
+  def from_map(%{} = map) do
+    server = struct(Server, map)
+
+    auth =
+      case server.auth do
+        %{token: _} = token_auth ->
+          struct(Server.TokenAuth, token_auth)
+        %{certificate: _, key: _} = cert_auth ->
+          struct(Server.CertificateAuth, cert_auth)
+        nil ->
+          nil
+        other ->
+          raise """
+          Unknown kazan auth map format: #{inspect other}".
+
+          See Kazan.Server.from_map/1
+          """
+      end
+
+    %{server | auth: auth}
   end
 
   @spec find_by_name([Map.t()], String.t()) :: Map.t()

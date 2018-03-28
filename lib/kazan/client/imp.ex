@@ -113,6 +113,7 @@ defmodule Kazan.Client.Imp do
   defp find_server(options) do
     case Keyword.get(options, :server) do
       nil ->
+        # TODO: Consider breaking this whole block out into Kazan.Server
         case Application.get_env(:kazan, :server) do
           nil ->
             raise "No server is configured"
@@ -126,8 +127,9 @@ defmodule Kazan.Client.Imp do
           :in_cluster ->
             Server.in_cluster()
 
-          details ->
-            struct(Server, details)
+          # TODO: tests & docs.
+          %{} = map ->
+            Server.from_map(map)
         end
 
       server ->
