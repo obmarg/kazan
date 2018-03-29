@@ -8,3 +8,13 @@ otp_release:
 script:
   - mix test
   - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.0" ]; then mix format --check-formatted; fi
+notifications:
+  webhooks:
+    urls:
+      - https://webhook.atomist.com/atomist/travis/teams/AQKEPB4HZ
+    on_success: always
+    on_failure: always
+    on_start: always
+    on_cancel: always
+    on_error: always
+
