@@ -40,7 +40,7 @@ defmodule Kazan.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [{:poison, "~> 2.0 or ~> 3.0"},
-     {:httpoison, "~> 0.10"},
+     {:httpoison, "~> 0.10 or ~> 1.0"},
      {:yaml_elixir, "~> 1.3"},
 
      # Dev dependencies
