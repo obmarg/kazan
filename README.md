@@ -112,7 +112,7 @@ For example, to get all of the pods from the server configured in the mix config
 
 ```elixir
 Kazan.Apis.Core.V1.list_pod_for_all_namespaces!()
-|> Kazan.Client.run!()
+|> Kazan.run!()
 # %Kazan.Models.V1.PodList{...}
 ```
 
