@@ -25,7 +25,8 @@ defmodule Kazan.Request do
           response_schema: atom | nil
         }
 
-  @op_map File.read!("kube_specs/swagger.json") |> Poison.decode!()
+  @op_map File.read!("kube_specs/swagger.json")
+          |> Poison.decode!()
           |> Kazan.Swagger.swagger_to_op_map()
 
   @doc """

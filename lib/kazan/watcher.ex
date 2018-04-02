@@ -78,7 +78,8 @@ defmodule Kazan.Watcher do
               name: nil,
               buffer: nil,
               rv: nil,
-              client_opts: []
+              client_opts: [],
+              debug: false
   end
 
   @doc """
@@ -91,6 +92,7 @@ defmodule Kazan.Watcher do
   * `send_to` - A `pid` to which events are sent.  Defaults to `self()`.
   * `resource_version` - The version from which to start watching.
   * `name` - An optional name for the watcher.  Displayed in logs.
+  * `debug` - A boolean indicating whether we should log debugging info.
   * Other options are passed directly to `Kazan.Client.run/2`
   """
   def start_link(%Kazan.Request{} = request, opts) do
@@ -102,12 +104,16 @@ defmodule Kazan.Watcher do
   def init([request, send_to, opts]) do
     {rv, opts} = Keyword.pop(opts, :resource_version)
     {name, opts} = Keyword.pop(opts, :name, inspect(self()))
+    {debug, opts} = Keyword.pop(opts, :debug, false)
 
     rv =
       case rv do
         nil ->
-          Logger.info("Obtaining initial rv")
-          {:ok, object} = Kazan.run(request, opts)
+          if debug do
+            Logger.debug("Obtaining initial rv")
+          end
+
+          {:ok, object} = Kazan.run(request, Keyword.put(opts, :timeout, 500))
           extract_rv(object)
 
         rv ->
@@ -118,7 +124,11 @@ defmodule Kazan.Watcher do
       opts
       |> Keyword.put_new(:recv_timeout, 5 * 60 * 1000)
 
-    Logger.info("Watcher init: #{name} rv: #{rv} request: #{inspect(request)}")
+    if debug do
+      Logger.debug(
+        "Watcher init: #{name} rv: #{rv} request: #{inspect(request)}"
+      )
+    end
 
     state =
       %State{
@@ -126,7 +136,8 @@ defmodule Kazan.Watcher do
         rv: rv,
         send_to: send_to,
         name: name,
-        client_opts: client_opts
+        client_opts: client_opts,
+        debug: debug
       }
       |> start_request()
 
@@ -163,7 +174,7 @@ defmodule Kazan.Watcher do
         %HTTPoison.Error{reason: {:closed, :timeout}},
         %State{name: name, rv: rv} = state
       ) do
-    Logger.info("Received Timeout: #{name} rv: #{rv}")
+    debug(state, "Received Timeout: #{name} rv: #{rv}")
     {:noreply, start_request(state)}
   end
 
@@ -172,7 +183,7 @@ defmodule Kazan.Watcher do
         %HTTPoison.AsyncEnd{id: request_id},
         %State{id: request_id, name: name, rv: rv} = state
       ) do
-    Logger.info("Received AsyncEnd: #{name} rv: #{rv}")
+    debug(state, "Received AsyncEnd: #{name} rv: #{rv}")
     {:noreply, start_request(state)}
   end
 
@@ -189,12 +200,15 @@ defmodule Kazan.Watcher do
 
     request = %Kazan.Request{request | query_params: query_params}
     {:ok, id} = Kazan.run(request, [{:stream_to, self()} | client_opts])
-    Logger.info("Started request: #{name} rv: #{rv}")
+    debug(state, "Started request: #{name} rv: #{rv}")
     %State{state | id: id, buffer: LineBuffer.new()}
   end
 
-  defp process_lines(%State{name: name, send_to: send_to, rv: rv}, lines) do
-    Logger.debug("Process lines: #{name}")
+  defp process_lines(
+         %State{name: name, send_to: send_to, rv: rv} = state,
+         lines
+       ) do
+    debug(state, "Process lines: #{name}")
 
     Enum.reduce(lines, rv, fn line, current_rv ->
       {:ok, %{"type" => type, "object" => raw_object}} = Poison.decode(line)
@@ -209,7 +223,7 @@ defmodule Kazan.Watcher do
           current_rv
 
         {_, new_rv} ->
-          Logger.debug("Received message: #{name} type: #{type} rv: #{new_rv}")
+          debug(state, "Received message: #{name} type: #{type} rv: #{new_rv}")
           send(send_to, %WatchEvent{type: type, object: model})
           new_rv
       end
@@ -218,4 +232,10 @@ defmodule Kazan.Watcher do
 
   defp extract_rv(%{"metadata" => %{"resourceVersion" => rv}}), do: rv
   defp extract_rv(%{metadata: %{resource_version: rv}}), do: rv
+
+  defp debug(state, msg) do
+    if state.debug do
+      Logger.debug(msg)
+    end
+  end
 end

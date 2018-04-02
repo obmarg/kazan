@@ -15,6 +15,8 @@ all APIs might be changed.
 
 - `Kazan.run` now pattern matches on argument types, so if a user accidentally
   passes a `{:ok, request}` to it, they'll get a better error message.
+- `Kazan.Watcher` no longer logs debug info by default.  This is now controlled
+  with a `debug` option that defaults to false.
 
 ## v0.6.0 - 2018-02-19
 
