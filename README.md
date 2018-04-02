@@ -4,13 +4,13 @@ Kazan is a Kubernetes API client for Elixir. It uses the OpenAPI specifications
 provided by kube to generate most of it's functions and datastructures. This
 allows the whole kube API to be supported with relatively little effort.
 
-Kazan should mostly work though it's not thoroughly tested against the actual 
-kubernetes API.  If you find a bug in the library please file an issue (or 
+Kazan should mostly work though it's not thoroughly tested against the actual
+kubernetes API.  If you find a bug in the library please file an issue (or
 submit a PR) and I'll try and get it fixed.
 
 I'm reasonably happy with the API at the moment so I don't expect to change it
-too drastically.  However I can't speak for the k8s API specifications that 
-the kazan code is generated from.  Also the library is still pre-1.0 so if I 
+too drastically.  However I can't speak for the k8s API specifications that
+the kazan code is generated from.  Also the library is still pre-1.0 so if I
 find a better way to put it together I may end up changing things.
 
 Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/kazan-k8s/Lobby).
@@ -111,7 +111,7 @@ Making a request with Kazan is done in two stages.
 For example, to get all of the pods from the server configured in the mix config:
 
 ```elixir
-Kazan.Apis.CoreV1.list_pod_for_all_namespaces!()
+Kazan.Apis.Core.V1.list_pod_for_all_namespaces!()
 |> Kazan.Client.run!()
 # %Kazan.Models.V1.PodList{...}
 ```
