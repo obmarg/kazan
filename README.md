@@ -4,13 +4,13 @@ Kazan is a Kubernetes API client for Elixir. It uses the OpenAPI specifications
 provided by kube to generate most of it's functions and datastructures. This
 allows the whole kube API to be supported with relatively little effort.
 
-Kazan should mostly work though it's not thoroughly tested against the actual 
-kubernetes API.  If you find a bug in the library please file an issue (or 
+Kazan should mostly work though it's not thoroughly tested against the actual
+kubernetes API.  If you find a bug in the library please file an issue (or
 submit a PR) and I'll try and get it fixed.
 
 I'm reasonably happy with the API at the moment so I don't expect to change it
-too drastically.  However I can't speak for the k8s API specifications that 
-the kazan code is generated from.  Also the library is still pre-1.0 so if I 
+too drastically.  However I can't speak for the k8s API specifications that
+the kazan code is generated from.  Also the library is still pre-1.0 so if I
 find a better way to put it together I may end up changing things.
 
 Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/kazan-k8s/Lobby).
@@ -41,19 +41,19 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
   1. Add `kazan` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:kazan, "~> 0.1"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:kazan, "~> 0.1"}]
+end
+```
 
   2. Ensure `kazan` is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:kazan]]
-    end
-    ```
+```elixir
+def application do
+  [applications: [:kazan]]
+end
+```
 
 ## Configuration
 
@@ -73,7 +73,7 @@ If your code is going to be running on a kubernetes cluster and you wish to use
 the kubernetes service account that can be configured like this:
 
 ```elixir
-    config :kazan, :server, :in_cluster
+config :kazan, :server, :in_cluster
 ```
 
 Alternatively, the `Kazan.Server.in_cluster` function can be used to create a
@@ -84,7 +84,7 @@ server for passing straight into `Kazan.run`
 If you have a kube config file that contains the cluster & auth details you wish to use, kazan can use that:
 
 ```elixir
-    config :kazan, :server, {:kubeconfig, "path/to/file"}
+config :kazan, :server, {:kubeconfig, "path/to/file"}
 ```
 
 Alternatively, the `Kazan.Server.from_kubeconfig` function can be used to create a
@@ -95,11 +95,10 @@ server for passing straight into `Kazan.run`
 If you wish to configure the server details manually, kazan can also accept a map of server parameters:
 
 ```elixir
-    config :kazan, :server, %{url: "kubernetes.default"}
+config :kazan, :server, %{url: "kubernetes.default"}
 ```
 
-See the [`Kazan.Server`
-documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
+See the [`Kazan.Server` documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
 this supports.
 
 ## Usage
@@ -112,17 +111,17 @@ Making a request with Kazan is done in two stages.
 For example, to get all of the pods from the server configured in the mix config:
 
 ```elixir
-Kazan.Apis.CoreV1.list_pod_for_all_namespaces!
-|> Kazan.Client.run!
+Kazan.Apis.Core.V1.list_pod_for_all_namespaces!()
+|> Kazan.run!()
 # %Kazan.Models.V1.PodList{...}
 ```
 
 Alternatively, you might want to specify the server to send the request to:
 
 ```elixir
-server = Kazan.Server.in_cluster
+server = Kazan.Server.in_cluster()
 
-Kazan.Apis.Core.V1.list_pod_for_all_namespaces!
+Kazan.Apis.Core.V1.list_pod_for_all_namespaces!()
 |> Kazan.run!(server: server)
 # %Kazan.Apis.Core.V1.PodList{...}
 ```
