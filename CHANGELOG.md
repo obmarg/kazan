@@ -18,6 +18,10 @@ all APIs might be changed.
 - `Kazan.Watcher` no longer logs debug info by default.  This is now controlled
   with a `debug` option that defaults to false.
 
+### Bug Fixes
+
+- Handle the breaking change to `YamlElixir.read_from_file` in YamlElixir 1.4.0
+
 ## v0.6.0 - 2018-02-19
 
 ### Breaking Changes
