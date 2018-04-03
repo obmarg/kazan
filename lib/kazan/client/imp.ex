@@ -37,6 +37,9 @@ defmodule Kazan.Client.Imp do
           %Server.TokenAuth{token: token} ->
             [{"Authorization", "Bearer #{token}"}]
 
+          %{token: token} ->
+            [{"Authorization", "Bearer #{token}"}]
+
           _ ->
             []
         end
