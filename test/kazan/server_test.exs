@@ -5,7 +5,6 @@ defmodule Kazan.ServerTest do
   alias Kazan.Server.{CertificateAuth, TokenAuth}
 
   describe "Server.from_kubeconfig" do
-
     test "loads default context" do
       config = Server.from_kubeconfig("test/test_data/kubeconfig")
       assert config.url == "https://172.17.4.99:443"
@@ -17,7 +16,10 @@ defmodule Kazan.ServerTest do
 
     test "can load other context" do
       config =
-        Server.from_kubeconfig("test/test_data/kubeconfig", context: "other-context")
+        Server.from_kubeconfig(
+          "test/test_data/kubeconfig",
+          context: "other-context"
+        )
 
       assert config.url == "https://172.17.4.99:443"
       assert config.ca_cert
@@ -25,7 +27,8 @@ defmodule Kazan.ServerTest do
     end
 
     test "can load non default user" do
-      config = Server.from_kubeconfig("test/test_data/kubeconfig", user: "other-user")
+      config =
+        Server.from_kubeconfig("test/test_data/kubeconfig", user: "other-user")
 
       assert config.url == "https://172.17.4.99:443"
       assert config.ca_cert
@@ -35,8 +38,19 @@ defmodule Kazan.ServerTest do
 
   describe "Server.from_map" do
     test "converts the map into a server struct" do
-      server = Server.from_map(%{url: "http://example.com", ca_cert: "abcd", insecure_skip_tls_verify: false})
-      assert server == %Server{url: "http://example.com", ca_cert: "abcd", insecure_skip_tls_verify: false, auth: nil}
+      server =
+        Server.from_map(%{
+          url: "http://example.com",
+          ca_cert: "abcd",
+          insecure_skip_tls_verify: false
+        })
+
+      assert server == %Server{
+               url: "http://example.com",
+               ca_cert: "abcd",
+               insecure_skip_tls_verify: false,
+               auth: nil
+             }
     end
 
     test "converts token auth" do

@@ -92,8 +92,9 @@ defmodule Kazan.Server do
   # Server.from_map can be used to convert a map into a Server.t. Useful when
   # working with mix config, where the kazan structs are unavaliable.
   @doc false
-  @spec from_map(Server.t | Map.t) :: Server.t
+  @spec from_map(Server.t() | Map.t()) :: Server.t()
   def from_map(%Server{} = server), do: server
+
   def from_map(%{} = map) do
     server = struct(Server, map)
 
@@ -101,13 +102,16 @@ defmodule Kazan.Server do
       case server.auth do
         %{token: _} = token_auth ->
           struct(Server.TokenAuth, token_auth)
+
         %{certificate: _, key: _} = cert_auth ->
           struct(Server.CertificateAuth, cert_auth)
+
         nil ->
           nil
+
         other ->
           raise """
-          Unknown kazan auth map format: #{inspect other}".
+          Unknown kazan auth map format: #{inspect(other)}".
 
           See Kazan.Server.from_map/1
           """
