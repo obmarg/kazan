@@ -17,6 +17,8 @@ all APIs might be changed.
   passes a `{:ok, request}` to it, they'll get a better error message.
 - `Kazan.Watcher` no longer logs debug info by default.  This is now controlled
   with a `debug` option that defaults to false.
+- Pulled in the k8s 1.9.6 specifications.
+- Support HTTPoison 1.0 as well as 0.x
 
 ### Bug Fixes
 
