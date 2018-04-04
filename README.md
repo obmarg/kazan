@@ -43,7 +43,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 def deps do
-  [{:kazan, "~> 0.6"}]
+  [{:kazan, "~> 0.7"}]
 end
 ```
 

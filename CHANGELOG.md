@@ -9,7 +9,7 @@ This project intends to inhere to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html), but has not yet reached 1.0 so
 all APIs might be changed.
 
-## Unreleased - yyyy-mm-dd
+## v0.7.0 - 2018-04-04
 
 ### Changes
 
@@ -155,4 +155,3 @@ all APIs might be changed.
 ## v0.1.0 - 2016-12-31
 
 - Initial release.
-
