@@ -21,6 +21,7 @@ all APIs might be changed.
 ### Bug Fixes
 
 - Handle the breaking change to `YamlElixir.read_from_file` in YamlElixir 1.4.0
+- Token & certificate auth details can now be supplied in the mix config.
 
 ## v0.6.0 - 2018-02-19
 

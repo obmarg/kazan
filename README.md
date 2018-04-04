@@ -43,7 +43,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 def deps do
-  [{:kazan, "~> 0.1"}]
+  [{:kazan, "~> 0.6"}]
 end
 ```
 
@@ -81,7 +81,8 @@ server for passing straight into `Kazan.run`
 
 ### Configuration via kube config file.
 
-If you have a kube config file that contains the cluster & auth details you wish to use, kazan can use that:
+If you have a kube config file that contains the cluster & auth details you wish
+to use, kazan can use that:
 
 ```elixir
 config :kazan, :server, {:kubeconfig, "path/to/file"}
@@ -92,13 +93,15 @@ server for passing straight into `Kazan.run`
 
 ### Configuring server details directly
 
-If you wish to configure the server details manually, kazan can also accept a map of server parameters:
+If you wish to configure the server details manually, kazan can also accept a
+map of server parameters:
 
 ```elixir
-config :kazan, :server, %{url: "kubernetes.default"}
+config :kazan, :server, %{url: "kubernetes.default" auth: %{token: "your_token"}}
 ```
 
-See the [`Kazan.Server` documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
+See the [`Kazan.Server`
+documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
 this supports.
 
 ## Usage
