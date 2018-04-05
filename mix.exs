@@ -41,7 +41,7 @@ defmodule Kazan.Mixfile do
   defp deps do
     [{:poison, "~> 2.0 or ~> 3.0"},
      {:httpoison, "~> 0.10 or ~> 1.0"},
-     {:yaml_elixir, "~> 1.3"},
+     {:yaml_elixir, "~> 2.0"},
 
      # Dev dependencies
      {:ex_doc, "~> 0.14", only: :dev},
