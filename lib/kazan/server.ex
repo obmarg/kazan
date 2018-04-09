@@ -34,19 +34,7 @@ defmodule Kazan.Server do
   """
   @spec from_kubeconfig(String.t(), Keyword.t()) :: t
   def from_kubeconfig(config_file, options \\ []) do
-    # YamlElixir made a breaking change in a minor version, so we need to make
-    # sure we call the appropriate function for the version installed.
-    # Can hopefully get rid of this at some point.
-    Code.ensure_loaded(YamlElixir)
-
-    func =
-      if Kernel.function_exported?(YamlElixir, :read_from_file!, 1) do
-        :read_from_file!
-      else
-        :read_from_file
-      end
-
-    data = apply(YamlElixir, func, [config_file])
+    data = YamlElixir.read_from_file!(config_file)
 
     basepath = config_file |> Path.absname() |> Path.dirname()
 
