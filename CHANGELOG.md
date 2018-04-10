@@ -9,6 +9,15 @@ This project intends to inhere to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html), but has not yet reached 1.0 so
 all APIs might be changed.
 
+## v0.8.0 - 2018-04-10
+
+### Breaking Changes
+
+- Kazan now depends on YamlElixir 2.0.  This isn't a breaking change for users
+  of Kazan, but may be a breaking change if you use YamlElixir directly.
+  However, the upgrade process should be reasonably easy - the read_from_x
+  functions have just been renamed to read_from_x!
+
 ## v0.7.0 - 2018-04-04
 
 ### Changes
