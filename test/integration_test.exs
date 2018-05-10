@@ -149,6 +149,24 @@ defmodule KazanIntegrationTest do
     )
   end
 
+  test "When consumer terminates so does watcher", %{server: server} do
+    consumer = spawn(fn -> :timer.sleep(10_000) end)
+
+    {:ok, watcher} =
+      CoreV1.list_namespaced_pod!(@namespace, timeout_seconds: 1)
+      |> Kazan.Watcher.start_link(
+        server: server,
+        recv_timeout: 10500,
+        send_to: consumer
+      )
+
+    Process.exit(consumer, :kill)
+    # Give process time to die
+    :timer.sleep(500)
+    refute Process.alive?(consumer)
+    refute Process.alive?(watcher)
+  end
+
   test "Can read pod logs", %{server: server} do
     CoreV1.create_namespaced_pod!(
       %Pod{
