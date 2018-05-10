@@ -9,6 +9,13 @@ This project intends to inhere to [Semantic
 Versioning](http://semver.org/spec/v2.0.0.html), but has not yet reached 1.0 so
 all APIs might be changed.
 
+## Unreleased - yyyy-mm-dd
+
+### Bug Fixes
+
+- `Kazan.Watcher` now monitors it's consumer and shuts down if the consumer
+  dies. (#46)
+
 ## v0.8.0 - 2018-04-10
 
 ### Breaking Changes
