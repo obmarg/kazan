@@ -7,4 +7,4 @@ otp_release:
   - 20.2
 script:
   - mix test
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.0" ]; then mix format --check-formatted; fi
+  - if [[ "$TRAVIS_ELIXIR_VERSION" =~ "1.6.[[:digit:]]" ]]; then mix format --check-formatted; fi
