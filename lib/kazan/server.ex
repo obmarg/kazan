@@ -162,10 +162,8 @@ defmodule Kazan.Server do
       "token-key" => token_key
     } = auth_config
 
-    token = resolve_token(cmd_path, cmd_args, token_key)
-
     %Kazan.Server.TokenAuth{
-      token: token
+      token: resolve_token(cmd_path, cmd_args, token_key)
     }
   end
 
@@ -177,10 +175,14 @@ defmodule Kazan.Server do
     with {cmd_response, 0} = System.cmd(cmd_path, String.split(cmd_args, " ")),
          {:ok, data} = Poison.decode(cmd_response) do
       token_key
-      |> String.slice(1, String.length(token_key) - 2) # remove enclosing { and }
-      |> String.split(".") # split ".credential.access_token" into ["", "credential", "access_token"]
-      |> Enum.reject(fn key -> key == "" end) # remove the leading empty
-      |> Enum.reduce(data, fn key, data -> Map.get(data, key) end) # traverse the dictionary using the keys
+      # remove enclosing { and }
+      |> String.slice(1, String.length(token_key) - 2)
+      # split ".credential.access_token" into ["", "credential", "access_token"]
+      |> String.split(".")
+      # remove the leading empty
+      |> Enum.reject(fn key -> key == "" end)
+      # traverse the dictionary using the keys
+      |> Enum.reduce(data, fn key, data -> Map.get(data, key) end)
     end
   end
 
