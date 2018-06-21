@@ -155,8 +155,33 @@ defmodule Kazan.Server do
     }
   end
 
+  defp auth_from_user(%{"auth-provider" => %{"config" => auth_config}}, _) do
+    %{
+      "cmd-path" => cmd_path,
+      "cmd-args" => cmd_args,
+      "token-key" => token_key
+    } = auth_config
+
+    token = resolve_token(cmd_path, cmd_args, token_key)
+
+    %Kazan.Server.TokenAuth{
+      token: token
+    }
+  end
+
   defp auth_from_user(_user, _basepath) do
     nil
+  end
+
+  defp resolve_token(cmd_path, cmd_args, token_key) do
+    with {cmd_response, 0} = System.cmd(cmd_path, String.split(cmd_args, " ")),
+         {:ok, data} = Poison.decode(cmd_response) do
+      token_key
+      |> String.slice(1, String.length(token_key) - 2) # remove enclosing { and }
+      |> String.split(".") # split ".credential.access_token" into ["", "credential", "access_token"]
+      |> Enum.reject(fn key -> key == "" end) # remove the leading empty
+      |> Enum.reduce(data, fn key, data -> Map.get(data, key) end) # traverse the dictionary using the keys
+    end
   end
 
   # Reads data of a particular type from a .pem file.
