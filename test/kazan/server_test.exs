@@ -37,7 +37,11 @@ defmodule Kazan.ServerTest do
 
     test "can load user from auth-provider" do
       config =
-        Server.from_kubeconfig("test/test_data/kubeconfig", user: "user-with-auth-provider")
+        Server.from_kubeconfig(
+          "test/test_data/kubeconfig",
+          user: "user-with-auth-provider"
+        )
+
       assert config.auth == %TokenAuth{token: "the-token"}
     end
   end
