@@ -20,7 +20,7 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Support for most Kubernetes API calls.
 - Structs for most Kubernetes API structures.
 - [Documentation of all models & calls](https://hexdocs.pm/kazan/Kazan.html).
-- Client certificate & token based authentication.
+- Client certificate, token and auth provider based authentication.
 - Loading config from kubeconfig files.
 - Support for watch requests.
 
@@ -103,6 +103,13 @@ config :kazan, :server, %{url: "kubernetes.default" auth: %{token: "your_token"}
 See the [`Kazan.Server`
 documentation](https://hexdocs.pm/kazan/Kazan.Server.html) to see what fields
 this supports.
+
+### Google Kubernetes Engine Config via gcloud
+
+If developing against GKE, gcloud can create a kube config file that Kazan can
+understand. However, in this case you will need to call
+`Kazan.Server.resolve_token/2` in order to query gcloud for a valid token. See
+the docs for `Kazan.Server.resolve_token` for more details.
 
 ## Usage
 

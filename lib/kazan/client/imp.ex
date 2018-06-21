@@ -37,6 +37,12 @@ defmodule Kazan.Client.Imp do
           %Server.TokenAuth{token: token} ->
             [{"Authorization", "Bearer #{token}"}]
 
+          %Server.ProviderAuth{token: %Server.TokenAuth{token: token}} ->
+            [{"Authorization", "Bearer #{token}"}]
+
+          %Server.ProviderAuth{} ->
+            raise "Provider authentication needs resolved before use.  Please see Kazan.Server.resolve_auth/2 documentation for more details"
+
           _ ->
             []
         end

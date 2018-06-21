@@ -110,6 +110,61 @@ defmodule Kazan.Client.ImpTest do
 
       {:error, _} = run(request, server: server)
     end
+
+    test "uses token if auth is TokenAuth", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      server = %{server | auth: %Kazan.Server.TokenAuth{token: "the-token"}}
+
+      Bypass.expect(bypass, fn conn ->
+        assert Plug.Conn.get_req_header(conn, "authorization") == [
+                 "Bearer the-token"
+               ]
+
+        conn
+        |> Plug.Conn.resp(200, namespace_response())
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
+      end)
+
+      {:ok, data} = run(request, server: server)
+    end
+
+    test "uses token if auth is resolved ProviderAuth", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      server = %{
+        server
+        | auth: %Kazan.Server.ProviderAuth{
+            config: %{},
+            token: %Kazan.Server.TokenAuth{token: "the-token"}
+          }
+      }
+
+      Bypass.expect(bypass, fn conn ->
+        assert Plug.Conn.get_req_header(conn, "authorization") == [
+                 "Bearer the-token"
+               ]
+
+        conn
+        |> Plug.Conn.resp(200, namespace_response())
+        |> Plug.Conn.put_resp_header("Content-Type", "application/json")
+      end)
+
+      {:ok, data} = run(request, server: server)
+    end
+
+    test "raises if auth is unresolved ProviderAuth", context do
+      %{request: request, bypass: bypass, server: server} = context
+
+      server = %{
+        server
+        | auth: %Kazan.Server.ProviderAuth{config: %{}, token: nil}
+      }
+
+      assert_raise RuntimeError, fn ->
+        run(request, server: server)
+      end
+    end
   end
 
   describe "Client.Imp.run!" do
