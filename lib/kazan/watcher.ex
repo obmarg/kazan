@@ -110,7 +110,7 @@ defmodule Kazan.Watcher do
 
   @doc "Stops the watch and terminates the process"
   def stop_watch(pid) do
-    GenServer.cast(pid, :stop_watch)
+    GenServer.call(pid, :stop_watch)
   end
 
   @impl GenServer
@@ -160,10 +160,10 @@ defmodule Kazan.Watcher do
   end
 
   @impl GenServer
-  def handle_cast(:stop_watch, %State{id: request_id} = state) do
+  def handle_call(:stop_watch, _from, %State{id: request_id} = state) do
     Logger.info("Stopping watch #{inspect(self())}")
     :hackney.stop_async(request_id)
-    {:stop, :normal, state}
+    {:stop, :normal, :ok, state}
   end
 
   @impl GenServer
