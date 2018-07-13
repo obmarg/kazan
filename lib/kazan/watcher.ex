@@ -160,9 +160,8 @@ defmodule Kazan.Watcher do
   end
 
   @impl GenServer
-  def handle_call(:stop_watch, _from, %State{id: request_id} = state) do
+  def handle_call(:stop_watch, _from, %State{} = state) do
     Logger.info("Stopping watch #{inspect(self())}")
-    :hackney.stop_async(request_id)
     {:stop, :normal, :ok, state}
   end
 
@@ -199,7 +198,6 @@ defmodule Kazan.Watcher do
         {:noreply, %State{state | buffer: buffer, rv: new_rv}}
 
       {:error, :gone} ->
-        :hackney.stop_async(request_id)
         {:stop, :normal, state}
     end
   end
@@ -224,7 +222,7 @@ defmodule Kazan.Watcher do
 
   @impl GenServer
   def handle_info({:DOWN, _ref, :process, pid, reason}, %State{} = state) do
-    %State{name: name, id: id} = state
+    %State{name: name} = state
 
     Logger.info(
       "#{inspect(self())} - #{name} send_to process #{inspect(pid)} :DOWN reason: #{
@@ -232,7 +230,6 @@ defmodule Kazan.Watcher do
       }"
     )
 
-    :hackney.stop_async(id)
     {:stop, :normal, state}
   end
 
