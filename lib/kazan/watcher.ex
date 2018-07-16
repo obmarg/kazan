@@ -110,7 +110,15 @@ defmodule Kazan.Watcher do
 
   @doc "Stops the watch and terminates the process"
   def stop_watch(pid) do
-    GenServer.call(pid, :stop_watch)
+    # Need to catch the case where the watch might have already terminated due
+    # to a GONE already having being received.  This can happen if the send_to process
+    # has multiple watches and it manually tries to stop other watches once a GONE is received
+    # on two at the same time.
+    try do
+      GenServer.call(pid, :stop_watch)
+    catch
+      :exit, {:noproc, _} -> :already_stopped
+    end
   end
 
   @impl GenServer
