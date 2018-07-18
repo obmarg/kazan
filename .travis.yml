@@ -1,10 +1,10 @@
 language: elixir
 elixir:
   - 1.5.3
-  - 1.6.0
+  - 1.6.4
 otp_release:
   - 19.2
   - 20.2
 script:
   - mix test
-  - if [ "$TRAVIS_ELIXIR_VERSION" = "1.6.0" ]; then mix format --check-formatted; fi
+  - if [[ "$TRAVIS_ELIXIR_VERSION" =~ "1.6.[[:digit:]]" ]]; then mix format --check-formatted; fi
