@@ -15,6 +15,8 @@ all APIs might be changed.
 
 - Kazan now supports talking to GKE via auth-provider config in kubeconfig.
   (Thanks @smn)
+- Pulled in the kube specifications from v1.11.2. This means that
+  Kazan should support any new features from kubernetes 1.10 & 1.11
 
 ### Bug Fixes
 

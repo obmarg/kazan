@@ -92,7 +92,7 @@ defmodule KazanIntegrationTest do
       |> Kazan.run!(server: server)
 
     assert cluster_roles.kind == "ClusterRoleList"
-    assert cluster_roles.items == []
+    assert is_list(cluster_roles.items)
   end
 
   test "Can listen for namespace changes", %{server: server} do
