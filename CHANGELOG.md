@@ -11,6 +11,11 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### New Features
+
+- Kazan now supports talking to GKE via auth-provider config in kubeconfig.
+  (Thanks @smn)
+
 ### Bug Fixes
 
 - `Kazan.Watcher` now monitors it's consumer and shuts down if the consumer
