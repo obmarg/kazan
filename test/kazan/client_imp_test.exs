@@ -126,7 +126,7 @@ defmodule Kazan.Client.ImpTest do
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end)
 
-      {:ok, data} = run(request, server: server)
+      {:ok, _data} = run(request, server: server)
     end
 
     test "uses token if auth is resolved ProviderAuth", context do
@@ -150,11 +150,11 @@ defmodule Kazan.Client.ImpTest do
         |> Plug.Conn.put_resp_header("Content-Type", "application/json")
       end)
 
-      {:ok, data} = run(request, server: server)
+      {:ok, _data} = run(request, server: server)
     end
 
     test "raises if auth is unresolved ProviderAuth", context do
-      %{request: request, bypass: bypass, server: server} = context
+      %{request: request, server: server} = context
 
       server = %{
         server

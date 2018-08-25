@@ -152,7 +152,7 @@ defmodule Kazan.Server do
         opts
       ) do
     if Keyword.get(opts, :allow_command_execution) == true do
-      case fetch_auth_from_provider(server.auth) do
+      case fetch_auth_from_provider(auth) do
         {:ok, new_auth} ->
           {:ok, %{server | auth: new_auth}}
 
@@ -199,17 +199,16 @@ defmodule Kazan.Server do
 
   # Fetches authorization from the configured auth provider.
   defp fetch_auth_from_provider(%ProviderAuth{} = auth) do
-    with {cmd_response, 0} =
+    with {cmd_response, 0} <-
            System.cmd(auth.config.cmd_path, auth.config.cmd_args),
-         {:ok, data} = Poison.decode(cmd_response) do
-      {:ok, expiry, _} =
-        data |> get_in(auth.config.expiry_key_path) |> DateTime.from_iso8601()
-
-      new_auth = %{
-        auth
-        | token: get_in(data, auth.config.token_key_path),
-          expiry: expiry
-      }
+         {:ok, data} <- Poison.decode(cmd_response),
+         token when not is_nil(token) <-
+           get_in(data, auth.config.token_key_path),
+         {:ok, expiry, _} <-
+           data
+           |> get_in(auth.config.expiry_key_path)
+           |> DateTime.from_iso8601() do
+      new_auth = %{auth | token: token, expiry: expiry}
 
       {:ok, new_auth}
     else
