@@ -39,7 +39,7 @@ defmodule Kazan.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 2.0 or ~> 3.0"},
+    [{:poison, "~> 2.0 or ~> 3.0 or ~> 4.0"},
      {:httpoison, "~> 0.10 or ~> 1.0"},
      {:yaml_elixir, "~> 2.0"},
 
@@ -47,7 +47,7 @@ defmodule Kazan.Mixfile do
      {:ex_doc, "~> 0.14", only: :dev},
 
      # Test dependencies
-     {:bypass, "~> 0.5.1", only: :test}
+     {:bypass, "~> 0.5", only: :test}
    ]
   end
 
