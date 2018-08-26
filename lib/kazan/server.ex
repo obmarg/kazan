@@ -6,7 +6,7 @@ defmodule Kazan.Server do
   alias Server.{ProviderAuth}
 
   @type auth_t ::
-          nil | Kazan.Server.CertificateAuth.t() | Kazan.Server.TokenAuth.t()
+          nil | Kazan.Server.CertificateAuth.t() | Kazan.Server.TokenAuth.t() | Kazan.Server.ProviderAuth.t
 
   defstruct url: nil,
             ca_cert: nil,

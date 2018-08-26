@@ -134,7 +134,7 @@ defmodule Kazan.ServerTest do
         | auth: %{
             context.server.auth
             | expiry: new_expiry,
-              token: %TokenAuth{token: "other"}
+              token: "other"
           }
       }
 
@@ -153,7 +153,7 @@ defmodule Kazan.ServerTest do
         | auth: %{
             context.server.auth
             | expiry: new_expiry,
-              token: %TokenAuth{token: "other"}
+              token: "other"
           }
       }
 

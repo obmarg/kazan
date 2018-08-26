@@ -136,7 +136,7 @@ defmodule Kazan.Client.ImpTest do
         server
         | auth: %Kazan.Server.ProviderAuth{
             config: %{},
-            token: %Kazan.Server.TokenAuth{token: "the-token"}
+            token: "the-token"
           }
       }
 
