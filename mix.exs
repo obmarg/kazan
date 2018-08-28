@@ -3,7 +3,7 @@ defmodule Kazan.Mixfile do
 
   def project do
     [app: :kazan,
-     version: "0.8.0",
+     version: "0.9.0",
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
