@@ -2,7 +2,15 @@ defmodule Kazan.Codegen.Apis.Parameter do
   @moduledoc false
   import Kazan.Codegen.Models, only: [definition_ref_to_module_name: 1]
 
-  defstruct [:type, :var_name, :field_name, :description, :required, :schema]
+  defstruct [
+    :type,
+    :var_name,
+    :field_name,
+    :description,
+    :required,
+    :schema,
+    :data_type
+  ]
 
   @type t :: %__MODULE__{
           type: atom,
@@ -10,7 +18,8 @@ defmodule Kazan.Codegen.Apis.Parameter do
           field_name: String.t(),
           description: String.t(),
           required: boolean | nil,
-          schema: atom | nil
+          schema: atom | nil,
+          data_type: atom | nil
         }
 
   @spec from_oai_desc(Map.t()) :: t
@@ -21,7 +30,8 @@ defmodule Kazan.Codegen.Apis.Parameter do
       field_name: desc["name"],
       description: desc["description"],
       required: parse_required(desc["in"], desc["required"]),
-      schema: definition_ref_to_module_name(get_in(desc, ["schema", "$ref"]))
+      schema: definition_ref_to_module_name(get_in(desc, ["schema", "$ref"])),
+      data_type: desc["type"]
     }
   end
 

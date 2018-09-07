@@ -18,6 +18,11 @@ defmodule Kazan.Apis do
   """
 
   require Kazan.Codegen.Apis
+
+  # Our API functions take Models as parameters, so we need to require models in
+  # here to ensure the models are compiled before we run the API codegen.
+  require Kazan.Models
+
   alias Kazan.Codegen
 
   Codegen.Apis.from_spec("kube_specs/swagger.json")

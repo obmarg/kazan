@@ -146,6 +146,7 @@ defmodule Kazan.Codegen.Apis do
     optional_params = Enum.reject(query_params, is_required)
 
     arguments = argument_forms(argument_params, optional_params)
+    argument_specs = argument_spec_forms(argument_params, optional_params)
 
     docs =
       function_docs(
@@ -206,6 +207,8 @@ defmodule Kazan.Codegen.Apis do
 
     quote location: :keep do
       @doc unquote(docs)
+      @spec unquote(operation.function_name)(unquote_splicing(argument_specs)) ::
+              {:ok, Kazan.Request.t()} | {:error, term}
       def unquote(operation.function_name)(unquote_splicing(arguments)) do
         params = unquote(param_unpacking)
         params = unquote(option_merging)
@@ -220,6 +223,8 @@ defmodule Kazan.Codegen.Apis do
       end
 
       @doc unquote(docs)
+      @spec unquote(bang_function_name)(unquote_splicing(argument_specs)) ::
+              Kazan.Request.t()
       def unquote(bang_function_name)(unquote_splicing(arguments)) do
         rv =
           unquote(operation.function_name)(
@@ -257,6 +262,51 @@ defmodule Kazan.Codegen.Apis do
   defp argument_forms(argument_params, _optional_params) do
     argument_forms(argument_params, []) ++
       [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
+  end
+
+  # List of argument specs to go in function spec.
+  @spec argument_spec_forms([Map.t()], [Map.t()]) :: [term]
+  defp argument_spec_forms(argument_params, []) do
+    for param <- argument_params do
+      param_spec(param)
+    end
+  end
+
+  defp argument_spec_forms(argument_params, optional_params) do
+    argument_spec_forms(argument_params, []) ++
+      [optional_param_spec(optional_params)]
+  end
+
+  # Generates a spec for an optional Keyword list.
+  defp optional_param_spec(options) do
+    option_specs =
+      options
+      |> Enum.map(&param_spec/1)
+      |> Enum.zip(options)
+      |> Enum.map(fn {spec, option} ->
+        {option.var_name, spec}
+      end)
+
+    quote do
+      [unquote_splicing(option_specs)]
+    end
+  end
+
+  # Returns the typespec for a param.
+  defp param_spec(%{data_type: "integer"}), do: {:integer, [], Elixir}
+  defp param_spec(%{data_type: "boolean"}), do: {:boolean, [], Elixir}
+
+  defp param_spec(%{data_type: "string"}) do
+    quote do
+      String.t()
+    end
+  end
+
+  defp param_spec(%{schema: schema}) when not is_nil(schema) do
+    # TODO: This can be improved when we have struct typespecs.
+    quote do
+      struct
+    end
   end
 
   # List of arugment forms to go in call to function from bang function.

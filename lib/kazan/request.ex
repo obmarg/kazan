@@ -37,7 +37,7 @@ defmodule Kazan.Request do
   - `operation` should be the nickname of an operation found in the swagger dict
   - `params` should be a Map of parameters to send in the request.
   """
-  @spec create(atom, Map.t()) :: {:ok, Map.t()} | {:error, atom}
+  @spec create(atom, Map.t()) :: {:ok, t()} | {:error, atom}
   def create(operation, params) do
     case validate_request(operation, params) do
       {:ok, op} ->
@@ -49,7 +49,7 @@ defmodule Kazan.Request do
   end
 
   # Checks that we have all the expected parameters for our request.
-  @spec validate_request(String.t(), Map.t()) :: {:ok, Map.t()} | {:err, term}
+  @spec validate_request(String.t(), Map.t()) :: {:ok, t} | {:err, term}
   defp validate_request(operation, params) do
     operation = @op_map[operation]
 
