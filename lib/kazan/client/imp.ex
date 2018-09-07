@@ -37,7 +37,7 @@ defmodule Kazan.Client.Imp do
           %Server.TokenAuth{token: token} ->
             [{"Authorization", "Bearer #{token}"}]
 
-          %Server.ProviderAuth{token: token} when not is_nil(token)->
+          %Server.ProviderAuth{token: token} when not is_nil(token) ->
             [{"Authorization", "Bearer #{token}"}]
 
           %Server.ProviderAuth{} ->
