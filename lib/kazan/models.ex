@@ -41,7 +41,7 @@ defmodule Kazan.Models do
   @spec oai_name_to_module(String.t()) :: atom | nil
   def oai_name_to_module(oai_name) do
     try do
-      Kazan.Codegen.Models.module_name(oai_name)
+      Kazan.Codegen.Naming.model_name_to_module(oai_name)
     rescue
       CaseClauseError ->
         nil

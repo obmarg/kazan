@@ -49,7 +49,7 @@ defmodule Kazan.Codegen.Apis.Operation do
       operation_id: desc["operationId"],
       parameters: Enum.map(desc["parameters"], &Parameter.from_oai_desc/1),
       response_schema:
-        Codegen.Models.definition_ref_to_module_name(
+        Codegen.Naming.definition_ref_to_model_module(
           desc["responses"]["200"]["schema"]["$ref"]
         ),
       description: desc["description"],
