@@ -11,6 +11,12 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### New Features
+
+- We now generate typespecs for all the generated functions &
+  structs. This should allow dialyzer users to validate their code
+  and improves the documentation.
+
 
 ## v0.9.0 - 2018-08-28
 

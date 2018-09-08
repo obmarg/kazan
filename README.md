@@ -23,6 +23,7 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Client certificate, token and auth provider based authentication.
 - Loading config from kubeconfig files.
 - Support for watch requests.
+- Typespecs for functions and structs.
 
 ### Not Implemented
 
@@ -33,7 +34,6 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Removing fields when patching with `application/merge-patch+json`.
 - Comprehensive tests.
 - Validation of requests.
-- Typespecs for functions or structs.
 - Probably some other things.
 
 ## Installation
