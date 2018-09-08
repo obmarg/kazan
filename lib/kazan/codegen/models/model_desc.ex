@@ -1,6 +1,6 @@
 defmodule Kazan.Codegen.Models.ModelDesc do
   @moduledoc false
-  import Kazan.Codegen.Models, only: [module_name: 1]
+  import Kazan.Codegen.Naming, only: [model_name_to_module: 1]
   alias Kazan.Codegen.Models.{ResourceId, PropertyDesc}
 
   defstruct [
@@ -41,7 +41,7 @@ defmodule Kazan.Codegen.Models.ModelDesc do
     %__MODULE__{
       id: name,
       resource_ids: ResourceId.from_oai_desc(map),
-      module_name: module_name(name),
+      module_name: model_name_to_module(name),
       description: map["description"],
       required: Map.get(map, "required", []) |> Enum.map(&property_name/1),
       properties:

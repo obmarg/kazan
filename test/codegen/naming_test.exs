@@ -1,16 +1,16 @@
-defmodule KazanCodegenModelsTest do
+defmodule KazanCodegenNamingTest do
   use ExUnit.Case
 
-  alias Kazan.Codegen.Models
+  alias Kazan.Codegen.Naming
 
-  describe "module_name" do
+  describe "model_name_to_module" do
     test "returns nil when unknown name in safe mode" do
-      assert Models.module_name("io.k8s.api.core.v1.nope") == nil
+      assert Naming.model_name_to_module("io.k8s.api.core.v1.nope") == nil
     end
 
     test "returns a module name when in unsafe mode" do
       mod_name =
-        Models.module_name(
+        Naming.model_name_to_module(
           "io.k8s.api.core.v1.something",
           unsafe: true
         )
@@ -19,7 +19,7 @@ defmodule KazanCodegenModelsTest do
     end
 
     test "returns actual core module names" do
-      mod_name = Models.module_name("io.k8s.api.core.v1.Binding")
+      mod_name = Naming.model_name_to_module("io.k8s.api.core.v1.Binding")
       assert mod_name == Kazan.Apis.Core.V1.Binding
     end
   end

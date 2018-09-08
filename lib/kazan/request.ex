@@ -14,7 +14,7 @@ defmodule Kazan.Request do
     :response_schema
   ]
 
-  import Kazan.Codegen.Models, only: [definition_ref_to_module_name: 1]
+  import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
 
   @type t :: %__MODULE__{
           method: String.t(),
@@ -80,7 +80,7 @@ defmodule Kazan.Request do
       content_type: content_type(operation),
       body: build_body(param_groups, params),
       response_schema:
-        definition_ref_to_module_name(
+        definition_ref_to_model_module(
           operation["responses"]["200"]["schema"]["$ref"]
         )
     }

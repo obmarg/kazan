@@ -2,6 +2,7 @@ defmodule Kazan.Codegen.Apis do
   @moduledoc false
   # Macros for generating API clients from OAI specs.
   import Kazan.Swagger, only: [swagger_to_op_map: 1]
+
   alias Kazan.Codegen.Apis.{ApiId, Operation, Parameter}
 
   require EEx
@@ -303,9 +304,8 @@ defmodule Kazan.Codegen.Apis do
   end
 
   defp param_spec(%{schema: schema}) when not is_nil(schema) do
-    # TODO: This can be improved when we have struct typespecs.
     quote do
-      struct
+      unquote(schema).t
     end
   end
 
