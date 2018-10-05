@@ -107,7 +107,7 @@ defmodule KazanIntegrationTest do
 
     assert_receive(%WatchEvent{
       object: %Pod{metadata: %ObjectMeta{name: ^pod_name}},
-      type: "ADDED"
+      type: :added
     })
 
     assert_receive(%WatchEvent{
@@ -115,7 +115,7 @@ defmodule KazanIntegrationTest do
         metadata: %ObjectMeta{name: ^pod_name},
         status: %PodStatus{phase: "Pending", container_statuses: nil}
       },
-      type: "MODIFIED"
+      type: :modified
     })
 
     assert_receive(%WatchEvent{
@@ -123,7 +123,7 @@ defmodule KazanIntegrationTest do
         metadata: %ObjectMeta{name: ^pod_name},
         status: %PodStatus{phase: "Pending", container_statuses: [_ | _]}
       },
-      type: "MODIFIED"
+      type: :modified
     })
 
     patch_pod(pod_name, server: server)
@@ -135,7 +135,7 @@ defmodule KazanIntegrationTest do
         metadata: %ObjectMeta{name: ^pod_name},
         spec: %PodSpec{active_deadline_seconds: 1}
       },
-      type: "MODIFIED"
+      type: :modified
     })
 
     delete_pod(pod_name, server: server)
@@ -143,7 +143,7 @@ defmodule KazanIntegrationTest do
     assert_receive(
       %WatchEvent{
         object: %Pod{metadata: %ObjectMeta{name: ^pod_name}},
-        type: "DELETED"
+        type: :deleted
       },
       3000
     )
