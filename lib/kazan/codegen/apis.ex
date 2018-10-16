@@ -236,7 +236,7 @@ defmodule Kazan.Codegen.Apis do
           {:ok, result} ->
             result
 
-          {:err, reason} ->
+          {:error, reason} ->
             raise Kazan.BuildRequestError,
               reason: reason,
               operation: unquote(operation.function_name)

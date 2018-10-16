@@ -11,12 +11,24 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### Breaking Changes
+
+- Watch operations now return a `Watcher.Event` rather than a k8s WatchEvent
+  struct.
+- Watcher.Event has atoms for the type instead of strings.
+- Added a new `gone` event type to watchers.  Processes listening for events
+  should restart a watcher with a new rv when receiving one of these.
+
 ### New Features
 
 - We now generate typespecs for all the generated functions &
   structs. This should allow dialyzer users to validate their code
   and improves the documentation.
 
+### Bug Fixes
+
+- Fixed an issue where watchers would crash repeatedly if the underlying k8s
+  watch rv became invalid somehow. (#45)
 
 ## v0.9.0 - 2018-08-28
 

@@ -23,7 +23,8 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Client certificate, token and auth provider based authentication.
 - Loading config from kubeconfig files.
 - Support for watch requests.
-- Typespecs for functions and structs.
+- Typespecs for functions and structs (though dialyzer outputs a lot of
+  warnings when run on Kazan)
 
 ### Not Implemented
 
