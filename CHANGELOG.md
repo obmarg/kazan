@@ -11,13 +11,15 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+## v0.10.0 - 2018-10-17
+
 ### Breaking Changes
 
 - Watch operations now return a `Watcher.Event` rather than a k8s WatchEvent
   struct.
 - Watcher.Event has atoms for the type instead of strings.
 - Added a new `gone` event type to watchers.  Processes listening for events
-  should restart a watcher with a new rv when receiving one of these. 
+  should restart a watcher with a new rv when receiving one of these.
 - Kazan.Request.create (which is used by most of the API request creation methods
   now returns `{:error, term}` rather than `{:err, term}`.  This was a bug fix
   as the typespec stated that they returned `{:error, term}`.
