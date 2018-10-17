@@ -80,11 +80,11 @@ defmodule RequestTest do
     end
 
     test "request for unknown operation" do
-      {:err, :unknown_op} = Request.create("blarga", %{})
+      {:error, :unknown_op} = Request.create("blarga", %{})
     end
 
     test "request with missing required parameters" do
-      {:err, {:missing_params, ["namespace"]}} =
+      {:error, {:missing_params, ["namespace"]}} =
         Request.create(
           "listCoreV1NamespacedPod",
           %{}
