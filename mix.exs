@@ -47,7 +47,7 @@ defmodule Kazan.Mixfile do
      {:ex_doc, "~> 0.14", only: :dev},
 
      # Test dependencies
-     {:cowboy, "~> 1.0", only: :test},
+     {:plug_cowboy, "~> 1.0", only: :test},
      {:bypass, "~> 0.5", only: :test}
    ]
   end
