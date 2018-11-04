@@ -197,10 +197,7 @@ defmodule KazanModelsTest do
 
   describe "Models.oai_name_to_module" do
     test "it returns a module for known models" do
-      model =
-        Kazan.Models.oai_name_to_module(
-          "io.k8s.api.core.v1.ComponentStatusList"
-        )
+      model = Kazan.Models.oai_name_to_module("io.k8s.api.core.v1.ComponentStatusList")
 
       assert model == Core.V1.ComponentStatusList
     end
@@ -208,8 +205,13 @@ defmodule KazanModelsTest do
     test "it returns nil for unknown models" do
       assert Kazan.Models.oai_name_to_module("someName") == nil
 
-      assert Kazan.Models.oai_name_to_module("io.k8s.api.core.v1.SomeName") ==
-               nil
+      assert Kazan.Models.oai_name_to_module("io.k8s.api.core.v1.SomeName") == nil
+    end
+
+    test "it supports names provided in app config" do
+      # Our config.exs defines this mapping, lets see if it works...
+      assert Kazan.Models.oai_name_to_module("something.test.whatever") ==
+               Kazan.Something.Whatever
     end
   end
 end

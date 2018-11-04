@@ -25,7 +25,7 @@ defmodule Kazan.Apis do
 
   alias Kazan.Codegen
 
-  Codegen.Apis.from_spec("kube_specs/swagger.json")
+  Codegen.Apis.from_spec()
 
   @doc """
   Maps OpenAPI spec operation IDs into functions that implement that operation.
@@ -44,9 +44,7 @@ defmodule Kazan.Apis do
 
       operation ->
         bang_function_name =
-          String.to_existing_atom(
-            Atom.to_string(operation.function_name) <> "!"
-          )
+          String.to_existing_atom(Atom.to_string(operation.function_name) <> "!")
 
         [
           {operation.api_module, operation.function_name},

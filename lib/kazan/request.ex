@@ -25,7 +25,10 @@ defmodule Kazan.Request do
           response_schema: atom | nil
         }
 
-  @op_map File.read!("kube_specs/swagger.json")
+  @external_resource Kazan.Config.oai_spec()
+
+  @op_map Kazan.Config.oai_spec()
+          |> File.read!()
           |> Poison.decode!()
           |> Kazan.Swagger.swagger_to_op_map()
 
@@ -37,7 +40,7 @@ defmodule Kazan.Request do
   - `operation` should be the nickname of an operation found in the swagger dict
   - `params` should be a Map of parameters to send in the request.
   """
-  @spec create(String.t, Map.t()) :: {:ok, t()} | {:error, atom}
+  @spec create(String.t(), Map.t()) :: {:ok, t()} | {:error, atom}
   def create(operation, params) do
     case validate_request(operation, params) do
       {:ok, op} ->
@@ -70,8 +73,7 @@ defmodule Kazan.Request do
 
   @spec build_request(Map.t(), Map.t()) :: __MODULE__.t()
   defp build_request(operation, params) do
-    param_groups =
-      Enum.group_by(operation["parameters"], fn param -> param["in"] end)
+    param_groups = Enum.group_by(operation["parameters"], fn param -> param["in"] end)
 
     %__MODULE__{
       method: operation["method"],
@@ -80,9 +82,7 @@ defmodule Kazan.Request do
       content_type: content_type(operation),
       body: build_body(param_groups, params),
       response_schema:
-        definition_ref_to_model_module(
-          operation["responses"]["200"]["schema"]["$ref"]
-        )
+        definition_ref_to_model_module(operation["responses"]["200"]["schema"]["$ref"])
     }
   end
 
