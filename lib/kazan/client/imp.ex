@@ -81,8 +81,7 @@ defmodule Kazan.Client.Imp do
           case content_type do
             "application/json" ->
               with {:ok, data} <- Poison.decode(body),
-                   {:ok, model} <-
-                     Kazan.Models.decode(data, request.response_schema),
+                   {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
                    do: {:ok, model}
 
             "text/plain" ->
@@ -119,24 +118,7 @@ defmodule Kazan.Client.Imp do
   defp find_server(options) do
     case Keyword.get(options, :server) do
       nil ->
-        # TODO: Consider breaking this whole block out into Kazan.Server
-        case Application.get_env(:kazan, :server) do
-          nil ->
-            raise "No server is configured"
-
-          {:kubeconfig, filename} ->
-            Server.from_kubeconfig(filename)
-
-          {:kubeconfig, filename, opts} ->
-            Server.from_kubeconfig(filename, opts)
-
-          :in_cluster ->
-            Server.in_cluster()
-
-          # TODO: tests & docs.
-          %{} = map ->
-            Server.from_map(map)
-        end
+        Server.from_env!()
 
       server ->
         server
@@ -164,8 +146,7 @@ defmodule Kazan.Client.Imp do
     {:error, {:http_error, other, data}}
   end
 
-  @spec get_content_type(HTTPoison.Response.t()) ::
-          {:ok, String.t()} | {:error, :no_content_type}
+  @spec get_content_type(HTTPoison.Response.t()) :: {:ok, String.t()} | {:error, :no_content_type}
   defp get_content_type(%{headers: headers}) do
     case List.keyfind(headers, "Content-Type", 0) do
       nil -> {:error, :no_content_type}

@@ -19,3 +19,5 @@ erl_crash.dump
 # Ignore mix.lock since we are a library, and want CI to run tests against
 # latest dependencies.
 mix.lock
+
+.elixir_ls

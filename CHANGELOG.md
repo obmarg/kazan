@@ -11,6 +11,12 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### New Features
+
+- `Kazan.Server` now exposes `from_env/1` and `from_env!/0` functions for
+  creating a `Kazan.Server` from application config. This should make it easier
+  for users using GCP to continue to use application config.
+
 ## v0.10.0 - 2018-10-17
 
 ### Breaking Changes

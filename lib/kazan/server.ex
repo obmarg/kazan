@@ -113,6 +113,27 @@ defmodule Kazan.Server do
   end
 
   @doc """
+  Creates a `Kazan.Server` from the application config for the `kazan` app
+  """
+  def from_env!() do
+    case Application.get_env(:kazan, :server) do
+      nil ->
+        raise "No server is configured"
+
+      env ->
+        from_env(env)
+    end
+  end
+
+  @doc """
+  Creates a `Kazan.Server` from some user provided application config.
+  """
+  def from_env({:kubeconfig, file}), do: Server.from_kubeconfig(file)
+  def from_env({:kubeconfig, file, opts}), do: Server.from_kubeconfig(file, opts)
+  def from_env(:in_cluster), do: Server.in_cluster()
+  def from_env(map = %{}), do: Server.from_map(map)
+
+  @doc """
   Some auth methods require that auth be pulled from a provider. This does that.
 
   For authentication methods that don't require this, this will just return the
@@ -171,8 +192,7 @@ defmodule Kazan.Server do
     # This clause handles the case where we've already got a token.
     # Will only refresh if we're forcing, or the token has expired.
     should_resolve =
-      Keyword.get(opts, :force) ||
-        DateTime.compare(auth.expiry, DateTime.utc_now()) != :gt
+      Keyword.get(opts, :force) || DateTime.compare(auth.expiry, DateTime.utc_now()) != :gt
 
     if should_resolve do
       resolve_auth(%{server | auth: %{auth | token: nil}}, opts)
@@ -202,11 +222,9 @@ defmodule Kazan.Server do
 
   # Fetches authorization from the configured auth provider.
   defp fetch_auth_from_provider(%ProviderAuth{} = auth) do
-    with {cmd_response, 0} <-
-           System.cmd(auth.config.cmd_path, auth.config.cmd_args),
+    with {cmd_response, 0} <- System.cmd(auth.config.cmd_path, auth.config.cmd_args),
          {:ok, data} <- Poison.decode(cmd_response),
-         token when not is_nil(token) <-
-           get_in(data, auth.config.token_key_path),
+         token when not is_nil(token) <- get_in(data, auth.config.token_key_path),
          {:ok, expiry, _} <-
            data
            |> get_in(auth.config.expiry_key_path)
