@@ -19,6 +19,10 @@ all APIs might be changed.
 - Added some new configuration options that allow users to provide their own
   OpenAPI spec files.   This should let users use kazan when they have
   k8s extensions installed.
+  
+### Bug Fixes
+
+- Fix a crash in `Kazan.Watcher` if one of the destination processes crashes.
 
 ## v0.10.0 - 2018-10-17
 

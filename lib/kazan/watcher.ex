@@ -232,7 +232,7 @@ defmodule Kazan.Watcher do
     log(
       state,
       "#{inspect(self())} - #{name} send_to process #{inspect(pid)} :DOWN reason: #{
-        reason
+        inspect(reason)
       }"
     )
 
