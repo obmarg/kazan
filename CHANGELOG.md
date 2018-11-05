@@ -16,6 +16,10 @@ all APIs might be changed.
 - `Kazan.Server` now exposes `from_env/1` and `from_env!/0` functions for
   creating a `Kazan.Server` from application config. This should make it easier
   for users using GCP to continue to use application config.
+  
+### Bug Fixes
+
+- Fix a crash in `Kazan.Watcher` if one of the destination processes crashes.
 
 ## v0.10.0 - 2018-10-17
 
