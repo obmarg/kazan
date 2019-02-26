@@ -18,7 +18,8 @@ defmodule Kazan.Codegen.Models do
   It will also generate some model description data that can be used to write
   serializers/deserializers for each of the structs.
   """
-  defmacro from_spec(spec_file) do
+  defmacro from_spec() do
+    spec_file = Kazan.Config.oai_spec()
     models = parse_models(spec_file)
     resource_id_index = build_resource_id_index(models)
 
@@ -101,7 +102,7 @@ defmodule Kazan.Codegen.Models do
     end
   end
 
-  @spec typespec_for_property(PropertyDesc.t) :: [{atom, term}]
+  @spec typespec_for_property(PropertyDesc.t()) :: [{atom, term}]
   defp typespec_for_property(%PropertyDesc{ref: model})
        when not is_nil(model) do
     quote do

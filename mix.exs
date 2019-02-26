@@ -2,23 +2,23 @@ defmodule Kazan.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :kazan,
-     version: "0.10.0",
-     elixir: "~> 1.4",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
+    [
+      app: :kazan,
+      version: "0.10.0",
+      elixir: "~> 1.4",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
 
-     # Hex.pm stuff
-     package: package(),
-     description: description(),
+      # Hex.pm stuff
+      package: package(),
+      description: description(),
 
-     # Docs
-     name: "Kazan",
-     source_url: "https://github.com/obmarg/kazan",
-     homepage_url: "https://github.com/obmarg/kazan",
-     docs: [main: "readme",
-            extras: ["README.md", "CHANGELOG.md"]]
+      # Docs
+      name: "Kazan",
+      source_url: "https://github.com/obmarg/kazan",
+      homepage_url: "https://github.com/obmarg/kazan",
+      docs: [main: "readme", extras: ["README.md", "CHANGELOG.md"]]
     ]
   end
 
@@ -39,26 +39,28 @@ defmodule Kazan.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:poison, "~> 2.0 or ~> 3.0 or ~> 4.0"},
-     {:httpoison, "~> 0.10 or ~> 1.0"},
-     {:yaml_elixir, "~> 2.0"},
+    [
+      {:poison, "~> 2.0 or ~> 3.0 or ~> 4.0"},
+      {:httpoison, "~> 0.10 or ~> 1.0"},
+      {:yaml_elixir, "~> 2.0"},
 
-     # Dev dependencies
-     {:ex_doc, "~> 0.14", only: :dev},
+      # Dev dependencies
+      {:ex_doc, "~> 0.14", only: :dev},
 
-     # Test dependencies
-     {:plug_cowboy, "~> 1.0", only: :test},
-     {:bypass, "~> 0.5", only: :test}
-   ]
+      # Test dependencies
+      {:plug_cowboy, "~> 1.0", only: :test},
+      {:bypass, "~> 0.5", only: :test}
+    ]
   end
 
   defp package do
-    [name: :kazan,
-     licenses: ["MIT"],
-     maintainers: ["Graeme Coupar"],
-     links: %{"GitHub" => "https://github.com/obmarg/kazan"},
-     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "kube_specs"],
-   ]
+    [
+      name: :kazan,
+      licenses: ["MIT"],
+      maintainers: ["Graeme Coupar"],
+      links: %{"GitHub" => "https://github.com/obmarg/kazan"},
+      files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "kube_specs"]
+    ]
   end
 
   def description do

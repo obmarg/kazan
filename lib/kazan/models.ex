@@ -12,7 +12,7 @@ defmodule Kazan.Models do
   alias Kazan.Codegen
   alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc, ResourceId}
 
-  Codegen.Models.from_spec("kube_specs/swagger.json")
+  Codegen.Models.from_spec()
 
   @doc """
   Decodes data from a Map into a Model struct.
@@ -43,7 +43,7 @@ defmodule Kazan.Models do
     try do
       Kazan.Codegen.Naming.model_name_to_module(oai_name)
     rescue
-      CaseClauseError ->
+      Kazan.UnknownName ->
         nil
     end
   end

@@ -16,6 +16,9 @@ all APIs might be changed.
 - `Kazan.Server` now exposes `from_env/1` and `from_env!/0` functions for
   creating a `Kazan.Server` from application config. This should make it easier
   for users using GCP to continue to use application config.
+- Added some new configuration options that allow users to provide their own
+  OpenAPI spec files.   This should let users use kazan when they have
+  k8s extensions installed.
   
 ### Bug Fixes
 
