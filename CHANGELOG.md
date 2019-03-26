@@ -11,6 +11,8 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+## v0.11.0 - 2019-03-26
+
 ### New Features
 
 - `Kazan.Server` now exposes `from_env/1` and `from_env!/0` functions for
