@@ -40,6 +40,9 @@ defmodule Kazan.Client.Imp do
           %Server.ProviderAuth{token: token} when not is_nil(token) ->
             [{"Authorization", "Bearer #{token}"}]
 
+          %Server.BasicAuth{token: token} when not is_nil(token) ->
+            [{"Authorization", "Basic #{token}"}]
+
           %Server.ProviderAuth{} ->
             raise "Provider authentication needs resolved before use.  Please see Kazan.Server.resolve_auth/2 documentation for more details"
 

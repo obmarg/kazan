@@ -7,6 +7,7 @@ defmodule Kazan.Server do
 
   @type auth_t ::
           nil
+          | Kazan.Server.BasicAuth.t()
           | Kazan.Server.CertificateAuth.t()
           | Kazan.Server.TokenAuth.t()
           | Kazan.Server.ProviderAuth.t()
@@ -307,6 +308,18 @@ defmodule Kazan.Server do
         token_key_path: json_path_to_key_list(token_key),
         expiry_key_path: json_path_to_key_list(expiry_key)
       }
+    }
+  end
+
+  defp auth_from_user(
+         %{
+           "username" => username,
+           "password" => password
+         },
+         _
+       ) do
+    %Kazan.Server.BasicAuth{
+      token: Base.encode64(username <> ":" <> password)
     }
   end
 
