@@ -19,7 +19,9 @@ all APIs might be changed.
 - Added some new configuration options that allow users to provide their own
   OpenAPI spec files.   This should let users use kazan when they have
   k8s extensions installed.
-  
+- `Kazan.Server` now supports `username` and `password` fields in config files.
+- HTTP Basic auth is now supported for authentication with [k3s](https://k3s.io).
+
 ### Bug Fixes
 
 - Fix a crash in `Kazan.Watcher` if one of the destination processes crashes.
