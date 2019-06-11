@@ -33,3 +33,11 @@ if Mix.env() == :test do
   config :kazan,
     oai_name_mappings: [{"something.test", Kazan.Something}]
 end
+
+
+if Mix.env() == :dev do
+  config :kazan,
+  server: {:kubeconfig, System.user_home <> "/.kube/config"}
+end
+
+
