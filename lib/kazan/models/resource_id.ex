@@ -1,4 +1,4 @@
-defmodule Kazan.Codegen.Models.ResourceId do
+defmodule Kazan.Models.ResourceId do
   @moduledoc false
   # Stores the kind, version & group of a kubernetes resource.
 

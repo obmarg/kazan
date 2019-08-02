@@ -11,11 +11,21 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### Breaking Changes
+
+- The `Kazan.Codegen.Models.*` modules have been moved to `Kazan.Models.*`.
+  These were meant to be private previously, so hopefully this doesn't break
+  anything for people, but you never know.
+- `response_schema` on `Kazan.Request` has been renamed to `response_model`.
+
 ### New Features
 
 - Added an informational `server_info` field to Kazan.Server that can be used
   to check the names of the context, cluster & user that a Kazan.Server struct
   were initialised with.
+- Support for encoding & decoding custom resources.  This can be accomplished
+  by defining a module that implements the `Kazan.Model` behaviour.  See the
+  `Kazan.Model` documentation for more details.
 
 ### Bug Fixes
 

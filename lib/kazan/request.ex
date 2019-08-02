@@ -11,7 +11,7 @@ defmodule Kazan.Request do
     :query_params,
     :content_type,
     :body,
-    :response_schema
+    :response_model
   ]
 
   import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
@@ -22,7 +22,7 @@ defmodule Kazan.Request do
           query_params: Map.t(),
           content_type: String.t(),
           body: String.t(),
-          response_schema: atom | nil
+          response_model: atom | nil
         }
 
   @external_resource Kazan.Config.oai_spec()
@@ -73,7 +73,8 @@ defmodule Kazan.Request do
 
   @spec build_request(Map.t(), Map.t()) :: __MODULE__.t()
   defp build_request(operation, params) do
-    param_groups = Enum.group_by(operation["parameters"], fn param -> param["in"] end)
+    param_groups =
+      Enum.group_by(operation["parameters"], fn param -> param["in"] end)
 
     %__MODULE__{
       method: operation["method"],
@@ -81,8 +82,10 @@ defmodule Kazan.Request do
       query_params: build_query_params(param_groups, params),
       content_type: content_type(operation),
       body: build_body(param_groups, params),
-      response_schema:
-        definition_ref_to_model_module(operation["responses"]["200"]["schema"]["$ref"])
+      response_model:
+        definition_ref_to_model_module(
+          operation["responses"]["200"]["schema"]["$ref"]
+        )
     }
   end
 
@@ -109,7 +112,8 @@ defmodule Kazan.Request do
   defp build_body(param_groups, params) do
     case Map.get(param_groups, "body", []) do
       [body_param] ->
-        {:ok, data} = Kazan.Models.encode(params[body_param["name"]])
+        model = params[body_param["name"]]
+        {:ok, data} = model.__struct__.encode(model)
         Poison.encode!(data)
 
       [] ->

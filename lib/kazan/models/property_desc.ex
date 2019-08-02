@@ -1,6 +1,8 @@
-defmodule Kazan.Codegen.Models.PropertyDesc do
+defmodule Kazan.Models.PropertyDesc do
   @moduledoc false
   import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
+
+  # TODO: document
 
   defstruct [:type, :format, :description, :ref, :field, :items]
 

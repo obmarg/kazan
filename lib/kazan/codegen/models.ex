@@ -3,9 +3,9 @@ defmodule Kazan.Codegen.Models do
   # Macros for generating client code from OAI specs.
   require EEx
 
-  require Kazan.Codegen.Models.ModelDesc
+  require Kazan.Models.ModelDesc
 
-  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc}
+  alias Kazan.Models.{ModelDesc, PropertyDesc}
   alias Kazan.Codegen.Naming
 
   @doc """
@@ -38,6 +38,11 @@ defmodule Kazan.Codegen.Models do
             defstruct unquote(property_names)
 
             @type t :: %__MODULE__{unquote_splicing(typespec)}
+
+            use Kazan.Model
+
+            @impl Kazan.Model
+            def model_desc(), do: unquote(Macro.escape(desc))
           end
         end
       end
@@ -46,11 +51,6 @@ defmodule Kazan.Codegen.Models do
       Module.put_attribute(__MODULE__, :external_resource, unquote(spec_file))
 
       unquote_splicing(spec_forms)
-
-      # Function returns a map of module name -> ModelDesc
-      defp model_descs do
-        unquote(Macro.escape(models))
-      end
 
       # Returns a map of ResourceId to module
       defp resource_id_index do

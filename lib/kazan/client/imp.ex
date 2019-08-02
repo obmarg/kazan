@@ -84,7 +84,7 @@ defmodule Kazan.Client.Imp do
           case content_type do
             "application/json" ->
               with {:ok, data} <- Poison.decode(body),
-                   {:ok, model} <- Kazan.Models.decode(data, request.response_schema),
+                   {:ok, model} <- decode(data, request.response_model),
                    do: {:ok, model}
 
             "text/plain" ->
@@ -149,7 +149,8 @@ defmodule Kazan.Client.Imp do
     {:error, {:http_error, other, data}}
   end
 
-  @spec get_content_type(HTTPoison.Response.t()) :: {:ok, String.t()} | {:error, :no_content_type}
+  @spec get_content_type(HTTPoison.Response.t()) ::
+          {:ok, String.t()} | {:error, :no_content_type}
   defp get_content_type(%{headers: headers}) do
     case List.keyfind(headers, "Content-Type", 0) do
       nil -> {:error, :no_content_type}
@@ -181,4 +182,10 @@ defmodule Kazan.Client.Imp do
   end
 
   defp ssl_auth_options(_), do: []
+
+  # Decode helpers: if we know what model we're expecting, use that.
+  # Otherwise defer to Kazan.Models.decode which will try to guess the model
+  # from the kind provided in the response.
+  defp decode(data, nil), do: Kazan.Models.decode(data, nil)
+  defp decode(data, response_model), do: response_model.decode(data)
 end
