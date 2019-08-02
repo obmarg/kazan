@@ -10,7 +10,7 @@ defmodule Kazan.Models do
   """
   require Kazan.Codegen.Models
   alias Kazan.Codegen
-  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc, ResourceId}
+  alias Kazan.Models.{ModelDesc, PropertyDesc, ResourceId}
 
   Codegen.Models.from_spec()
 
@@ -18,9 +18,9 @@ defmodule Kazan.Models do
   Decodes data from a Map into a Model struct.
   """
   @spec decode(Map.t(), atom | nil) :: {:ok, struct} | {:err, term}
-  def decode(data, kind \\ nil) do
-    with {:ok, kind} <- guess_kind(data, kind),
-         {:ok, desc} <- model_desc(kind),
+  def decode(data, model \\ nil) do
+    with {:ok, model} <- guess_model(data, model),
+         desc = %ModelDesc{} = model.model_desc(),
          {:ok, model} <- do_decode(desc, data),
          do: {:ok, model}
   end
@@ -30,9 +30,8 @@ defmodule Kazan.Models do
   """
   @spec encode(struct) :: {:ok, Map.t()} | {:err, term}
   def encode(model) do
-    with {:ok, desc} <- model_desc(model.__struct__),
-         {:ok, data} <- do_encode(desc, model),
-         do: {:ok, data}
+    model.__struct__.model_desc()
+    |> do_encode(model)
   end
 
   @doc """
@@ -48,11 +47,11 @@ defmodule Kazan.Models do
     end
   end
 
-  @spec guess_kind(Map.t(), atom | nil) :: {:ok, atom} | {:err, term}
-  defp guess_kind(data, kind) do
+  @spec guess_model(Map.t(), atom | nil) :: {:ok, atom} | {:err, term}
+  defp guess_model(data, model) do
     cond do
-      kind ->
-        {:ok, kind}
+      model ->
+        {:ok, model}
 
       Map.has_key?(data, "kind") and Map.has_key?(data, "apiVersion") ->
         case model_from_version_and_kind(data["apiVersion"], data["kind"]) do
@@ -84,14 +83,6 @@ defmodule Kazan.Models do
 
     resource_id = %ResourceId{group: group, version: version, kind: kind}
     Map.get(resource_id_index(), resource_id)
-  end
-
-  @spec model_desc(atom) :: {:ok, ModelDesc.t()} | {:err, term}
-  defp model_desc(kind) do
-    case Map.get(model_descs(), kind) do
-      nil -> {:err, {:unknown_model, kind}}
-      model_desc -> {:ok, model_desc}
-    end
   end
 
   @spec do_decode(ModelDesc.t(), Map.t()) :: {:ok, struct} | {:err, term}

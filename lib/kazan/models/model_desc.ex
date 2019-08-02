@@ -1,7 +1,9 @@
-defmodule Kazan.Codegen.Models.ModelDesc do
+defmodule Kazan.Models.ModelDesc do
   @moduledoc false
   import Kazan.Codegen.Naming, only: [model_name_to_module: 1]
-  alias Kazan.Codegen.Models.{ResourceId, PropertyDesc}
+  alias Kazan.Models.{ResourceId, PropertyDesc}
+
+  # TODO: document it.
 
   defstruct [
     :id,

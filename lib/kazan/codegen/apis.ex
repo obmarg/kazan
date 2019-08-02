@@ -132,16 +132,19 @@ defmodule Kazan.Codegen.Apis do
   # Builds the quoted function form for an operation function.
   @spec function_form(Operation.t()) :: term
   defp function_form(operation) do
-    param_groups = Enum.group_by(operation.parameters, fn param -> param.type end)
+    param_groups =
+      Enum.group_by(operation.parameters, fn param -> param.type end)
 
     is_required = fn param -> param.required end
     query_params = Map.get(param_groups, :query, [])
 
-    path_params = param_groups |> Map.get(:path, []) |> sort_path_params(operation.path)
+    path_params =
+      param_groups |> Map.get(:path, []) |> sort_path_params(operation.path)
 
     # The main arguments our function will take:
     argument_params =
-      Map.get(param_groups, :body, []) ++ path_params ++ Enum.filter(query_params, is_required)
+      Map.get(param_groups, :body, []) ++
+        path_params ++ Enum.filter(query_params, is_required)
 
     optional_params = Enum.reject(query_params, is_required)
 
@@ -154,7 +157,7 @@ defmodule Kazan.Codegen.Apis do
         operation.description,
         argument_params,
         optional_params,
-        operation.response_schema
+        operation.response_model
       )
 
     param_unpacking =
@@ -196,7 +199,8 @@ defmodule Kazan.Codegen.Apis do
         {parameter.var_name, parameter.field_name}
       end
 
-    bang_function_name = String.to_atom(Atom.to_string(operation.function_name) <> "!")
+    bang_function_name =
+      String.to_atom(Atom.to_string(operation.function_name) <> "!")
 
     argument_forms_in_call =
       argument_call_forms(
@@ -222,9 +226,13 @@ defmodule Kazan.Codegen.Apis do
       end
 
       @doc unquote(docs)
-      @spec unquote(bang_function_name)(unquote_splicing(argument_specs)) :: Kazan.Request.t()
+      @spec unquote(bang_function_name)(unquote_splicing(argument_specs)) ::
+              Kazan.Request.t()
       def unquote(bang_function_name)(unquote_splicing(arguments)) do
-        rv = unquote(operation.function_name)(unquote_splicing(argument_forms_in_call))
+        rv =
+          unquote(operation.function_name)(
+            unquote_splicing(argument_forms_in_call)
+          )
 
         case rv do
           {:ok, result} ->
@@ -255,7 +263,8 @@ defmodule Kazan.Codegen.Apis do
   end
 
   defp argument_forms(argument_params, _optional_params) do
-    argument_forms(argument_params, []) ++ [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
+    argument_forms(argument_params, []) ++
+      [{:\\, [], [Macro.var(:options, __MODULE__), []]}]
   end
 
   # List of argument specs to go in function spec.
@@ -267,7 +276,8 @@ defmodule Kazan.Codegen.Apis do
   end
 
   defp argument_spec_forms(argument_params, optional_params) do
-    argument_spec_forms(argument_params, []) ++ [optional_param_spec(optional_params)]
+    argument_spec_forms(argument_params, []) ++
+      [optional_param_spec(optional_params)]
   end
 
   # Generates a spec for an optional Keyword list.
@@ -355,14 +365,14 @@ defmodule Kazan.Codegen.Apis do
     <% end %>
     <% end %>
 
-    <%= if response_schema do %>
+    <%= if response_model do %>
     ### Response
 
-    See `<%= doc_ref(response_schema) %>`
+    See `<%= doc_ref(response_model) %>`
     <% end %>
 
     """,
-    [:operation_id, :description, :parameters, :options, :response_schema]
+    [:operation_id, :description, :parameters, :options, :response_model]
   )
 
   defp module_doc(api_id) do

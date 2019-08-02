@@ -44,7 +44,9 @@ defmodule Kazan.Apis do
 
       operation ->
         bang_function_name =
-          String.to_existing_atom(Atom.to_string(operation.function_name) <> "!")
+          String.to_existing_atom(
+            Atom.to_string(operation.function_name) <> "!"
+          )
 
         [
           {operation.api_module, operation.function_name},

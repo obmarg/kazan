@@ -25,10 +25,10 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Support for watch requests.
 - Typespecs for functions and structs (though dialyzer outputs a lot of
   warnings when run on Kazan)
+- Limited support for custom resources.
 
 ### Not Implemented
 
-- Custom resources (I'd be interested in supporting these, but it's not clear how to do it)
 - Other forms of authentication
 - Patching with `application/json-patch+json` or
   `application/strategic-merge-patch+json` content types.

@@ -10,7 +10,7 @@ defmodule Kazan.Codegen.Apis.Operation do
     :api_id,
     :operation_id,
     :parameters,
-    :response_schema,
+    :response_model,
     :description,
     :path
   ]
@@ -21,7 +21,7 @@ defmodule Kazan.Codegen.Apis.Operation do
           api_id: ApiId.t(),
           operation_id: String.t(),
           parameters: list,
-          response_schema: struct,
+          response_model: struct,
           description: String.t(),
           path: String.t()
         }
@@ -48,7 +48,7 @@ defmodule Kazan.Codegen.Apis.Operation do
       api_id: api_id,
       operation_id: desc["operationId"],
       parameters: Enum.map(desc["parameters"], &Parameter.from_oai_desc/1),
-      response_schema:
+      response_model:
         Codegen.Naming.definition_ref_to_model_module(
           desc["responses"]["200"]["schema"]["$ref"]
         ),

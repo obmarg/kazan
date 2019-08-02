@@ -40,7 +40,8 @@ defmodule Kazan.Codegen.Naming do
   # some common prefixes.
   # We also need to categorise things into API specific models or models that
   # live in the models module.
-  @spec module_name_components(String.t()) :: nonempty_improper_list(atom, String.t())
+  @spec module_name_components(String.t()) ::
+          nonempty_improper_list(atom, String.t())
   defp module_name_components(name) do
     to_components = fn str ->
       str |> String.split(".") |> Enum.map(&titlecase_once/1)
@@ -80,7 +81,8 @@ defmodule Kazan.Codegen.Naming do
             raise Kazan.UnknownName, name: other
 
           {oai_prefix, module_prefix} ->
-            [module_prefix] ++ to_components.(String.replace_leading(other, oai_prefix, ""))
+            [module_prefix] ++
+              to_components.(String.replace_leading(other, oai_prefix, ""))
         end
     end
   end
