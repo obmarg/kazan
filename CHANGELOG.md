@@ -17,6 +17,8 @@ all APIs might be changed.
   These were meant to be private previously, so hopefully this doesn't break
   anything for people, but you never know.
 - `response_schema` on `Kazan.Request` has been renamed to `response_model`.
+- The models under `Kazan.Models.ApiextensionsApiServer` have been moved to
+  `Kazan.Apis.Apiextensions` to live with their corresponding Api functions.
 
 ### New Features
 
