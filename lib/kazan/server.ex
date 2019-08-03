@@ -1,6 +1,15 @@
 defmodule Kazan.Server do
   @moduledoc """
   Kazan.Server is a struct containing connection details for a kube server.
+
+  ### Fields
+
+  * `url` - The URL we'll use to connect to the Kubernetes server.
+  * `ca_cert` - The certificate authority we'll use to authenticate the server.
+  * `auth` - How we'll authenticate ourselves with the server.
+  * `insecure_skip_tls_verify` - If set to true, we'll not authenticate the server.
+  * `server_info` - The details this `Kazan.Server` was set up with.  This is purely
+    informational and not actually used for anything.
   """
   alias __MODULE__
   alias Server.{ProviderAuth}
@@ -15,13 +24,15 @@ defmodule Kazan.Server do
   defstruct url: nil,
             ca_cert: nil,
             auth: nil,
-            insecure_skip_tls_verify: nil
+            insecure_skip_tls_verify: nil,
+            server_info: nil
 
   @type t :: %{
           url: String.t(),
           insecure_skip_tls_verify: Boolean.t(),
           ca_cert: String.t() | nil,
-          auth: auth_t
+          auth: auth_t,
+          server_info: Kazan.Server.ServerInfo.t | nil
         }
 
   @doc """
@@ -56,7 +67,12 @@ defmodule Kazan.Server do
       url: cluster["server"],
       ca_cert: get_cert(cluster, basepath),
       auth: auth_from_user(user, basepath),
-      insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"]
+      insecure_skip_tls_verify: cluster["insecure-skip-tls-verify"],
+      server_info: %Kazan.Server.ServerInfo{
+        context_name: context_name,
+        user_name: user_name,
+        cluster_name: cluster_name
+      }
     }
   end
 
