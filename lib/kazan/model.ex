@@ -10,9 +10,11 @@ defmodule Kazan.Model do
   @callback encode(struct) :: Map.t()
   @callback model_desc() :: Kazan.ModelDesc.t()
 
+  # TODO: tests of this module?
+
   defmacro __using__(_opts) do
     quote do
-      require Kazan.Model
+      import Kazan.Model, only: [defmodeldesc: 1, defmodellist: 1, defmodel: 1]
 
       @behaviour Kazan.Model
 
@@ -23,6 +25,56 @@ defmodule Kazan.Model do
       def encode(data), do: Kazan.Models.encode(data)
 
       defoverridable Kazan.Model
+    end
+  end
+
+  alias Kazan.Models.{ModelDesc, PropertyDesc}
+
+  @doc """
+  Builds a `Kazan.Models.ModelDesc` for a Model.
+
+  Use this to build the result of your Models `model_desc/0` function.
+  It reduces boilerplate by adding in the standard k8s API fields of
+  `metadata`, `api_version` & `kind`.
+  """
+  def build_model_desc(model, properties) do
+    %ModelDesc{
+      module_name: model,
+      properties:
+        Map.merge(
+          %{
+            metadata: %Kazan.Models.PropertyDesc{
+              field: "metadata",
+              type: nil,
+              ref: Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
+            },
+            kind: %Kazan.Models.PropertyDesc{field: "kind", type: "string"},
+            api_version: %Kazan.Models.PropertyDesc{
+              field: "apiVersion",
+              type: "string"
+            }
+          },
+          properties
+        )
+    }
+  end
+
+  # TODO: Document
+  defmacro defmodel(fields) do
+    fields = fields ++ [:metadata, :kind, :api_version]
+
+    quote do
+      defstruct unquote(fields)
+    end
+  end
+
+  # TODO: Document
+  defmacro defmodeldesc(properties) do
+    quote do
+      @impl Kazan.Model
+      def model_desc() do
+        Kazan.Model.build_model_desc(__MODULE__, unquote(properties))
+      end
     end
   end
 
@@ -40,31 +92,24 @@ defmodule Kazan.Model do
         Kazan.Model.list_of(Pod)
       end
   """
-  defmacro list_of(item_model) do
-
+  defmacro defmodellist(item_model) do
     quote do
       defstruct [:items, :metadata, :kind, :api_version]
 
+      @impl Kazan.Model
       def model_desc() do
         alias Kazan.Models.{ModelDesc, PropertyDesc}
 
         alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
 
-        %ModelDesc{
-          module_name: __MODULE__,
-          properties: %{
-            metadata: %PropertyDesc{field: "metadata", type: nil, ref: ObjectMeta},
-            kind: %PropertyDesc{field: "kind", type: "string"},
-            api_version: %PropertyDesc{field: "apiVersion", type: "string"},
-            items: %PropertyDesc{
-              field: "items",
-              type: "array",
-              items: %PropertyDesc{type: nil, ref: unquote(item_model)}
-            }
+        Kazan.Model.build_model_desc(__MODULE__, %{
+          items: %PropertyDesc{
+            field: "items",
+            type: "array",
+            items: %PropertyDesc{type: nil, ref: unquote(item_model)}
           }
-        }
+        })
       end
     end
-
   end
 end
