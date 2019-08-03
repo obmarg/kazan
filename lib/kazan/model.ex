@@ -43,13 +43,13 @@ defmodule Kazan.Model do
   defmacro list_of(item_model) do
 
     quote do
-      alias Kazan.Models.{ModelDesc, PropertyDesc}
-
-      alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
-
       defstruct [:items, :metadata, :kind, :api_version]
 
       def model_desc() do
+        alias Kazan.Models.{ModelDesc, PropertyDesc}
+
+        alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
+
         %ModelDesc{
           module_name: __MODULE__,
           properties: %{
