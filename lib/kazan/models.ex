@@ -167,6 +167,10 @@ defmodule Kazan.Models do
     map_ok(value, &encode_property(&1, items))
   end
 
+  defp encode_property(value, %{type: nil, ref: model}) do
+    model.encode(value)
+  end
+
   defp encode_property(value, %{type: nil}) do
     encode(value)
   end

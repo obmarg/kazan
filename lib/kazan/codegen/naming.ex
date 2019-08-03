@@ -68,8 +68,8 @@ defmodule Kazan.Codegen.Naming do
       "io.k8s.kube-aggregator.pkg.apis." <> rest ->
         [Kazan.Models.KubeAggregator] ++ to_components.(rest)
 
-      "io.k8s.apiextensions-apiserver.pkg.apis." <> rest ->
-        [Kazan.Models.ApiextensionsApiserver] ++ to_components.(rest)
+      "io.k8s.apiextensions-apiserver.pkg.apis.apiextensions." <> rest ->
+        [Kazan.Apis.Apiextensions] ++ to_components.(rest)
 
       other ->
         Config.oai_name_mappings()

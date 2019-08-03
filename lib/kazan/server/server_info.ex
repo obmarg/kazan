@@ -4,5 +4,9 @@ defmodule Kazan.Server.ServerInfo do
   """
   defstruct [:context_name, :user_name, :cluster_name]
 
-  @type t :: %__MODULE__{context_name: String.t, user_name: String.t, cluster_name: String.t}
+  @type t :: %__MODULE__{
+          context_name: String.t(),
+          user_name: String.t(),
+          cluster_name: String.t()
+        }
 end

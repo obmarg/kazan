@@ -195,6 +195,83 @@ defmodule KazanIntegrationTest do
     assert log_lines == "hello\n"
   end
 
+  describe "Custom Resources" do
+    alias Kazan.Apis.Apiextensions.V1beta1, as: Apiextensions
+
+    alias Apiextensions.{
+      CustomResourceDefinition,
+      CustomResourceDefinitionSpec,
+      CustomResourceDefinitionNames
+    }
+
+    setup %{server: server} do
+      Apiextensions.create_custom_resource_definition!(
+        %CustomResourceDefinition{
+          metadata: %ObjectMeta{name: "foos.example.com"},
+          spec: %CustomResourceDefinitionSpec{
+            group: "example.com",
+            version: "v1",
+            scope: "Namespaced",
+            names: %CustomResourceDefinitionNames{
+              plural: "foos",
+              kind: "Foo"
+            }
+          }
+        }
+      )
+      |> Kazan.run!(server: server)
+
+      # Wait for the CRD to be created
+      Process.sleep(500)
+
+      on_exit(fn ->
+        Apiextensions.delete_custom_resource_definition!(
+          %DeleteOptions{},
+          "foos.example.com"
+        )
+        |> Kazan.run!(server: server)
+      end)
+    end
+
+    test "can create & query custom resources", %{server: server} do
+      {:ok, body} =
+        FooResource.encode(%FooResource{
+          a_string: "test",
+          an_int: 1,
+          metadata: %ObjectMeta{name: "test-foo", namespace: @namespace},
+          kind: "Foo",
+          api_version: "example.com/v1"
+        })
+
+      # TODO: don't hard code default
+      %Kazan.Request{
+        method: "post",
+        path: "/apis/example.com/v1/namespaces/#{@namespace}/foos",
+        query_params: %{},
+        content_type: "application/json",
+        body: Poison.encode!(body),
+        response_model: FooResource
+      }
+      |> Kazan.run!(server: server)
+
+      foo =
+        %Kazan.Request{
+          method: "get",
+          path: "/apis/example.com/v1/namespaces/#{@namespace}/foos/test-foo",
+          query_params: %{},
+          content_type: "application/json",
+          body: nil,
+          response_model: FooResource
+        }
+        |> Kazan.run!(server: server)
+
+      # TODO: getting things as a list?
+
+      assert foo.a_string == "test"
+      assert foo.an_int == 1
+    end
+  end
+
   defp wait_for_pod_to_run(_pod_name, 0, _) do
     flunk("Timed out waiting for pod to start")
   end

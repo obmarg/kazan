@@ -32,7 +32,7 @@ defmodule Kazan.Server do
           insecure_skip_tls_verify: Boolean.t(),
           ca_cert: String.t() | nil,
           auth: auth_t,
-          server_info: Kazan.Server.ServerInfo.t | nil
+          server_info: Kazan.Server.ServerInfo.t() | nil
         }
 
   @doc """
