@@ -4,7 +4,13 @@ defmodule FooResource do
 
   alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
 
+  # TODO: It could be nice if we had a way to remove some of this boilerplate?
+  # In particular, metadata, kind & api_version shouldn't be _needed_
   defstruct [:a_string, :an_int, :metadata, :kind, :api_version]
+
+  defmodel %{
+    a_string: %PropertyDesc{field: "kind", type: "string"}
+  }
 
   def model_desc() do
     %ModelDesc{
