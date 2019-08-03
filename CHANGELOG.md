@@ -11,6 +11,11 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### Bug Fixes
+
+- We no longer require certificate-authority data for a server that's
+  configured with `insecure-tls-verify: true` (#64)
+
 ## v0.11.0 - 2019-03-26
 
 ### New Features
