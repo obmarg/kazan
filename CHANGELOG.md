@@ -11,6 +11,12 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### New Features
+
+- Added an informational `server_info` field to Kazan.Server that can be used
+  to check the names of the context, cluster & user that a Kazan.Server struct
+  were initialised with.
+
 ### Bug Fixes
 
 - We no longer require certificate-authority data for a server that's
