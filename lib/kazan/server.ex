@@ -252,6 +252,10 @@ defmodule Kazan.Server do
   end
 
   @spec get_cert(Map.t(), String.t()) :: binary
+  defp get_cert(%{"insecure-skip-tls-verify" => true}, _) do
+    nil
+  end
+
   defp get_cert(%{"certificate-authority" => certfile}, basepath) do
     cert_from_pem(certfile, basepath)
   end
