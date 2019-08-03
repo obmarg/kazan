@@ -4,7 +4,10 @@ defmodule FooResource do
 
   alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
 
-  defmodel([:a_string, :an_int])
+  defmodel do
+    property :a_string, "a_string", :string
+    property :an_int, "an_int", :int
+  end
 
   defmodeldesc(%{
     a_string: %PropertyDesc{field: "a_string", type: "string"},

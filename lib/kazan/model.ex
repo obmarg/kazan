@@ -14,7 +14,7 @@ defmodule Kazan.Model do
 
   defmacro __using__(_opts) do
     quote do
-      import Kazan.Model, only: [defmodeldesc: 1, defmodellist: 1, defmodel: 1]
+      import Kazan.Model, only: [defmodeldesc: 1, defmodellist: 1, defmodel: 1, property: 3]
 
       @behaviour Kazan.Model
 
@@ -59,12 +59,52 @@ defmodule Kazan.Model do
     }
   end
 
-  # TODO: Document
-  defmacro defmodel(fields) do
-    fields = fields ++ [:metadata, :kind, :api_version]
+  defmacro property(local_name, remote_name, type) do
+    quote do
+      @kazan_property_names unquote(local_name)
+      @kazan_property_remote_names unquote(remote_name)
+      @kazan_property_types unquote(type)
+    end
+  end
+
+  # TODO: Possibly move the DSL stuff out into a DSL module?
+
+  # TODO: Need a compile hook that'll run before or after compile, read
+  # @_kazan_property and output the appropriate defstruct * defmodeldesc calls...
+
+  defmacro defmodel(block) do
+    prelude = quote do
+      Module.register_attribute(__MODULE__, :kazan_property_names, accumulate: true)
+      Module.register_attribute(__MODULE__, :kazan_properties, accumulate: true)
+
+      property :metadata, "a_string", Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
+      property :api_version, "apiVersion", "string"
+      property :kind, "kind", "string"
+
+      unquote(block)
+    end
+
+    postlude = quote unquote: false do
+      property_names = @kazan_property_names |> Enum.reverse
+      property_remote_names = @kazan_property_names |> Enum.reverse
+      property_remote_types = @kazan_property_names |> Enum.reverse
+
+      defstruct @kazan_property_names
+
+      # TODO: Generate a model_desc function as well...
+    end
 
     quote do
-      defstruct unquote(fields)
+      unquote(prelude)
+      unquote(postlude)
+    end
+  end
+
+  defmacro __before_compile_model__(_env) do
+    quote do
+      @_kazan_property_names Enum.map(@_kazan_property, fn {name, _, _} -> name end)
+
+      defmodel @_kazan_property_names
     end
   end
 
