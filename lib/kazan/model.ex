@@ -12,6 +12,8 @@ defmodule Kazan.Model do
 
   defmacro __using__(_opts) do
     quote do
+      require Kazan.Model
+
       @behaviour Kazan.Model
 
       @impl Kazan.Model
@@ -22,5 +24,47 @@ defmodule Kazan.Model do
 
       defoverridable Kazan.Model
     end
+  end
+
+  @doc """
+  Utility macro for definining lists of custom resources.
+
+  This generates all the neccesary boilerplate for a `Kazan.Model` that
+  represents a k8s list containing `item_model`.
+
+  For example, if you needed to recreate a PodList that contains Pods:
+
+      defmodule PodList do
+        use Kazan.Model
+
+        Kazan.Model.list_of(Pod)
+      end
+  """
+  defmacro list_of(item_model) do
+
+    quote do
+      alias Kazan.Models.{ModelDesc, PropertyDesc}
+
+      alias Kazan.Models.Apimachinery.Meta.V1.ObjectMeta
+
+      defstruct [:items, :metadata, :kind, :api_version]
+
+      def model_desc() do
+        %ModelDesc{
+          module_name: __MODULE__,
+          properties: %{
+            metadata: %PropertyDesc{field: "metadata", type: nil, ref: ObjectMeta},
+            kind: %PropertyDesc{field: "kind", type: "string"},
+            api_version: %PropertyDesc{field: "apiVersion", type: "string"},
+            items: %PropertyDesc{
+              field: "items",
+              type: "array",
+              items: %PropertyDesc{type: nil, ref: unquote(item_model)}
+            }
+          }
+        }
+      end
+    end
+
   end
 end

@@ -253,18 +253,16 @@ defmodule KazanIntegrationTest do
       }
       |> Kazan.run!(server: server)
 
-      foo =
+      %FooResourceList{items: [foo]} =
         %Kazan.Request{
           method: "get",
-          path: "/apis/example.com/v1/namespaces/#{@namespace}/foos/test-foo",
+          path: "/apis/example.com/v1/namespaces/#{@namespace}/foos",
           query_params: %{},
           content_type: "application/json",
           body: nil,
-          response_model: FooResource
+          response_model: FooResourceList
         }
         |> Kazan.run!(server: server)
-
-      # TODO: getting things as a list?
 
       assert foo.a_string == "test"
       assert foo.an_int == 1
