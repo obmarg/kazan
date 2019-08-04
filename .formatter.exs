@@ -12,6 +12,6 @@
 
   # Which local function calls (that is, calls without a module name) should not
   # be parenthesised.
-  locals_without_parens: [ ]
+  locals_without_parens: [property: 3, property: 4, defmodel: 4, defmodellist: 1]
 ]
 

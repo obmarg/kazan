@@ -238,9 +238,7 @@ defmodule KazanIntegrationTest do
         FooResource.encode(%FooResource{
           a_string: "test",
           an_int: 1,
-          metadata: %ObjectMeta{name: "test-foo", namespace: @namespace},
-          kind: "Foo",
-          api_version: "example.com/v1"
+          metadata: %ObjectMeta{name: "test-foo", namespace: @namespace}
         })
 
       %Kazan.Request{

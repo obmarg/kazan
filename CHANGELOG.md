@@ -19,15 +19,16 @@ all APIs might be changed.
 - `response_schema` on `Kazan.Request` has been renamed to `response_model`.
 - The models under `Kazan.Models.ApiextensionsApiServer` have been moved to
   `Kazan.Apis.Apiextensions` to live with their corresponding Api functions.
+- `Kazan.Models.PropertyDesc.type` is now an atom rather than a string.
 
 ### New Features
 
 - Added an informational `server_info` field to Kazan.Server that can be used
   to check the names of the context, cluster & user that a Kazan.Server struct
   were initialised with.
-- Support for encoding & decoding custom resources.  This can be accomplished
-  by defining a module that implements the `Kazan.Model` behaviour.  See the
-  `Kazan.Model` documentation for more details.
+- Kazan now supports custom resources.  These can easily be defined using the
+  macros in `Kazan.Model`, or you can manually implement the `Kazan.Model`
+  behaviour if you want to do serialization/deserilization yourself.
 
 ### Bug Fixes
 

@@ -115,25 +115,25 @@ defmodule Kazan.Codegen.Models do
     [typespec_for_property(items)]
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "string"}) do
+  defp typespec_for_property(%PropertyDesc{type: :string}) do
     quote do
       String.t()
     end
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "integer"}) do
+  defp typespec_for_property(%PropertyDesc{type: :integer}) do
     {:integer, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "number"}) do
+  defp typespec_for_property(%PropertyDesc{type: :number}) do
     {:float, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "boolean"}) do
+  defp typespec_for_property(%PropertyDesc{type: :boolean}) do
     {:boolean, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "object"}) do
+  defp typespec_for_property(%PropertyDesc{type: :object}) do
     {:map, [], Elixir}
   end
 
@@ -161,26 +161,26 @@ defmodule Kazan.Codegen.Models do
       "`#{doc_ref(property.ref)}`"
     else
       case property.type do
-        "array" ->
+        :array ->
           "[ #{property_type_doc(property.items)} ]"
 
-        "integer" ->
+        :integer ->
           "`Integer`"
 
-        "number" ->
+        :number ->
           "`Float`"
 
-        "object" ->
+        :object ->
           "`Map`"
 
-        "string" ->
+        :string ->
           case property.format do
             "date" -> "`Date`"
             "date-time" -> "`DateTime`"
             _ -> "`String`"
           end
 
-        "boolean" ->
+        :boolean ->
           "`Boolean`"
       end
     end
