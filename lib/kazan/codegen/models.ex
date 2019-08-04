@@ -3,9 +3,9 @@ defmodule Kazan.Codegen.Models do
   # Macros for generating client code from OAI specs.
   require EEx
 
-  require Kazan.Codegen.Models.ModelDesc
+  require Kazan.Models.ModelDesc
 
-  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc}
+  alias Kazan.Models.{ModelDesc, PropertyDesc}
   alias Kazan.Codegen.Naming
 
   @doc """
@@ -38,6 +38,11 @@ defmodule Kazan.Codegen.Models do
             defstruct unquote(property_names)
 
             @type t :: %__MODULE__{unquote_splicing(typespec)}
+
+            use Kazan.Model
+
+            @impl Kazan.Model
+            def model_desc(), do: unquote(Macro.escape(desc))
           end
         end
       end
@@ -46,11 +51,6 @@ defmodule Kazan.Codegen.Models do
       Module.put_attribute(__MODULE__, :external_resource, unquote(spec_file))
 
       unquote_splicing(spec_forms)
-
-      # Function returns a map of module name -> ModelDesc
-      defp model_descs do
-        unquote(Macro.escape(models))
-      end
 
       # Returns a map of ResourceId to module
       defp resource_id_index do
@@ -115,25 +115,25 @@ defmodule Kazan.Codegen.Models do
     [typespec_for_property(items)]
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "string"}) do
+  defp typespec_for_property(%PropertyDesc{type: :string}) do
     quote do
       String.t()
     end
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "integer"}) do
+  defp typespec_for_property(%PropertyDesc{type: :integer}) do
     {:integer, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "number"}) do
+  defp typespec_for_property(%PropertyDesc{type: :number}) do
     {:float, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "boolean"}) do
+  defp typespec_for_property(%PropertyDesc{type: :boolean}) do
     {:boolean, [], Elixir}
   end
 
-  defp typespec_for_property(%PropertyDesc{type: "object"}) do
+  defp typespec_for_property(%PropertyDesc{type: :object}) do
     {:map, [], Elixir}
   end
 
@@ -161,26 +161,26 @@ defmodule Kazan.Codegen.Models do
       "`#{doc_ref(property.ref)}`"
     else
       case property.type do
-        "array" ->
+        :array ->
           "[ #{property_type_doc(property.items)} ]"
 
-        "integer" ->
+        :integer ->
           "`Integer`"
 
-        "number" ->
+        :number ->
           "`Float`"
 
-        "object" ->
+        :object ->
           "`Map`"
 
-        "string" ->
+        :string ->
           case property.format do
             "date" -> "`Date`"
             "date-time" -> "`DateTime`"
             _ -> "`String`"
           end
 
-        "boolean" ->
+        :boolean ->
           "`Boolean`"
       end
     end

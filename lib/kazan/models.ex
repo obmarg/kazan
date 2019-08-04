@@ -10,7 +10,7 @@ defmodule Kazan.Models do
   """
   require Kazan.Codegen.Models
   alias Kazan.Codegen
-  alias Kazan.Codegen.Models.{ModelDesc, PropertyDesc, ResourceId}
+  alias Kazan.Models.{ModelDesc, PropertyDesc, ResourceId}
 
   Codegen.Models.from_spec()
 
@@ -18,9 +18,9 @@ defmodule Kazan.Models do
   Decodes data from a Map into a Model struct.
   """
   @spec decode(Map.t(), atom | nil) :: {:ok, struct} | {:err, term}
-  def decode(data, kind \\ nil) do
-    with {:ok, kind} <- guess_kind(data, kind),
-         {:ok, desc} <- model_desc(kind),
+  def decode(data, model \\ nil) do
+    with {:ok, model} <- guess_model(data, model),
+         desc = %ModelDesc{} = model.model_desc(),
          {:ok, model} <- do_decode(desc, data),
          do: {:ok, model}
   end
@@ -30,9 +30,8 @@ defmodule Kazan.Models do
   """
   @spec encode(struct) :: {:ok, Map.t()} | {:err, term}
   def encode(model) do
-    with {:ok, desc} <- model_desc(model.__struct__),
-         {:ok, data} <- do_encode(desc, model),
-         do: {:ok, data}
+    model.__struct__.model_desc()
+    |> do_encode(model)
   end
 
   @doc """
@@ -48,11 +47,11 @@ defmodule Kazan.Models do
     end
   end
 
-  @spec guess_kind(Map.t(), atom | nil) :: {:ok, atom} | {:err, term}
-  defp guess_kind(data, kind) do
+  @spec guess_model(Map.t(), atom | nil) :: {:ok, atom} | {:err, term}
+  defp guess_model(data, model) do
     cond do
-      kind ->
-        {:ok, kind}
+      model ->
+        {:ok, model}
 
       Map.has_key?(data, "kind") and Map.has_key?(data, "apiVersion") ->
         case model_from_version_and_kind(data["apiVersion"], data["kind"]) do
@@ -86,14 +85,6 @@ defmodule Kazan.Models do
     Map.get(resource_id_index(), resource_id)
   end
 
-  @spec model_desc(atom) :: {:ok, ModelDesc.t()} | {:err, term}
-  defp model_desc(kind) do
-    case Map.get(model_descs(), kind) do
-      nil -> {:err, {:unknown_model, kind}}
-      model_desc -> {:ok, model_desc}
-    end
-  end
-
   @spec do_decode(ModelDesc.t(), Map.t()) :: {:ok, struct} | {:err, term}
   defp do_decode(model_desc, data) do
     result =
@@ -122,17 +113,29 @@ defmodule Kazan.Models do
   @spec decode_property(term, PropertyDesc.t()) :: {:ok, term} | {:err, term}
   defp decode_property(value, property_desc)
   defp decode_property(nil, _), do: {:ok, nil}
-  defp decode_property(value, %{type: "string"}), do: {:ok, value}
-  defp decode_property(value, %{type: "boolean"}), do: {:ok, value}
-  defp decode_property(value, %{type: "integer"}), do: {:ok, value}
-  defp decode_property(value, %{type: "object"}), do: {:ok, value}
+  defp decode_property(value, %{type: :string}), do: {:ok, value}
+  defp decode_property(value, %{type: :boolean}), do: {:ok, value}
+  defp decode_property(value, %{type: :integer}), do: {:ok, value}
+  defp decode_property(value, %{type: :object}), do: {:ok, value}
 
-  defp decode_property(value, %{type: "array", items: items}) do
+  defp decode_property(value, %{type: :array, items: items}) do
     map_ok(value, &decode_property(&1, items))
+  end
+
+  defp decode_property(value, %{type: {:array, items}}) do
+    map_ok(value, &decode_property(&1, %{type: items}))
   end
 
   defp decode_property(value, %{type: nil, ref: ref}) do
     decode(value, ref)
+  end
+
+  defp decode_property(value, %{type: model}) when is_atom(model) do
+    if Kernel.function_exported?(model, :decode, 1) do
+      decode(value, model)
+    else
+      {:err, {:unknown_property_type, model}}
+    end
   end
 
   defp decode_property(_value, %{type: type}) do
@@ -167,13 +170,29 @@ defmodule Kazan.Models do
   @spec encode_property(term, PropertyDesc.t()) :: {:ok, term} | {:err, term}
   defp encode_property(value, property_desc)
   defp encode_property(nil, _), do: {:ok, nil}
-  defp encode_property(value, %{type: "string"}), do: {:ok, value}
-  defp encode_property(value, %{type: "boolean"}), do: {:ok, value}
-  defp encode_property(value, %{type: "integer"}), do: {:ok, value}
-  defp encode_property(value, %{type: "object"}), do: {:ok, value}
+  defp encode_property(value, %{type: :string}), do: {:ok, value}
+  defp encode_property(value, %{type: :boolean}), do: {:ok, value}
+  defp encode_property(value, %{type: :integer}), do: {:ok, value}
+  defp encode_property(value, %{type: :object}), do: {:ok, value}
 
-  defp encode_property(value, %{type: "array", items: items}) do
+  defp encode_property(value, %{type: :array, items: items}) do
     map_ok(value, &encode_property(&1, items))
+  end
+
+  defp encode_property(value, %{type: {:array, items}}) do
+    map_ok(value, &encode_property(&1, items))
+  end
+
+  defp encode_property(value, %{type: nil, ref: model}) do
+    model.encode(value)
+  end
+
+  defp encode_property(value, %{type: model}) when is_atom(model) do
+    if Kernel.function_exported?(model, :encode, 1) do
+      model.encode(value)
+    else
+      {:err, {:unknown_property_type, model}}
+    end
   end
 
   defp encode_property(value, %{type: nil}) do

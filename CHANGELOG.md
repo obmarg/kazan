@@ -11,16 +11,31 @@ all APIs might be changed.
 
 ## Unreleased - yyyy-mm-dd
 
+### Breaking Changes
+
+- The `Kazan.Codegen.Models.*` modules have been moved to `Kazan.Models.*`.
+  These were meant to be private previously, so hopefully this doesn't break
+  anything for people, but you never know.
+- `response_schema` on `Kazan.Request` has been renamed to `response_model`.
+- The models under `Kazan.Models.ApiextensionsApiServer` have been moved to
+  `Kazan.Apis.Apiextensions` to live with their corresponding Api functions.
+- `Kazan.Models.PropertyDesc.type` is now an atom rather than a string.
+
 ### New Features
 
 - Added an informational `server_info` field to Kazan.Server that can be used
   to check the names of the context, cluster & user that a Kazan.Server struct
   were initialised with.
+- Kazan now supports custom resources.  These can easily be defined using the
+  macros in `Kazan.Model`, or you can manually implement the `Kazan.Model`
+  behaviour if you want to do serialization/deserilization yourself.
 
 ### Bug Fixes
 
 - We no longer require certificate-authority data for a server that's
   configured with `insecure-tls-verify: true` (#64)
+- Fixed the GKE section of the README, it referred to a function that didn't
+  actually exist.
 
 ## v0.11.0 - 2019-03-26
 

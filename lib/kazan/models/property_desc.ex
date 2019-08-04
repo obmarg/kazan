@@ -1,11 +1,11 @@
-defmodule Kazan.Codegen.Models.PropertyDesc do
+defmodule Kazan.Models.PropertyDesc do
   @moduledoc false
   import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
 
   defstruct [:type, :format, :description, :ref, :field, :items]
 
   @type t :: %{
-          :type => String.t() | nil,
+          :type => atom | nil,
           :format => String.t() | nil,
           :description => String.t() | nil,
           :ref => atom | nil,
@@ -37,7 +37,7 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
       end
 
     %__MODULE__{
-      type: map["type"],
+      type: parse_type(map["type"]),
       format: map["format"],
       description: map["description"],
       field: field,
@@ -48,4 +48,12 @@ defmodule Kazan.Codegen.Models.PropertyDesc do
 
   defp parse_items(nil, _), do: nil
   defp parse_items(map, refs), do: from_oai_desc(map, nil, refs)
+
+  defp parse_type(nil), do: nil
+  defp parse_type("string"), do: :string
+  defp parse_type("boolean"), do: :boolean
+  defp parse_type("integer"), do: :integer
+  defp parse_type("number"), do: :number
+  defp parse_type("object"), do: :object
+  defp parse_type("array"), do: :array
 end
