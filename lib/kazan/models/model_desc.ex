@@ -3,8 +3,6 @@ defmodule Kazan.Models.ModelDesc do
   import Kazan.Codegen.Naming, only: [model_name_to_module: 1]
   alias Kazan.Models.{ResourceId, PropertyDesc}
 
-  # TODO: document it.
-
   defstruct [
     :id,
     :resource_ids,
