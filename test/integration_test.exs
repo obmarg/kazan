@@ -7,7 +7,6 @@ defmodule KazanIntegrationTest do
   alias Kazan.Apis.Core.V1.{Pod, PodStatus, PodSpec, Container}
 
   alias Kazan.Models.Apimachinery.Meta.V1.{
-    WatchEvent,
     ObjectMeta,
     DeleteOptions
   }
@@ -105,12 +104,12 @@ defmodule KazanIntegrationTest do
 
     :timer.sleep(3000)
 
-    assert_receive(%WatchEvent{
+    assert_receive(%Kazan.Watcher.Event{
       object: %Pod{metadata: %ObjectMeta{name: ^pod_name}},
       type: :added
     })
 
-    assert_receive(%WatchEvent{
+    assert_receive(%Kazan.Watcher.Event{
       object: %Pod{
         metadata: %ObjectMeta{name: ^pod_name},
         status: %PodStatus{phase: "Pending", container_statuses: nil}
@@ -118,7 +117,7 @@ defmodule KazanIntegrationTest do
       type: :modified
     })
 
-    assert_receive(%WatchEvent{
+    assert_receive(%Kazan.Watcher.Event{
       object: %Pod{
         metadata: %ObjectMeta{name: ^pod_name},
         status: %PodStatus{phase: "Pending", container_statuses: [_ | _]}
@@ -130,7 +129,7 @@ defmodule KazanIntegrationTest do
 
     :timer.sleep(3000)
 
-    assert_receive(%WatchEvent{
+    assert_receive(%Kazan.Watcher.Event{
       object: %Pod{
         metadata: %ObjectMeta{name: ^pod_name},
         spec: %PodSpec{active_deadline_seconds: 1}
@@ -141,7 +140,7 @@ defmodule KazanIntegrationTest do
     delete_pod(pod_name, server: server)
 
     assert_receive(
-      %WatchEvent{
+      %Kazan.Watcher.Event{
         object: %Pod{metadata: %ObjectMeta{name: ^pod_name}},
         type: :deleted
       },
