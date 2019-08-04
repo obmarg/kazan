@@ -276,12 +276,11 @@ defmodule Kazan.Watcher do
   defp process_line(line, current_rv, %State{} = state) do
     %State{
       name: name,
-      send_to: send_to,
-      request: %Kazan.Request{response_model: response_model}
+      send_to: send_to
     } = state
 
     {:ok, %{"type" => type, "object" => raw_object}} = Poison.decode(line)
-    {:ok, model} = decode(raw_object, response_model)
+    {:ok, model} = Kazan.Models.decode(raw_object, nil)
 
     case extract_rv(raw_object) do
       {:gone, message} ->
@@ -329,10 +328,4 @@ defmodule Kazan.Watcher do
   defp log(log_level, msg) do
     Logger.log(log_level, fn -> msg end)
   end
-
-  # Decode helpers: if we know what model we're expecting, use that.
-  # Otherwise defer to Kazan.Models.decode which will try to guess the model
-  # from the kind provided in the response.
-  defp decode(data, nil), do: Kazan.Models.decode(data, nil)
-  defp decode(data, response_model), do: response_model.decode(data)
 end
