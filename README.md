@@ -25,7 +25,8 @@ Looking for some help? Check out `kazan`'s Gitter [chatroom](https://gitter.im/k
 - Support for watch requests.
 - Typespecs for functions and structs (though dialyzer outputs a lot of
   warnings when run on Kazan)
-- Limited support for custom resources.
+- Limited support for custom resources.  See the `Kazan.Model` documentation
+  for more details.
 
 ### Not Implemented
 
@@ -110,8 +111,8 @@ this supports.
 
 If developing against GKE, gcloud can create a kube config file that Kazan can
 understand. However, in this case you will need to call
-`Kazan.Server.resolve_token/2` in order to query gcloud for a valid token. See
-the docs for `Kazan.Server.resolve_token` for more details.
+`Kazan.Server.resolve_auth/2` in order to query gcloud for a valid token. See
+the docs for `Kazan.Server.resolve_auth/2` for more details.
 
 ## Usage
 

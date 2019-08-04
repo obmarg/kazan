@@ -34,6 +34,8 @@ all APIs might be changed.
 
 - We no longer require certificate-authority data for a server that's
   configured with `insecure-tls-verify: true` (#64)
+- Fixed the GKE section of the README, it referred to a function that didn't
+  actually exist.
 
 ## v0.11.0 - 2019-03-26
 

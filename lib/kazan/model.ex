@@ -1,16 +1,57 @@
 defmodule Kazan.Model do
   @moduledoc """
-  Kazan.Model is a behaviour that provides encoding & decoding of JSON from a Kubernetes server.
+  Provides functionality for defining types for k8s custom resources.
 
-  This is used internally in Kazan for all it's generated models, however it can also be used to add custom resource definition support.
+  The easiest way to use this module is to make use of the `defmodel` macro:
 
-  TODO: Add examples and docs
+      defmodule MyCustomResource do
+        use Kazan.Model
+
+        defmodel "MyCustomResource", "example.com", "v1" do
+          property :an_int, "anInt", :integer
+        end
+      end
+
+  ### Resource Lists
+
+  When you define a custom resource in k8s, you automatically get a
+  list type for that custom list, similar to the built in PodList etc. types.
+  Kazan provides a helper for defining these list types:
+
+      defmodule MyCustomResourceList do
+        use Kazan.Model
+
+        defmodellist "MyCustomResourceList",
+                     "example.com",
+                     "v1",
+                     MyCustomResource
+      end
+
+  ### Custom encoding & decoding
+
+  You might find that the Kazan serialization & deserialization is not
+  suitable for your particular custom resource.  In that case, you can
+  implement the `Kazan.Model` behaviour yourself to override this.
+
+      defmodule ComplexResource do
+        use Kazan.Model
+
+        def encode(data) do
+          # Encode things here
+        end
+
+        def decode(data) do
+          # Decode things here
+        end
+
+        def model_desc() do
+          nil
+        end
+      end
   """
-  @callback decode(Map.t()) :: struct
-  @callback encode(struct) :: Map.t()
+  @callback decode(map :: Map.t()) :: struct
+  @callback encode(model :: struct) :: Map.t()
   @callback model_desc() :: Kazan.ModelDesc.t()
-
-  # TODO: tests of this module?
 
   defmacro __using__(_opts) do
     quote do
@@ -29,16 +70,26 @@ defmodule Kazan.Model do
     end
   end
 
-  alias Kazan.Models.{ModelDesc, PropertyDesc}
+  alias Kazan.Models.{PropertyDesc}
 
-  defmacro property(local_name, remote_name, type, default \\ nil) do
-    quote do
-      @kazan_property_names {unquote(local_name), unquote(default)}
-      @kazan_property_remote_names unquote(remote_name)
-      @kazan_property_types unquote(type)
-    end
-  end
+  @doc """
+  Defines a model.
 
+  This macro will create a struct in the current module with all the properties
+  that are defined inside it's do block, and a model_desc function that the default
+  `encode/1` & `decode/1` implementations can use.
+
+  It also ensures that the struct has the standard k8s model fields: `kind`,
+  `apiVersion` & `metadata`.
+
+  For an example see the module documentation of `Kazan.Model`.
+
+  ### Arguments
+
+  * `kind` is the Kind to use when sending the type to k8s
+  * `group` is the API group that this CRD belongs to.
+  * `version` is the API version that this CRD belongs to.
+  """
   defmacro defmodel(kind, group, version, block) do
     prelude =
       quote do
@@ -100,6 +151,35 @@ defmodule Kazan.Model do
   end
 
   @doc """
+  Defines a property on a model.
+
+  This is only intended to be used within the do block of a `defmodel/4` call
+
+  ### Arguments
+
+  * `local_name` is the name of the property in the struct that will be created.
+  * `remote_name` is the name of the property when it's transmitted to k8s.
+  * `type` is the type of the property
+  * `default` is the default value of the property in the defined struct.
+
+  ### Property Types
+
+  * `:integer`
+  * `:string`
+  * `:number` is a floating point number
+  * `:object` is an arbitrary Map
+  * `{:array, item_type}` is a list of item_type
+  * Any model module can be used here and we'll serialize/deserialize that Model.
+  """
+  defmacro property(local_name, remote_name, type, default \\ nil) do
+    quote do
+      @kazan_property_names {unquote(local_name), unquote(default)}
+      @kazan_property_remote_names unquote(remote_name)
+      @kazan_property_types unquote(type)
+    end
+  end
+
+  @doc """
   Utility macro for definining lists of custom resources.
 
   This generates all the neccesary boilerplate for a `Kazan.Model` that
@@ -110,7 +190,7 @@ defmodule Kazan.Model do
       defmodule PodList do
         use Kazan.Model
 
-        Kazan.Model.list_of(Pod)
+        defmodellist "PodList", "core", "v1", Pod
       end
   """
   defmacro defmodellist(kind, group, version, item_model) do
