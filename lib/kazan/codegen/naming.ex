@@ -35,6 +35,26 @@ defmodule Kazan.Codegen.Naming do
     end
   end
 
+  @doc """
+  Builds a k8s name atom from an OAI model name.
+  """
+  @spec model_name(String.t(), Keyword.t()) :: atom | nil
+  def model_name(model_name, opts \\ []) do
+    [_definition , _k8s| components] = to_components(model_name)
+
+    components = [K8s | [Io | components]]
+    if Keyword.get(opts, :unsafe, false) do
+      Module.concat(components)
+    else
+      try do
+        Module.safe_concat(components)
+      rescue
+        ArgumentError ->
+          nil
+      end
+    end
+  end
+
   # The Kube OAI specs have some extremely long namespace prefixes on them.
   # These really long names make for a pretty ugly API in Elixir, so we chop off
   # some common prefixes.

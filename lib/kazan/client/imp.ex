@@ -4,6 +4,7 @@ defmodule Kazan.Client.Imp do
   # These requests should be built using the functions in the `Kazan.Apis` module.
 
   alias Kazan.{Request, Server}
+  alias Kazan.Client.ProtoDecoder
 
   @type run_result :: {:ok, struct} | {:error, term}
 
@@ -22,7 +23,9 @@ defmodule Kazan.Client.Imp do
   def run(%Request{} = request, options \\ []) do
     server = find_server(options)
 
-    headers = [{"Accept", "application/json"}]
+    accept = Keyword.get(options, :accept, "application/json")
+
+    headers = [{"Accept", accept}]
 
     headers =
       headers ++
@@ -89,6 +92,10 @@ defmodule Kazan.Client.Imp do
 
             "text/plain" ->
               {:ok, body}
+
+            "application/vnd.kubernetes.protobuf" ->
+              with {:ok, model} <- ProtoDecoder.decode(body, request.model_name),
+                   do: {:ok, model}
 
             _ ->
               {:error, :unsupported_content_type}

@@ -11,10 +11,11 @@ defmodule Kazan.Request do
     :query_params,
     :content_type,
     :body,
-    :response_model
+    :response_model,
+    :model_name
   ]
 
-  import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
+  import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1, model_name: 1]
 
   @type t :: %__MODULE__{
           method: String.t(),
@@ -22,7 +23,8 @@ defmodule Kazan.Request do
           query_params: Map.t(),
           content_type: String.t(),
           body: String.t(),
-          response_model: atom | nil
+          response_model: atom | nil,
+          model_name: atom | nil
         }
 
   @external_resource Kazan.Config.oai_spec()
@@ -84,6 +86,10 @@ defmodule Kazan.Request do
       body: build_body(param_groups, params),
       response_model:
         definition_ref_to_model_module(
+          operation["responses"]["200"]["schema"]["$ref"]
+        ),
+      model_name:
+        model_name(
           operation["responses"]["200"]["schema"]["$ref"]
         )
     }
