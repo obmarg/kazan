@@ -11,7 +11,8 @@ defmodule Kazan.Request do
     :query_params,
     :content_type,
     :body,
-    :response_model
+    :response_model,
+    :operation_id
   ]
 
   import Kazan.Codegen.Naming, only: [definition_ref_to_model_module: 1]
@@ -22,7 +23,8 @@ defmodule Kazan.Request do
           query_params: Map.t(),
           content_type: String.t(),
           body: String.t(),
-          response_model: atom | nil
+          response_model: atom | nil,
+          operation_id: String.t()
         }
 
   @external_resource Kazan.Config.oai_spec()
@@ -85,7 +87,8 @@ defmodule Kazan.Request do
       response_model:
         definition_ref_to_model_module(
           operation["responses"]["200"]["schema"]["$ref"]
-        )
+        ),
+      operation_id: operation["operationId"]
     }
   end
 
