@@ -6,7 +6,7 @@ defmodule Kazan.Mixfile do
       app: :kazan,
       version: "0.11.0",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -32,7 +32,7 @@ defmodule Kazan.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Dependencies can be Hex packages:
   #
@@ -46,7 +46,8 @@ defmodule Kazan.Mixfile do
   defp deps do
     [
       {:poison, "~> 2.0 or ~> 3.0 or ~> 4.0"},
-      {:httpoison, "~> 0.10 or ~> 1.0"},
+      # Earlier versions of httpoison will cause a process leak when using watchers
+      {:httpoison, ">= 1.6.1"},
       {:yaml_elixir, "~> 2.0"},
 
       # Dev dependencies
