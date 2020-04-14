@@ -44,10 +44,10 @@ defmodule Kazan.Watcher do
     end
   ```
 
-  4. In the case that a `:gone` is received, then this indicates that Kubernetes
-     has sent a 410 error.  In this case the Watcher will automatically terminate
-     and the consumer must clear its cache, reload any cached resources and
-     restart the watcher.
+  4. In the case that a `%Watcher.Event{type: type}` is received, where `type` is either `:gone`
+     or `:expired`, then this indicates that Kubernetes has sent a 410 error. In this case the
+     Watcher will automatically terminate and the consumer must clear its cache, reload any
+     cached resources and restart the watcher.
 
   A Watcher can be terminated by calling `stop_watch/1`.
   """
@@ -202,7 +202,7 @@ defmodule Kazan.Watcher do
       {:ok, new_rv} ->
         {:noreply, %State{state | buffer: buffer, rv: new_rv}}
 
-      {:error, :gone} ->
+      {:error, reason} when reason in [:gone, :expired] ->
         {:stop, :normal, state}
     end
   end
@@ -284,9 +284,14 @@ defmodule Kazan.Watcher do
 
     case extract_rv(raw_object) do
       {:gone, message} ->
-        log(state, "Received 410: #{name} message: #{message}.")
+        log(state, "Received 410 Gone: #{name} message: #{message}.")
         send(send_to, %Event{type: :gone, from: self()})
         {:error, :gone}
+
+      {:expired, message} ->
+        log(state, "Received 410 Expired: #{name} message: #{message}.")
+        send(send_to, %Event{type: :expired, from: self()})
+        {:error, :expired}
 
       ^current_rv ->
         log(state, "Duplicate message: #{name} type: #{type} rv: #{current_rv}")
@@ -318,6 +323,15 @@ defmodule Kazan.Watcher do
          "message" => message
        }),
        do: {:gone, message}
+
+  defp extract_rv(%{
+         "code" => 410,
+         "kind" => "Status",
+         "reason" => "Expired",
+         "status" => "Failure",
+         "message" => message
+       }),
+       do: {:expired, message}
 
   defp extract_rv(%{"metadata" => %{"resourceVersion" => rv}}), do: rv
   defp extract_rv(%{metadata: %{resource_version: rv}}), do: rv
