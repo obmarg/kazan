@@ -36,6 +36,8 @@ all APIs might be changed.
   configured with `insecure-tls-verify: true` (#64)
 - Fixed the GKE section of the README, it referred to a function that didn't
   actually exist.
+- Watcher now handles `410 Expired` messages in the same way as `410 Gone`,
+  prior to this it would crash when these were received.
 
 ## v0.11.0 - 2019-03-26
 
