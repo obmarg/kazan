@@ -98,8 +98,18 @@ defmodule Kazan.Codegen.Models do
   # Generates a typespec map for a model
   defp typespec_for_model(%ModelDesc{} = model_desc) do
     for {name, desc} <- model_desc.properties do
-      {name, typespec_for_property(desc)}
+      {name,
+       desc
+       |> typespec_for_property()
+       |> typespec_optional(name not in model_desc.required)}
     end
+  end
+
+  @spec typespec_optional([{atom, term}], boolean()) :: [{atom, term}]
+  defp typespec_optional(typespec_ast, false), do: typespec_ast
+
+  defp typespec_optional(typespec_ast, true) do
+    {:|, [], [typespec_ast, nil]}
   end
 
   @spec typespec_for_property(PropertyDesc.t()) :: [{atom, term}]
