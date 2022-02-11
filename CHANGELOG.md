@@ -38,6 +38,8 @@ all APIs might be changed.
   actually exist.
 - Watcher now handles `410 Expired` messages in the same way as `410 Gone`,
   prior to this it would crash when these were received.
+- We now specify `[verify: :verify_peer]` when the `cacerts` SSL option is
+  specified; this removes the warning log from `:ssl`.
 
 ## v0.11.0 - 2019-03-26
 

@@ -171,7 +171,7 @@ defmodule Kazan.Client.Imp do
     ca_options =
       case server.ca_cert do
         nil -> []
-        cert -> [cacerts: [cert]]
+        cert -> [cacerts: [cert], verify: :verify_peer]
       end
 
     auth_options ++ verify_options ++ ca_options
