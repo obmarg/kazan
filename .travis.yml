@@ -1,9 +1,0 @@
-language: elixir
-elixir:
-  - 1.9.1
-otp_release:
-  - 21.3
-  - 22.0
-script:
-  - mix test
-  - if [[ "$TRAVIS_ELIXIR_VERSION" =~ "1.6.[[:digit:]]" ]]; then mix format --check-formatted; fi
