@@ -5,7 +5,7 @@ defmodule Kazan.Server.BasicAuth do
           token: binary
         }
 
-  defimpl Inspect, for: __MODULE__ do
+  defimpl Inspect do
     # We define a custom inspect implementation to avoid printing key details to
     # logs or anything.
     import Inspect.Algebra
