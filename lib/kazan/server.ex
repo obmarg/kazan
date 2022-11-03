@@ -99,7 +99,7 @@ defmodule Kazan.Server do
   end
 
   # Server.from_map can be used to convert a map into a Server.t. Useful when
-  # working with mix config, where the kazan structs are unavaliable.
+  # working with mix config, where the kazan structs are unavailable.
   @doc false
   @spec from_map(Server.t() | Map.t()) :: Server.t()
   def from_map(%Server{} = server), do: server

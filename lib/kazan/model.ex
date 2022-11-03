@@ -180,9 +180,9 @@ defmodule Kazan.Model do
   end
 
   @doc """
-  Utility macro for definining lists of custom resources.
+  Utility macro for defining lists of custom resources.
 
-  This generates all the neccesary boilerplate for a `Kazan.Model` that
+  This generates all the necessary boilerplate for a `Kazan.Model` that
   represents a k8s list containing `item_model`.
 
   For example, if you needed to recreate a PodList that contains Pods:
