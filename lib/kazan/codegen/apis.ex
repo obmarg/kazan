@@ -311,7 +311,7 @@ defmodule Kazan.Codegen.Apis do
     end
   end
 
-  # List of arugment forms to go in call to function from bang function.
+  # List of argument forms to go in call to function from bang function.
   @spec argument_call_forms([Map.t()], [Map.t()]) :: [term]
   defp argument_call_forms(argument_params, []) do
     for param <- argument_params do
@@ -381,7 +381,7 @@ defmodule Kazan.Codegen.Apis do
         """
         Module for the #{group} API group.
 
-        This module contains functions that can be used to query the avaliable
+        This module contains functions that can be used to query the available
         versions of the #{group} API in a k8s server. Each of these functions
         will output a `Kazan.Request` suitable for passing to `Kazan.run`.
 
